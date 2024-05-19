@@ -11,13 +11,13 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "xtxf",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src"),
         .target = target,
         .optimize = optimize,
     });
 
     exe.linkLibrary(termbox2.artifact("termbox2-zig"));
-    exe.addModule("termbox2", termbox2.module("termbox2"));
+    exe.root_module.addImport("termbox2", termbox2.module("termbox2"));
     @import("termbox2").addPaths(exe);
 
     b.installArtifact(exe);
@@ -34,7 +34,7 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     const unit_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });

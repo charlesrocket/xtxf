@@ -1,6 +1,7 @@
 .{
     .name = "xtxf",
     .version = "0.0.1",
+    .paths = .{""},
     .dependencies = .{
         .termbox2 = .{
             .url = "https://git.sr.ht/~kolunmi/termbox2-zig/archive/9eb9fd36a7fd4fe843ffb01df210ab2672ae369d.tar.gz",
