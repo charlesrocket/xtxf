@@ -1,19 +1,26 @@
+const tb = @import("termbox2");
 const std = @import("std");
 
+const Attr = tb.AttributeSet;
+
+fn printCell(width: i32, height: i32) !void {
+    for (0..@intCast(width)) |w| {
+        for (0..@intCast(height)) |h| {
+            _ = try tb.print(@intCast(w), @intCast(h), Attr.init(.red).add(.bold), Attr.init(.default), "X");
+            try tb.present();
+        }
+    }
+}
+
 pub fn main() !void {
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    try tb.init();
 
-    var msg =
-    \\   /.\|/x\|/.\|/   /
-    \\  /__      ___ (  /
-    \\  \\--`-'-|`---\\ |
-    \\   |' _/   ` __/ /
-    \\   '._  W    ,--'
-    \\      |_:_._/
-    ;
+    const width: i32 = try tb.width();
+    const height: i32 = try tb.height();
 
-    try stdout.print("{s}\n\n", .{msg});
-    try bw.flush();
+    try printCell(width, height);
+
+    std.time.sleep(1000000000);
+
+    try tb.shutdown();
 }
