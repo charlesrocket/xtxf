@@ -3,5 +3,6 @@
 /build/
 /build-*/
 /docgen_tmp/
-zig-cache
-zig-out
+
+zig-cache/
+zig-out/
