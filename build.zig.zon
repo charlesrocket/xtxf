@@ -1,0 +1,10 @@
+.{
+    .name = "xtxf",
+    .version = "0.0.1",
+    .dependencies = .{
+        .termbox2 = .{
+            .url = "https://git.sr.ht/~kolunmi/termbox2-zig/archive/9eb9fd36a7fd4fe843ffb01df210ab2672ae369d.tar.gz",
+            .hash = "1220d0ff25edb7e668edc0354a3187f2eb9cdeffe16cb74752405cf66fbe76ca5560",
+        },
+    },
+}
