@@ -3,7 +3,7 @@ const std = @import("std");
 
 const Attr = tb.AttributeSet;
 
-fn printCell(width: i32, height: i32) !void {
+fn printCells(width: i32, height: i32) !void {
     var rand = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
 
     for (0..@intCast(width)) |w| {
@@ -21,14 +21,41 @@ fn printCell(width: i32, height: i32) !void {
     }
 }
 
+fn animation(w: i32, h: i32) !void {
+    while (true) {
+        try printCells(w, h);
+    }
+}
+
+fn handler() !void {
+    const event = try tb.pollEvent();
+
+    if (eqlStr(@tagName(event.kind), "key")) {
+        std.os.exit(0);
+    }
+}
+
+fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
+    if (a.len != b.len) return false;
+    if (a.ptr == b.ptr) return true;
+
+    for (a, b) |a_el, b_el| {
+        if (a_el != b_el) return false;
+    }
+
+    return true;
+}
+
 pub fn main() !void {
     try tb.init();
 
     const width: i32 = try tb.width();
     const height: i32 = try tb.height();
 
-    try printCell(width, height);
-
-    _ = try tb.pollEvent();
-    try tb.shutdown();
+    {
+        const t0 = try std.Thread.spawn(.{}, animation, .{ width, height });
+        defer t0.join();
+        const t1 = try std.Thread.spawn(.{}, handler, .{});
+        defer t1.join();
+    }
 }
