@@ -3,6 +3,9 @@
 name: CI
 "on": [push, pull_request]
 
+env:
+  ZIG_VERSION: 0.12.0
+
 jobs:
   build:
     strategy:
@@ -12,7 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build
+        with:
+          version: ${{ env.ZIG_VERSION }}
+      - run: zig build -Dis_ci=true
 
   lint:
     runs-on: ubuntu-latest
