@@ -30,9 +30,9 @@ fn printCells(width: i32, height: i32) !void {
 
             _ = try tb.print(@intCast(w), @intCast(h), Attr.init(.red).add(.bold), Attr.init(.default), slice);
         }
-
-        try tb.present();
     }
+
+    try tb.present();
 }
 
 fn animation(w: i32, h: i32, core: *Core) !void {
