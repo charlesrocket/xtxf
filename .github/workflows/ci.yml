@@ -3,6 +3,9 @@
 name: CI
 "on": [push, pull_request]
 
+permissions:
+  contents: read
+
 env:
   ZIG_VERSION: 0.12.0
 
@@ -25,3 +28,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
       - run: zig fmt --check .
+
+  release:
+    needs: [build]
+    name: Release
+    permissions:
+      contents: write
+    if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
+    uses: ./.github/workflows/cd.yml
