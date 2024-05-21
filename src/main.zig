@@ -2,6 +2,20 @@ const tb = @import("termbox2");
 const std = @import("std");
 
 const Attr = tb.AttributeSet;
+const Thread = std.Thread;
+const Mutex = Thread.Mutex;
+
+const Core = struct {
+    mutex: Mutex,
+    active: bool,
+
+    pub fn stateChange(self: *Core, value: bool) void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
+        self.active = value;
+    }
+};
 
 fn printCells(width: i32, height: i32) !void {
     var rand = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
@@ -21,17 +35,17 @@ fn printCells(width: i32, height: i32) !void {
     }
 }
 
-fn animation(w: i32, h: i32) !void {
-    while (true) {
+fn animation(w: i32, h: i32, core: *Core) !void {
+    while (core.active) {
         try printCells(w, h);
     }
 }
 
-fn handler() !void {
+fn handler(core: *Core) !void {
     const event = try tb.pollEvent();
 
     if (eqlStr(@tagName(event.kind), "key")) {
-        std.os.exit(0);
+        core.stateChange(false);
     }
 }
 
@@ -52,10 +66,15 @@ pub fn main() !void {
     const width: i32 = try tb.width();
     const height: i32 = try tb.height();
 
+    var core = Core{ .mutex = Mutex{}, .active = true };
+
     {
-        const t0 = try std.Thread.spawn(.{}, animation, .{ width, height });
+        const t0 = try std.Thread.spawn(.{}, animation, .{ width, height, &core });
         defer t0.join();
-        const t1 = try std.Thread.spawn(.{}, handler, .{});
+
+        const t1 = try std.Thread.spawn(.{}, handler, .{&core});
         defer t1.join();
     }
+
+    try tb.shutdown();
 }
