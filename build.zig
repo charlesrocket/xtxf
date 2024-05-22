@@ -13,6 +13,7 @@ pub fn build(b: *std.Build) void {
 
     exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
     exe.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
+    exe.linkLibC();
 
     b.installArtifact(exe);
 
