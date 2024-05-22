@@ -1,7 +1,8 @@
-const tb = @import("termbox2");
 const std = @import("std");
+const tb = @cImport({
+    @cInclude("termbox.h");
+});
 
-const Attr = tb.AttributeSet;
 const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 
@@ -26,13 +27,13 @@ fn printCells(width: i32, height: i32) !void {
             const int: u8 = @intCast(number);
 
             var buf: [2]u8 = undefined;
-            var slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
+            const slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
 
-            _ = try tb.print(@intCast(w), @intCast(h), Attr.init(.red).add(.bold), Attr.init(.default), slice);
+            _ = tb.tb_print(@intCast(w), @intCast(h), tb.TB_RED, tb.TB_DEFAULT, slice);
         }
     }
 
-    try tb.present();
+    _ = tb.tb_present();
 }
 
 fn animation(w: i32, h: i32, core: *Core) !void {
@@ -42,9 +43,20 @@ fn animation(w: i32, h: i32, core: *Core) !void {
 }
 
 fn handler(core: *Core) !void {
-    const event = try tb.pollEvent();
+    var event = tb.tb_event{
+        .type = 0,
+        .mod = 0,
+        .key = 0,
+        .ch = 0,
+        .w = 0,
+        .h = 0,
+        .x = 0,
+        .y = 0,
+    };
 
-    if (eqlStr(@tagName(event.kind), "key")) {
+    _ = tb.tb_poll_event(&event);
+
+    if (@as(u8, @intCast(event.key)) > 0) {
         core.stateChange(false);
     }
 }
@@ -61,10 +73,10 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 }
 
 pub fn main() !void {
-    try tb.init();
+    _ = tb.tb_init();
 
-    const width: i32 = try tb.width();
-    const height: i32 = try tb.height();
+    const width: i32 = tb.tb_width();
+    const height: i32 = tb.tb_height();
 
     var core = Core{ .mutex = Mutex{}, .active = true };
 
@@ -76,5 +88,5 @@ pub fn main() !void {
         defer t1.join();
     }
 
-    try tb.shutdown();
+    _ = tb.tb_shutdown();
 }

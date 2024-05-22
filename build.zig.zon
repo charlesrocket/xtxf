@@ -4,8 +4,8 @@
     .paths = .{""},
     .dependencies = .{
         .termbox2 = .{
-            .url = "https://git.sr.ht/~kolunmi/termbox2-zig/archive/9eb9fd36a7fd4fe843ffb01df210ab2672ae369d.tar.gz",
-            .hash = "1220d0ff25edb7e668edc0354a3187f2eb9cdeffe16cb74752405cf66fbe76ca5560",
+            .url = "https://github.com/termbox/termbox2/archive/refs/tags/v2.0.0.tar.gz",
+            .hash = "1220e331197468e503ea6effa8606d54f4cb85417f47f8721636db7177df2a47caf8",
         },
     },
 }

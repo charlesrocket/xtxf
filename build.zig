@@ -4,21 +4,15 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const termbox2 = b.dependency("termbox2", .{
-        .target = target,
-        .optimize = optimize,
-    });
-
     const exe = b.addExecutable(.{
         .name = "xtxf",
-        .root_source_file = b.path("src"),
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
 
-    exe.linkLibrary(termbox2.artifact("termbox2-zig"));
-    exe.root_module.addImport("termbox2", termbox2.module("termbox2"));
-    @import("termbox2").addPaths(exe);
+    exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
+    exe.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
 
     b.installArtifact(exe);
 
