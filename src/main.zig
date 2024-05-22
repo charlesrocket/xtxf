@@ -83,11 +83,20 @@ pub fn main() !void {
     var core = Core{ .mutex = Mutex{}, .active = true, .mode = Mode.binary };
 
     const help_message =
+        \\
+        \\           ██             ████
+        \\          ░██            ░██░
+        \\ ██   ██ ██████ ██   ██ ██████
+        \\  ██░██    ██░  ░██░██   ░██
+        \\   ███     ██    ░███     ██
+        \\  ██░██   ░██    ██░██   ░██
+        \\ ██   ██   ██   ██  ░██   ██
+        \\
         \\ Usage: xtxf [OPTIONS]
         \\
         \\ Options:
-        \\   -d, --decimal  Decimal mode
-        \\   -h, --help     Print this message
+        \\   -d, --decimal   Decimal mode
+        \\   -h, --help      Print this message
     ;
 
     for (args) |arg| {
