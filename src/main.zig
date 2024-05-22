@@ -45,18 +45,11 @@ fn animation(w: i32, h: i32, core: *Core) !void {
 fn handler(core: *Core) !void {
     var event = tb.tb_event{
         .type = 0,
-        .mod = 0,
-        .key = 0,
-        .ch = 0,
-        .w = 0,
-        .h = 0,
-        .x = 0,
-        .y = 0,
     };
 
     _ = tb.tb_poll_event(&event);
 
-    if (@as(u8, @intCast(event.key)) > 0) {
+    if (@as(u8, @intCast(event.type)) > 0) {
         core.stateChange(false);
     }
 }
