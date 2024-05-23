@@ -7,10 +7,13 @@ const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 
 const Mode = enum { binary, decimal };
+const Color = enum { default, red };
+
 const Core = struct {
     mutex: Mutex,
     active: bool,
     mode: Mode,
+    color: Color,
 
     pub fn stateChange(self: *Core, value: bool) void {
         self.mutex.lock();
@@ -20,7 +23,7 @@ const Core = struct {
     }
 };
 
-fn printCells(width: i32, height: i32, mode: u8) !void {
+fn printCells(width: i32, height: i32, mode: u8, color: u8) !void {
     var rand = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
 
     for (0..@intCast(width)) |w| {
@@ -31,7 +34,7 @@ fn printCells(width: i32, height: i32, mode: u8) !void {
             var buf: [2]u8 = undefined;
             const slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
 
-            _ = tb.tb_print(@intCast(w), @intCast(h), tb.TB_RED, tb.TB_DEFAULT, slice);
+            _ = tb.tb_print(@intCast(w), @intCast(h), color, tb.TB_DEFAULT, slice);
         }
     }
 
@@ -44,8 +47,13 @@ fn animation(w: i32, h: i32, core: *Core) !void {
         Mode.decimal => 10,
     };
 
+    const color: u8 = switch (core.color) {
+        Color.default => tb.TB_DEFAULT,
+        Color.red => tb.TB_RED,
+    };
+
     while (core.active) {
-        try printCells(w, h, mode);
+        try printCells(w, h, mode, color);
     }
 }
 
@@ -80,7 +88,7 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
-    var core = Core{ .mutex = Mutex{}, .active = true, .mode = Mode.binary };
+    var core = Core{ .mutex = Mutex{}, .active = true, .mode = Mode.binary, .color = Color.default };
 
     const help_message =
         \\
@@ -95,6 +103,7 @@ pub fn main() !void {
         \\ Usage: xtxf [OPTIONS]
         \\
         \\ Options:
+        \\   -c, --color     Set color [default, red]
         \\   -d, --decimal   Decimal mode
         \\   -h, --help      Print this message
     ;
@@ -103,6 +112,12 @@ pub fn main() !void {
         if (eqlStr(arg, "--help") or eqlStr(arg, "-h")) {
             std.debug.print("{s}\n", .{help_message});
             std.process.exit(0);
+        }
+
+        if (eqlStr(arg, "--color=default") or eqlStr(arg, "-c=default")) {
+            core.color = Color.default;
+        } else if (eqlStr(arg, "--color=red") or eqlStr(arg, "-c=red")) {
+            core.color = Color.red;
         }
 
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
