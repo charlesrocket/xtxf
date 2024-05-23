@@ -11,18 +11,26 @@ env:
 
 jobs:
   build:
+    name: Build
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
         with:
           version: ${{ env.ZIG_VERSION }}
-      - run: zig build
+
+      - name: Set Zig version
+        run: |
+          echo "zig_version=$ZIG_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build
+        run: zig build
 
   lint:
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +39,10 @@ jobs:
 
   release:
     needs: [build]
-    name: Release
     permissions:
       contents: write
-    if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
+    #if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
     uses: ./.github/workflows/cd.yml
+    with:
+      tag_name: ${{ github.ref_name }}
+      zig_version: ${{ needs.build.outputs.zig_version }}
