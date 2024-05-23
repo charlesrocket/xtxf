@@ -92,20 +92,20 @@ pub fn main() !void {
 
     const help_message =
         \\
-        \\           ██             ████
-        \\          ░██            ░██░
-        \\ ██   ██ ██████ ██   ██ ██████
-        \\  ██░██    ██░  ░██░██   ░██
-        \\   ███     ██    ░███     ██
-        \\  ██░██   ░██    ██░██   ░██
-        \\ ██   ██   ██   ██  ░██   ██
+        \\          ██             ████
+        \\         ░██            ░██░
+        \\██   ██ ██████ ██   ██ ██████
+        \\ ██ ██░   ██░  ░██ ██   ░██
+        \\ ░███     ██     ███░    ██
+        \\ ██░██   ░██    ██ ██   ░██
+        \\██   ██   ██   ██  ░██   ██
         \\
-        \\ Usage: xtxf [OPTIONS]
+        \\Usage: xtxf [OPTIONS]
         \\
-        \\ Options:
-        \\   -c, --color     Set color [default, red]
-        \\   -d, --decimal   Decimal mode
-        \\   -h, --help      Print this message
+        \\Options:
+        \\  -c, --color     Set color [default, red]
+        \\  -d, --decimal   Decimal mode
+        \\  -h, --help      Print this message
     ;
 
     for (args) |arg| {
