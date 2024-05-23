@@ -41,7 +41,7 @@ jobs:
     needs: [build]
     permissions:
       contents: write
-    #if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
+    if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
     uses: ./.github/workflows/cd.yml
     with:
       tag_name: ${{ github.ref_name }}
