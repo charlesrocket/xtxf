@@ -7,13 +7,19 @@ const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 
 const Mode = enum { binary, decimal };
+const Style = enum { default, crypto };
 const Color = enum { default, red };
 
 const Core = struct {
     mutex: Mutex,
     active: bool,
     mode: Mode,
+    style: Style,
     color: Color,
+    width: i32,
+    height: i32,
+    width_sec: []u8,
+    height_sec: []u8,
 
     pub fn stateChange(self: *Core, value: bool) void {
         self.mutex.lock();
@@ -23,11 +29,23 @@ const Core = struct {
     }
 };
 
-fn printCells(width: i32, height: i32, mode: u8, color: u8) !void {
+fn printCells(core: *Core, mode: u8, color: u8) !void {
     var rand = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
 
-    for (0..@intCast(width)) |w| {
-        for (0..@intCast(height)) |h| {
+    for (1..@intCast(core.width)) |w| {
+        if (core.style == Style.crypto) {
+            if (checkSec(core.width_sec, w)) {
+                continue;
+            }
+        }
+
+        for (1..@intCast(core.height)) |h| {
+            if (core.style == Style.crypto) {
+                if (checkSec(core.height_sec, h)) {
+                    continue;
+                }
+            }
+
             const number = @mod(rand.random().int(u8), mode);
             const int: u8 = @intCast(number);
 
@@ -41,7 +59,7 @@ fn printCells(width: i32, height: i32, mode: u8, color: u8) !void {
     _ = tb.tb_present();
 }
 
-fn animation(w: i32, h: i32, core: *Core) !void {
+fn animation(core: *Core) !void {
     const mode: u8 = switch (core.mode) {
         Mode.binary => 2,
         Mode.decimal => 10,
@@ -53,7 +71,7 @@ fn animation(w: i32, h: i32, core: *Core) !void {
     };
 
     while (core.active) {
-        try printCells(w, h, mode, color);
+        try printCells(core, mode, color);
     }
 }
 
@@ -67,6 +85,32 @@ fn handler(core: *Core) !void {
     if (@as(u8, @intCast(event.type)) > 0) {
         core.stateChange(false);
     }
+}
+
+fn getNthValues(allocator: std.mem.Allocator, number: i32, n: u8) ![]u8 {
+    var array = std.ArrayList(u8).init(allocator);
+    var adv = n;
+
+    defer {
+        array.deinit();
+    }
+
+    while (adv <= number) {
+        try array.append(adv);
+        adv += n;
+    }
+
+    return array.toOwnedSlice();
+}
+
+fn checkSec(arr: []u8, value: usize) bool {
+    for (arr) |el| {
+        if (el == value) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
@@ -88,7 +132,9 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
-    var core = Core{ .mutex = Mutex{}, .active = true, .mode = Mode.binary, .color = Color.default };
+    _ = tb.tb_init();
+
+    var core = Core{ .mutex = Mutex{}, .active = true, .width = tb.tb_width(), .height = tb.tb_height(), .width_sec = undefined, .height_sec = undefined, .style = Style.default, .mode = Mode.binary, .color = Color.default };
 
     const help_message =
         \\
@@ -104,6 +150,7 @@ pub fn main() !void {
         \\
         \\Options:
         \\  -c, --color     Set color [default, red]
+        \\  -s  --style     Set style [default, crypto]
         \\  -d, --decimal   Decimal mode
         \\  -h, --help      Print this message
     ;
@@ -123,15 +170,17 @@ pub fn main() !void {
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
             core.mode = Mode.decimal;
         }
+
+        if (eqlStr(arg, "--style=crypto") or eqlStr(arg, "-s=crypto")) {
+            core.style = Style.crypto;
+        }
     }
 
-    _ = tb.tb_init();
-
-    const width: i32 = tb.tb_width();
-    const height: i32 = tb.tb_height();
+    core.width_sec = try getNthValues(allocator, core.width, 5);
+    core.height_sec = try getNthValues(allocator, core.height, 3);
 
     {
-        const t0 = try std.Thread.spawn(.{}, animation, .{ width, height, &core });
+        const t0 = try std.Thread.spawn(.{}, animation, .{&core});
         defer t0.join();
 
         const t1 = try std.Thread.spawn(.{}, handler, .{&core});
