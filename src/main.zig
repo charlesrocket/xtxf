@@ -56,6 +56,7 @@ fn printCells(core: *Core, mode: u8, color: u8) !void {
         }
     }
 
+    std.time.sleep(39730492);
     _ = tb.tb_present();
 }
 
@@ -91,9 +92,7 @@ fn getNthValues(allocator: std.mem.Allocator, number: i32, n: u8) ![]u8 {
     var array = std.ArrayList(u8).init(allocator);
     var adv = n;
 
-    defer {
-        array.deinit();
-    }
+    defer array.deinit();
 
     while (adv <= number) {
         try array.append(adv);
