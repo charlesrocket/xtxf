@@ -178,6 +178,11 @@ pub fn main() !void {
     core.width_sec = try getNthValues(allocator, core.width, 5);
     core.height_sec = try getNthValues(allocator, core.height, 3);
 
+    defer {
+        allocator.free(core.width_sec);
+        allocator.free(core.height_sec);
+    }
+
     {
         const t0 = try std.Thread.spawn(.{}, animation, .{&core});
         defer t0.join();
