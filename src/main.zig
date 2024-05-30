@@ -131,9 +131,7 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
-    _ = tb.tb_init();
-
-    var core = Core{ .mutex = Mutex{}, .active = true, .width = tb.tb_width(), .height = tb.tb_height(), .width_sec = undefined, .height_sec = undefined, .style = Style.default, .mode = Mode.binary, .color = Color.default };
+    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined, .style = Style.default, .mode = Mode.binary, .color = Color.default };
 
     const help_message =
         \\
@@ -175,6 +173,10 @@ pub fn main() !void {
         }
     }
 
+    _ = tb.tb_init();
+
+    core.width = tb.tb_width();
+    core.height = tb.tb_height();
     core.width_sec = try getNthValues(allocator, core.width, 5);
     core.height_sec = try getNthValues(allocator, core.height, 3);
 
