@@ -210,3 +210,13 @@ pub fn main() !void {
 
     _ = tb.tb_shutdown();
 }
+
+test "string test" {
+    const a1 = "abcDeFg13z";
+    const a2 = "abcdefg11a";
+    const b1 = "abcDeFg823_@#$mmdadz";
+    const b2 = "abcDeFg823_@#$mmdadz";
+
+    try std.testing.expect(!eqlStr(a1, a2));
+    try std.testing.expect(eqlStr(b1, b2));
+}
