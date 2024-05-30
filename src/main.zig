@@ -8,7 +8,7 @@ const Mutex = Thread.Mutex;
 
 const Mode = enum { binary, decimal };
 const Style = enum { default, crypto };
-const Color = enum { default, red };
+const Color = enum { default, red, green };
 
 const Core = struct {
     mutex: Mutex,
@@ -70,6 +70,7 @@ fn animation(core: *Core) !void {
     const color: u8 = switch (core.color) {
         Color.default => tb.TB_DEFAULT,
         Color.red => tb.TB_RED,
+        Color.green => tb.TB_GREEN,
     };
 
     while (core.active) {
@@ -156,7 +157,7 @@ pub fn main() !void {
         \\Usage: xtxf [OPTIONS]
         \\
         \\Options:
-        \\  -c, --color     Set color [default, red]
+        \\  -c, --color     Set color [default, red, green]
         \\  -s  --style     Set style [default, crypto]
         \\  -t  --time      Set duration [loop, short]
         \\  -d, --decimal   Decimal mode
@@ -173,6 +174,8 @@ pub fn main() !void {
             core.color = Color.default;
         } else if (eqlStr(arg, "--color=red") or eqlStr(arg, "-c=red")) {
             core.color = Color.red;
+        } else if (eqlStr(arg, "--color=green") or eqlStr(arg, "-c=green")) {
+            core.color = Color.green;
         }
 
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
