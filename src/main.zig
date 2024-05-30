@@ -13,6 +13,7 @@ const Color = enum { default, red };
 const Core = struct {
     mutex: Mutex,
     active: bool,
+    duration: u32,
     mode: Mode,
     style: Style,
     color: Color,
@@ -77,14 +78,23 @@ fn animation(core: *Core) !void {
 }
 
 fn handler(core: *Core) !void {
-    var event = tb.tb_event{
-        .type = 0,
-    };
+    var timer = try std.time.Timer.start();
+    const duration = core.duration * 1000000000;
 
-    _ = tb.tb_poll_event(&event);
+    while (core.active) {
+        var event = tb.tb_event{
+            .type = 0,
+        };
 
-    if (@as(u8, @intCast(event.type)) > 0) {
-        core.stateChange(false);
+        if (timer.read() >= duration and core.duration != 0) {
+            core.stateChange(false);
+        }
+
+        _ = tb.tb_peek_event(&event, 100);
+
+        if (@as(u8, @intCast(event.type)) > 0) {
+            core.stateChange(false);
+        }
     }
 }
 
@@ -131,7 +141,7 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
-    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined, .style = Style.default, .mode = Mode.binary, .color = Color.default };
+    var core = Core{ .mutex = Mutex{}, .active = true, .duration = 0, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined, .style = Style.default, .mode = Mode.binary, .color = Color.default };
 
     const help_message =
         \\
@@ -148,6 +158,7 @@ pub fn main() !void {
         \\Options:
         \\  -c, --color     Set color [default, red]
         \\  -s  --style     Set style [default, crypto]
+        \\  -t  --time      Set duration [loop, short]
         \\  -d, --decimal   Decimal mode
         \\  -h, --help      Print this message
     ;
@@ -166,6 +177,10 @@ pub fn main() !void {
 
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
             core.mode = Mode.decimal;
+        }
+
+        if (eqlStr(arg, "--time=short") or eqlStr(arg, "-t=short")) {
+            core.duration = 1;
         }
 
         if (eqlStr(arg, "--style=crypto") or eqlStr(arg, "-s=crypto")) {
