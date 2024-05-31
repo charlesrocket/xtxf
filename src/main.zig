@@ -30,9 +30,7 @@ const Core = struct {
     }
 };
 
-fn printCells(core: *Core, mode: u8, color: u8) !void {
-    var rand = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
-
+fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
     for (1..@intCast(core.width)) |w| {
         if (core.style == Style.crypto) {
             if (checkSec(core.width_sec, w)) {
@@ -47,13 +45,25 @@ fn printCells(core: *Core, mode: u8, color: u8) !void {
                 }
             }
 
-            const number = @mod(rand.random().int(u8), mode);
+            const number = @mod(rand.int(u8), mode);
             const int: u8 = @intCast(number);
+
+            var color: u32 = switch (core.color) {
+                Color.default => tb.TB_DEFAULT,
+                Color.red => tb.TB_RED,
+                Color.green => tb.TB_GREEN,
+            };
+
+            const bold = rand.boolean();
+
+            if (bold) {
+                color = color | tb.TB_BOLD;
+            }
 
             var buf: [2]u8 = undefined;
             const slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
 
-            _ = tb.tb_print(@intCast(w), @intCast(h), color, tb.TB_DEFAULT, slice);
+            _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), tb.TB_DEFAULT, slice);
         }
     }
 
@@ -62,19 +72,16 @@ fn printCells(core: *Core, mode: u8, color: u8) !void {
 }
 
 fn animation(core: *Core) !void {
+    var prng = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
     const mode: u8 = switch (core.mode) {
         Mode.binary => 2,
         Mode.decimal => 10,
     };
 
-    const color: u8 = switch (core.color) {
-        Color.default => tb.TB_DEFAULT,
-        Color.red => tb.TB_RED,
-        Color.green => tb.TB_GREEN,
-    };
+    const rand = prng.random();
 
     while (core.active) {
-        try printCells(core, mode, color);
+        try printCells(core, mode, rand);
     }
 }
 
