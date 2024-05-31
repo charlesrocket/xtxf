@@ -7,7 +7,7 @@ const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 
 const Mode = enum { binary, decimal };
-const Style = enum { default, crypto };
+const Style = enum { default, columns, crypto };
 const Color = enum { default, red, green };
 
 const Core = struct {
@@ -32,14 +32,14 @@ const Core = struct {
 
 fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
     for (1..@intCast(core.width)) |w| {
-        if (core.style == Style.crypto) {
+        if (core.style != Style.default) {
             if (checkSec(core.width_sec, w)) {
                 continue;
             }
         }
 
         for (1..@intCast(core.height)) |h| {
-            if (core.style == Style.crypto) {
+            if (core.style != Style.default) {
                 if (checkSec(core.height_sec, h)) {
                     continue;
                 }
@@ -165,7 +165,7 @@ pub fn main() !void {
         \\
         \\Options:
         \\  -c, --color     Set color [default, red, green]
-        \\  -s  --style     Set style [default, crypto]
+        \\  -s  --style     Set style [default, columns, crypto]
         \\  -t  --time      Set duration [loop, short]
         \\  -d, --decimal   Decimal mode
         \\  -h, --help      Print this message
@@ -195,6 +195,8 @@ pub fn main() !void {
 
         if (eqlStr(arg, "--style=crypto") or eqlStr(arg, "-s=crypto")) {
             core.style = Style.crypto;
+        } else if (eqlStr(arg, "--style=columns") or eqlStr(arg, "-s=columns")) {
+            core.style = Style.columns;
         }
     }
 
@@ -209,8 +211,14 @@ pub fn main() !void {
         std.process.exit(0);
     }
 
-    core.width_sec = try getNthValues(allocator, core.width, 5);
-    core.height_sec = try getNthValues(allocator, core.height, 3);
+    if (core.style == Style.crypto) {
+        core.width_sec = try getNthValues(allocator, core.width, 5);
+        core.height_sec = try getNthValues(allocator, core.height, 3);
+    }
+
+    if (core.style == Style.columns) {
+        core.width_sec = try getNthValues(allocator, core.width, 4);
+    }
 
     defer {
         allocator.free(core.width_sec);
