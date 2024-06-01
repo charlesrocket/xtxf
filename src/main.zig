@@ -238,6 +238,12 @@ pub fn main() !void {
     _ = tb.tb_shutdown();
 }
 
+test "handler" {
+    var core = Core{ .mutex = undefined, .active = true, .duration = 1, .mode = undefined, .style = undefined, .color = undefined, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined };
+    try handler(&core);
+    try std.testing.expect(!core.active);
+}
+
 test "compare strings" {
     const a1 = "deFg13z";
     const a2 = "DeFg13z";

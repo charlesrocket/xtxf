@@ -34,6 +34,9 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    unit_tests.addIncludePath(b.dependency("termbox2", .{}).path("."));
+    unit_tests.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
+
     const run_unit_tests = b.addRunArtifact(unit_tests);
     const test_step = b.step("test", "Run all tests");
     test_step.dependOn(&run_unit_tests.step);
