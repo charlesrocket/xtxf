@@ -8,7 +8,7 @@ const Mutex = Thread.Mutex;
 
 const Mode = enum { binary, decimal };
 const Style = enum { default, columns, crypto };
-const Color = enum { default, red, green, blue };
+const Color = enum { default, red, green, blue, yellow };
 
 const Core = struct {
     mutex: Mutex,
@@ -55,6 +55,7 @@ fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
                 Color.red => tb.TB_RED,
                 Color.green => tb.TB_GREEN,
                 Color.blue => tb.TB_BLUE,
+                Color.yellow => tb.TB_YELLOW,
             };
 
             const bold = rand.boolean();
@@ -181,7 +182,7 @@ pub fn main() !void {
         \\Example: xtxf -p -c=red -s=crypto
         \\
         \\Options:
-        \\  -c, --color     Set color [default, red, green, blue]
+        \\  -c, --color     Set color [default, red, green, blue, yellow]
         \\  -s, --style     Set style [default, columns, crypto]
         \\  -t, --time      Set duration [loop, short]
         \\  -p, --pulse     Pulse blocks
@@ -203,8 +204,9 @@ pub fn main() !void {
             core.color = Color.green;
         } else if (eqlStr(arg, "--color=blue") or eqlStr(arg, "-c=blue")) {
             core.color = Color.blue;
+        } else if (eqlStr(arg, "--color=yellow") or eqlStr(arg, "-c=yellow")) {
+            core.color = Color.yellow;
         }
-
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
             core.mode = Mode.decimal;
         }
