@@ -163,10 +163,12 @@ pub fn main() !void {
         \\
         \\Usage: xtxf [OPTIONS]
         \\
+        \\Example: xtxf -c=red -s=crypto
+        \\
         \\Options:
         \\  -c, --color     Set color [default, red, green]
-        \\  -s  --style     Set style [default, columns, crypto]
-        \\  -t  --time      Set duration [loop, short]
+        \\  -s, --style     Set style [default, columns, crypto]
+        \\  -t, --time      Set duration [loop, short]
         \\  -d, --decimal   Decimal mode
         \\  -h, --help      Print this message
     ;
