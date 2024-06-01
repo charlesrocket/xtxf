@@ -236,7 +236,7 @@ pub fn main() !void {
     _ = tb.tb_shutdown();
 }
 
-test "string test" {
+test "compare strings" {
     const a1 = "abcDeFg13z";
     const a2 = "abcdefg11a";
     const b1 = "abcDeFg823_@#$mmdadz";
@@ -244,4 +244,14 @@ test "string test" {
 
     try std.testing.expect(!eqlStr(a1, a2));
     try std.testing.expect(eqlStr(b1, b2));
+}
+
+test "check array" {
+    var array1 = [_]u8{ 1, 2, 3 };
+    var array2 = [_]u8{ 1, 3 };
+    var array3 = [_]u8{1};
+
+    try std.testing.expect(checkSec(&array1, 2));
+    try std.testing.expect(!checkSec(&array2, 2));
+    try std.testing.expect(!checkSec(&array3, 2));
 }
