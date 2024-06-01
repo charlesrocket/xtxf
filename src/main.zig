@@ -16,7 +16,9 @@ const Core = struct {
     duration: u32,
     mode: Mode,
     style: Style,
+    pulse: bool,
     color: Color,
+    bg: u32,
     width: i32,
     height: i32,
     width_sec: []u8,
@@ -56,6 +58,14 @@ fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
 
             const bold = rand.boolean();
 
+            if (core.pulse) {
+                const blank = @mod(rand.int(u8), 255);
+
+                if (blank >= 254) {
+                    core.bg = core.bg | tb.TB_REVERSE;
+                }
+            }
+
             if (bold) {
                 color = color | tb.TB_BOLD;
             }
@@ -63,7 +73,11 @@ fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
             var buf: [2]u8 = undefined;
             const slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
 
-            _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), tb.TB_DEFAULT, slice);
+            _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), slice);
+
+            if (core.pulse) {
+                core.bg = tb.TB_DEFAULT;
+            }
         }
     }
 
@@ -149,7 +163,7 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
-    var core = Core{ .mutex = Mutex{}, .active = true, .duration = 0, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined, .style = Style.default, .mode = Mode.binary, .color = Color.default };
+    var core = Core{ .mutex = Mutex{}, .active = true, .duration = 0, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .style = Style.default, .mode = Mode.binary, .color = Color.default };
 
     const help_message =
         \\
@@ -163,12 +177,13 @@ pub fn main() !void {
         \\
         \\Usage: xtxf [OPTIONS]
         \\
-        \\Example: xtxf -c=red -s=crypto
+        \\Example: xtxf -p -c=red -s=crypto
         \\
         \\Options:
         \\  -c, --color     Set color [default, red, green]
         \\  -s, --style     Set style [default, columns, crypto]
         \\  -t, --time      Set duration [loop, short]
+        \\  -p, --pulse     Pulse blocks
         \\  -d, --decimal   Decimal mode
         \\  -h, --help      Print this message
     ;
@@ -189,6 +204,10 @@ pub fn main() !void {
 
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
             core.mode = Mode.decimal;
+        }
+
+        if (eqlStr(arg, "--pulse") or eqlStr(arg, "-p")) {
+            core.pulse = true;
         }
 
         if (eqlStr(arg, "--time=short") or eqlStr(arg, "-t=short")) {
@@ -239,7 +258,7 @@ pub fn main() !void {
 }
 
 test "handler" {
-    var core = Core{ .mutex = undefined, .active = true, .duration = 1, .mode = undefined, .style = undefined, .color = undefined, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined };
+    var core = Core{ .mutex = undefined, .active = true, .duration = 1, .mode = undefined, .pulse = undefined, .style = undefined, .color = undefined, .bg = undefined, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined };
     try handler(&core);
     try std.testing.expect(!core.active);
 }
