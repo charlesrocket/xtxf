@@ -239,13 +239,22 @@ pub fn main() !void {
 }
 
 test "compare strings" {
-    const a1 = "abcDeFg13z";
-    const a2 = "abcdefg11a";
-    const b1 = "abcDeFg823_@#$mmdadz";
-    const b2 = "abcDeFg823_@#$mmdadz";
+    const a1 = "deFg13z";
+    const a2 = "DeFg13z";
+    const b1 = "abcDeFg13z";
+    const b2 = "abcdefg11a";
+    const c1 = "abcDeFg823_@#$mdh6132";
+    const c2 = "abcDeFg823_@#$mdh6132";
+    const d1 = "a";
+    const d2 = "a";
+    const e1 = "b";
+    const e2 = "c";
 
     try std.testing.expect(!eqlStr(a1, a2));
-    try std.testing.expect(eqlStr(b1, b2));
+    try std.testing.expect(!eqlStr(b1, b2));
+    try std.testing.expect(eqlStr(c1, c2));
+    try std.testing.expect(eqlStr(d1, d2));
+    try std.testing.expect(!eqlStr(e1, e2));
 }
 
 test "check array" {
