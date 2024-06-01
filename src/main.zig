@@ -255,3 +255,14 @@ test "check array" {
     try std.testing.expect(!checkSec(&array2, 2));
     try std.testing.expect(!checkSec(&array3, 2));
 }
+
+test "get nth values" {
+    const allocator = std.testing.allocator;
+    const array: []u8 = try getNthValues(allocator, 12, 4);
+    defer allocator.free(array);
+
+    try std.testing.expect(array[0] == 4);
+    try std.testing.expect(array[1] == 8);
+    try std.testing.expect(array[2] == 12);
+    try std.testing.expect(array.len == 3);
+}
