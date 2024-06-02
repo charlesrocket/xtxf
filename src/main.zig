@@ -231,9 +231,9 @@ pub fn main() !void {
     core.width = tb.tb_width();
     core.height = tb.tb_height();
 
-    if (core.width <= 2 or core.height <= 2) {
+    if (core.width < 4 or core.height < 2) {
         _ = tb.tb_shutdown();
-        std.debug.print("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
+        std.debug.print("Insufficient terminal dimensions: W {}, H {}\nExiting\n", .{ core.width, core.height });
         std.process.exit(0);
     }
 
