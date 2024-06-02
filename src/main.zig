@@ -32,6 +32,8 @@ const Core = struct {
     }
 };
 
+const FRAME = 39730492;
+
 fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
     for (1..@intCast(core.width)) |w| {
         if (core.style != Style.default) {
@@ -83,7 +85,7 @@ fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
         }
     }
 
-    std.time.sleep(39730492);
+    std.time.sleep(FRAME);
     _ = tb.tb_present();
 }
 
