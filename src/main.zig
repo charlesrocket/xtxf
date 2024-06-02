@@ -24,7 +24,7 @@ const Core = struct {
     width_sec: []u8,
     height_sec: []u8,
 
-    pub fn stateChange(self: *Core, value: bool) void {
+    pub fn setActive(self: *Core, value: bool) void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
@@ -111,13 +111,13 @@ fn handler(core: *Core) !void {
         };
 
         if (timer.read() >= duration and core.duration != 0) {
-            core.stateChange(false);
+            core.setActive(false);
         }
 
         _ = tb.tb_peek_event(&event, 100);
 
         if (@as(u8, @intCast(event.type)) > 0) {
-            core.stateChange(false);
+            core.setActive(false);
         }
     }
 }
