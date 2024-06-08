@@ -368,3 +368,24 @@ test "check array" {
     try std.testing.expect(!checkSec(&array2, 2));
     try std.testing.expect(!checkSec(&array3, 2));
 }
+
+test "sections" {
+    var core = Core{ .mutex = Mutex{}, .active = undefined, .width = 24, .height = 12, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
+
+    try core.updateWidthSec(4);
+
+    try std.testing.expect(core.width_g_arr[0] == 4);
+    try std.testing.expect(core.width_g_arr[1] == 8);
+    try std.testing.expect(core.width_g_arr[2] == 12);
+    try std.testing.expect(core.width_g_arr[3] == 16);
+    try std.testing.expect(core.width_g_arr[4] == 20);
+    try std.testing.expect(core.width_g_arr[5] == 24);
+    try std.testing.expect(core.width_g_arr.len == 6);
+
+    try core.updateHeightSec(4);
+
+    try std.testing.expect(core.height_g_arr[0] == 4);
+    try std.testing.expect(core.height_g_arr[1] == 8);
+    try std.testing.expect(core.height_g_arr[2] == 12);
+    try std.testing.expect(core.height_g_arr.len == 3);
+}
