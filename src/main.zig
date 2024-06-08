@@ -10,135 +10,211 @@ const Mode = enum { binary, decimal };
 const Style = enum { default, columns, crypto };
 const Color = enum { default, red, green, blue, yellow };
 
+const FRAME = 39730492;
+
 const Core = struct {
     mutex: Mutex,
     active: bool,
-    duration: u32,
-    mode: Mode,
-    style: Style,
     pulse: bool,
     color: Color,
     bg: u32,
     width: i32,
     height: i32,
-    width_sec: []u8,
-    height_sec: []u8,
+    width_g_arr: []const u32,
+    height_g_arr: []const u32,
 
-    pub fn setActive(self: *Core, value: bool) void {
+    fn setActive(self: *@This(), value: bool) void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
         self.active = value;
     }
+
+    fn updateTermSize(self: *@This()) !void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
+        self.width = tb.tb_width();
+        self.height = tb.tb_height();
+    }
+
+    fn updateWidthSec(self: *@This(), adv_w: u32) !void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
+        var array_w: std.BoundedArrayAligned(u32, 4, 2000) = undefined;
+
+        array_w = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
+        var w_val = adv_w;
+
+        while (w_val <= @as(u32, @intCast(self.width))) {
+            try array_w.append(w_val);
+            w_val += adv_w;
+        }
+
+        try array_w.resize(array_w.len);
+        self.width_g_arr = array_w.slice();
+    }
+
+    fn updateHeightSec(self: *@This(), adv_h: u32) !void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
+        var array_h: std.BoundedArrayAligned(u32, 4, 1000) = undefined;
+        array_h = try std.BoundedArrayAligned(u32, 4, 1000).init(0);
+
+        var h_val = adv_h;
+
+        while (h_val <= @as(u32, @intCast(self.height))) {
+            try array_h.append(h_val);
+            h_val += adv_h;
+        }
+
+        try array_h.resize(array_h.len);
+        self.height_g_arr = array_h.slice();
+    }
 };
 
-const FRAME = 39730492;
+const Handler = struct {
+    mutex: Mutex,
+    halt: bool,
+    duration: u32,
+    pause: bool,
+    mode: Mode,
+    style: Style,
 
-fn printCells(core: *Core, mode: u8, rand: std.rand.Random) !void {
-    for (1..@intCast(core.width)) |w| {
-        if (core.style != Style.default) {
-            if (checkSec(core.width_sec, w)) {
-                continue;
+    fn setHalt(self: *@This(), value: bool) void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
+        self.halt = value;
+    }
+
+    fn setPause(self: *@This(), value: bool) void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
+        self.pause = value;
+    }
+
+    fn run(self: *@This(), core: *Core) !void {
+        if (self.style != Style.default) {
+            if (self.style == Style.crypto) {
+                try core.updateWidthSec(5);
+                try core.updateHeightSec(3);
+            } else if (self.style == Style.columns) {
+                try core.updateWidthSec(4);
             }
         }
 
-        for (1..@intCast(core.height)) |h| {
-            if (core.style != Style.default) {
-                if (checkSec(core.height_sec, h)) {
+        var timer = try std.time.Timer.start();
+        const duration = self.duration * 1000000000;
+
+        self.setHalt(false);
+
+        while (core.active) {
+            if (timer.read() >= duration and self.duration != 0) {
+                core.setActive(false);
+            }
+
+            var EVENT = tb.tb_event{
+                .type = 0,
+            };
+
+            _ = tb.tb_peek_event(&EVENT, 100);
+
+            if (@as(u8, @intCast(EVENT.type)) == 1) {
+                core.setActive(false);
+            } else if (@as(u8, @intCast(EVENT.type)) == 2) {
+                try core.updateTermSize();
+
+                if (self.style == Style.crypto) {
+                    try core.updateWidthSec(5);
+                    try core.updateHeightSec(3);
+                } else if (self.style == Style.columns) {
+                    try core.updateWidthSec(4);
+                }
+            }
+        }
+    }
+};
+
+fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !void {
+    if (!handler.pause) {
+        for (1..@intCast(core.width)) |w| {
+            if (handler.style != Style.default) {
+                if (checkSec(core.width_g_arr, w)) {
                     continue;
                 }
             }
 
-            const number = @mod(rand.int(u8), mode);
-            const int: u8 = @intCast(number);
+            for (1..@intCast(core.height)) |h| {
+                if (handler.style != Style.default) {
+                    if (checkSec(core.height_g_arr, h)) {
+                        continue;
+                    }
+                }
 
-            var color: u32 = switch (core.color) {
-                Color.default => tb.TB_DEFAULT,
-                Color.red => tb.TB_RED,
-                Color.green => tb.TB_GREEN,
-                Color.blue => tb.TB_BLUE,
-                Color.yellow => tb.TB_YELLOW,
-            };
+                const number = @mod(rand.int(u8), mode);
+                const int: u8 = @intCast(number);
 
-            const bold = rand.boolean();
+                var color: u32 = switch (core.color) {
+                    Color.default => tb.TB_DEFAULT,
+                    Color.red => tb.TB_RED,
+                    Color.green => tb.TB_GREEN,
+                    Color.blue => tb.TB_BLUE,
+                    Color.yellow => tb.TB_YELLOW,
+                };
 
-            if (core.pulse) {
-                const blank = @mod(rand.int(u8), 255);
+                const bold = rand.boolean();
 
-                if (blank >= 254) {
-                    core.bg = core.bg | tb.TB_REVERSE;
+                if (core.pulse) {
+                    const blank = @mod(rand.int(u8), 255);
+
+                    if (blank >= 254) {
+                        core.bg = core.bg | tb.TB_REVERSE;
+                    }
+                }
+
+                if (bold) {
+                    color = color | tb.TB_BOLD;
+                }
+
+                var buf: [2]u8 = undefined;
+                const slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
+
+                _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), slice);
+
+                if (core.pulse) {
+                    core.bg = tb.TB_DEFAULT;
                 }
             }
-
-            if (bold) {
-                color = color | tb.TB_BOLD;
-            }
-
-            var buf: [2]u8 = undefined;
-            const slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
-
-            _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), slice);
-
-            if (core.pulse) {
-                core.bg = tb.TB_DEFAULT;
-            }
         }
-    }
 
-    std.time.sleep(FRAME);
-    _ = tb.tb_present();
+        _ = tb.tb_present();
+        std.time.sleep(FRAME);
+    }
 }
 
-fn animation(core: *Core) !void {
+fn animation(core: *Core, handler: *Handler) !void {
     var prng = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
-    const mode: u8 = switch (core.mode) {
+    const mode: u8 = switch (handler.mode) {
         Mode.binary => 2,
         Mode.decimal => 10,
     };
 
     const rand = prng.random();
 
-    while (core.active) {
-        try printCells(core, mode, rand);
+    while (handler.halt) {
+        std.time.sleep(FRAME);
     }
-}
-
-fn handler(core: *Core) !void {
-    var timer = try std.time.Timer.start();
-    const duration = core.duration * 1000000000;
 
     while (core.active) {
-        var event = tb.tb_event{
-            .type = 0,
-        };
-
-        if (timer.read() >= duration and core.duration != 0) {
-            core.setActive(false);
-        }
-
-        _ = tb.tb_peek_event(&event, 100);
-
-        if (@as(u8, @intCast(event.type)) > 0) {
-            core.setActive(false);
-        }
+        try printCells(core, handler, mode, rand);
     }
 }
 
-fn getNthValues(allocator: std.mem.Allocator, number: i32, n: u8) ![]u8 {
-    var array = std.ArrayList(u8).init(allocator);
-    var adv = n;
-
-    defer array.deinit();
-
-    while (adv <= number) {
-        try array.append(adv);
-        adv += n;
-    }
-
-    return array.toOwnedSlice();
-}
-
-fn checkSec(arr: []u8, value: usize) bool {
+fn checkSec(arr: []const u32, value: usize) bool {
     for (arr) |el| {
         if (el == value) {
             return true;
@@ -167,7 +243,8 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(allocator);
     defer std.process.argsFree(allocator, args);
 
-    var core = Core{ .mutex = Mutex{}, .active = true, .duration = 0, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .style = Style.default, .mode = Mode.binary, .color = Color.default };
+    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
+    var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 0, .pause = false, .mode = Mode.binary, .style = Style.default };
 
     const help_message =
         \\
@@ -210,7 +287,7 @@ pub fn main() !void {
             core.color = Color.yellow;
         }
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
-            core.mode = Mode.decimal;
+            handler.mode = Mode.decimal;
         }
 
         if (eqlStr(arg, "--pulse") or eqlStr(arg, "-p")) {
@@ -218,13 +295,13 @@ pub fn main() !void {
         }
 
         if (eqlStr(arg, "--time=short") or eqlStr(arg, "-t=short")) {
-            core.duration = 1;
+            handler.duration = 1;
         }
 
         if (eqlStr(arg, "--style=crypto") or eqlStr(arg, "-s=crypto")) {
-            core.style = Style.crypto;
+            handler.style = Style.crypto;
         } else if (eqlStr(arg, "--style=columns") or eqlStr(arg, "-s=columns")) {
-            core.style = Style.columns;
+            handler.style = Style.columns;
         }
     }
 
@@ -239,34 +316,26 @@ pub fn main() !void {
         std.process.exit(0);
     }
 
-    if (core.style == Style.crypto) {
-        core.width_sec = try getNthValues(allocator, core.width, 5);
-        core.height_sec = try getNthValues(allocator, core.height, 3);
-    }
-
-    if (core.style == Style.columns) {
-        core.width_sec = try getNthValues(allocator, core.width, 4);
-    }
-
-    defer {
-        allocator.free(core.width_sec);
-        allocator.free(core.height_sec);
+    if (handler.style != Style.default) {
+        if (handler.style == Style.crypto) {} else if (handler.style == Style.columns) {}
     }
 
     {
-        const t0 = try std.Thread.spawn(.{}, animation, .{&core});
-        defer t0.join();
+        const t_h = try std.Thread.spawn(.{}, Handler.run, .{ &handler, &core });
+        defer t_h.join();
 
-        const t1 = try std.Thread.spawn(.{}, handler, .{&core});
-        defer t1.join();
+        const t_a = try std.Thread.spawn(.{}, animation, .{ &core, &handler });
+        defer t_a.join();
     }
 
     _ = tb.tb_shutdown();
 }
 
 test "handler" {
-    var core = Core{ .mutex = undefined, .active = true, .duration = 1, .mode = undefined, .pulse = undefined, .style = undefined, .color = undefined, .bg = undefined, .width = undefined, .height = undefined, .width_sec = undefined, .height_sec = undefined };
-    try handler(&core);
+    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_gap = undefined, .height_gap = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
+    var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 1, .pause = false, .mode = Mode.binary, .style = Style.default };
+
+    try handler.run(&core);
     try std.testing.expect(!core.active);
 }
 
@@ -290,22 +359,11 @@ test "compare strings" {
 }
 
 test "check array" {
-    var array1 = [_]u8{ 1, 2, 3 };
-    var array2 = [_]u8{ 1, 3 };
-    var array3 = [_]u8{1};
+    const array1 = [_]u32{ 1, 2, 3 };
+    const array2 = [_]u32{ 1, 3 };
+    const array3 = [_]u32{1};
 
     try std.testing.expect(checkSec(&array1, 2));
     try std.testing.expect(!checkSec(&array2, 2));
     try std.testing.expect(!checkSec(&array3, 2));
-}
-
-test "get nth values" {
-    const allocator = std.testing.allocator;
-    const array: []u8 = try getNthValues(allocator, 12, 4);
-    defer allocator.free(array);
-
-    try std.testing.expect(array[0] == 4);
-    try std.testing.expect(array[1] == 8);
-    try std.testing.expect(array[2] == 12);
-    try std.testing.expect(array.len == 3);
 }
