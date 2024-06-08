@@ -332,10 +332,11 @@ pub fn main() !void {
 }
 
 test "handler" {
-    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_gap = undefined, .height_gap = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
+    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
     var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 1, .pause = false, .mode = Mode.binary, .style = Style.default };
 
     try handler.run(&core);
+
     try std.testing.expect(!core.active);
 }
 
