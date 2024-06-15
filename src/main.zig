@@ -351,32 +351,29 @@ test "compare strings" {
 }
 
 test "check array" {
-    const array1 = [_]u32{ 1, 2, 3 };
-    const array2 = [_]u32{ 1, 3 };
-    const array3 = [_]u32{1};
+    var array1 = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
+    var array2 = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
+    var array3 = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
 
-    try std.testing.expect(checkSec(&array1, 2));
-    try std.testing.expect(!checkSec(&array2, 2));
-    try std.testing.expect(!checkSec(&array3, 2));
+    try array1.append(1);
+    try array1.append(2);
+    try array1.append(3);
+
+    try array2.append(1);
+    try array2.append(3);
+
+    try array3.append(1);
+
+    try std.testing.expect(checkSec(array1, 2));
+    try std.testing.expect(!checkSec(array2, 2));
+    try std.testing.expect(!checkSec(array3, 2));
 }
 
 test "sections" {
-    var core = Core{ .mutex = Mutex{}, .active = undefined, .width = 24, .height = 12, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
+    const array = try getNthValues(12, 4);
 
-    try core.updateWidthSec(4);
-
-    try std.testing.expect(core.width_g_arr[0] == 4);
-    try std.testing.expect(core.width_g_arr[1] == 8);
-    try std.testing.expect(core.width_g_arr[2] == 12);
-    try std.testing.expect(core.width_g_arr[3] == 16);
-    try std.testing.expect(core.width_g_arr[4] == 20);
-    try std.testing.expect(core.width_g_arr[5] == 24);
-    try std.testing.expect(core.width_g_arr.len == 6);
-
-    try core.updateHeightSec(4);
-
-    try std.testing.expect(core.height_g_arr[0] == 4);
-    try std.testing.expect(core.height_g_arr[1] == 8);
-    try std.testing.expect(core.height_g_arr[2] == 12);
-    try std.testing.expect(core.height_g_arr.len == 3);
+    try std.testing.expect(array.slice()[0] == 4);
+    try std.testing.expect(array.slice()[1] == 8);
+    try std.testing.expect(array.slice()[2] == 12);
+    try std.testing.expect(array.slice().len == 3);
 }
