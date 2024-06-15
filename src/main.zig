@@ -38,11 +38,12 @@ const Core = struct {
         self.height = tb.tb_height();
     }
 
+    var array_w: std.BoundedArrayAligned(u32, 4, 2000) = undefined;
+
     fn updateWidthSec(self: *@This(), adv_w: u32) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
-        var array_w: std.BoundedArrayAligned(u32, 4, 2000) = undefined;
 
         array_w = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
         var w_val = adv_w;
@@ -56,11 +57,12 @@ const Core = struct {
         self.width_g_arr = array_w.slice();
     }
 
+    var array_h: std.BoundedArrayAligned(u32, 4, 1000) = undefined;
+
     fn updateHeightSec(self: *@This(), adv_h: u32) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
-        var array_h: std.BoundedArrayAligned(u32, 4, 1000) = undefined;
         array_h = try std.BoundedArrayAligned(u32, 4, 1000).init(0);
 
         var h_val = adv_h;
@@ -73,6 +75,7 @@ const Core = struct {
         try array_h.resize(array_h.len);
         self.height_g_arr = array_h.slice();
     }
+
 };
 
 const Handler = struct {
