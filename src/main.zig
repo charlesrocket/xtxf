@@ -20,8 +20,8 @@ const Core = struct {
     bg: u32,
     width: i32,
     height: i32,
-    width_g_arr: []const u32,
-    height_g_arr: []const u32,
+    width_g_arr: std.BoundedArrayAligned(u32, 4, 2000),
+    height_g_arr: std.BoundedArrayAligned(u32, 4, 2000),
 
     fn setActive(self: *@This(), value: bool) void {
         self.mutex.lock();
@@ -40,42 +40,21 @@ const Core = struct {
 
     var array_w: std.BoundedArrayAligned(u32, 4, 2000) = undefined;
 
-    fn updateWidthSec(self: *@This(), adv_w: u32) !void {
+    fn updateWidthSec(self: *@This(), adv: u32) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
-
-        array_w = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
-        var w_val = adv_w;
-
-        while (w_val <= @as(u32, @intCast(self.width))) {
-            try array_w.append(w_val);
-            w_val += adv_w;
-        }
-
-        try array_w.resize(array_w.len);
-        self.width_g_arr = array_w.slice();
+        self.width_g_arr = try getNthValues(self.width, adv);
     }
 
     var array_h: std.BoundedArrayAligned(u32, 4, 1000) = undefined;
 
-    fn updateHeightSec(self: *@This(), adv_h: u32) !void {
+    fn updateHeightSec(self: *@This(), adv: u32) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
-        array_h = try std.BoundedArrayAligned(u32, 4, 1000).init(0);
-
-        var h_val = adv_h;
-
-        while (h_val <= @as(u32, @intCast(self.height))) {
-            try array_h.append(h_val);
-            h_val += adv_h;
-        }
-
-        try array_h.resize(array_h.len);
-        self.height_g_arr = array_h.slice();
+        self.height_g_arr = try getNthValues(self.height, adv);
     }
-
 };
 
 const Handler = struct {
@@ -217,8 +196,21 @@ fn animation(core: *Core, handler: *Handler) !void {
     }
 }
 
-fn checkSec(arr: []const u32, value: usize) bool {
-    for (arr) |el| {
+fn getNthValues(number: i32, adv: u32) !std.BoundedArrayAligned(u32, 4, 2000) {
+    var array = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
+    var val = adv;
+
+    while (val <= @as(u32, @intCast(number))) {
+        try array.append(val);
+        val += adv;
+    }
+
+    try array.resize(array.len);
+    return array;
+}
+
+fn checkSec(arr: std.BoundedArrayAligned(u32, 4, 2000), value: usize) bool {
+    for (arr.slice()) |el| {
         if (el == value) {
             return true;
         }
@@ -317,10 +309,6 @@ pub fn main() !void {
         _ = tb.tb_shutdown();
         std.debug.print("Insufficient terminal dimensions: W {}, H {}\nExiting\n", .{ core.width, core.height });
         std.process.exit(0);
-    }
-
-    if (handler.style != Style.default) {
-        if (handler.style == Style.crypto) {} else if (handler.style == Style.columns) {}
     }
 
     {
