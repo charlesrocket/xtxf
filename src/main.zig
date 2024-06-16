@@ -38,16 +38,12 @@ const Core = struct {
         self.height = tb.tb_height();
     }
 
-    var array_w: std.BoundedArrayAligned(u32, 4, 2000) = undefined;
-
     fn updateWidthSec(self: *@This(), adv: u32) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
         self.width_g_arr = try getNthValues(self.width, adv);
     }
-
-    var array_h: std.BoundedArrayAligned(u32, 4, 1000) = undefined;
 
     fn updateHeightSec(self: *@This(), adv: u32) !void {
         self.mutex.lock();
