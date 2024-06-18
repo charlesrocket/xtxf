@@ -41,8 +41,15 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run all tests");
     test_step.dependOn(&run_unit_tests.step);
 
-    const test_ok = b.addRunArtifact(exe);
-    test_ok.addArgs(&.{"-t=short"});
-    test_ok.expectExitCode(0);
-    test_step.dependOn(&test_ok.step);
+    const test_options = b.addOptions();
+    test_options.addOptionPath("exe_path", exe.getEmittedBin());
+
+    const integration_tests = b.addTest(.{
+        .root_source_file = .{ .path = "./tests/cli.zig" },
+    });
+
+    integration_tests.root_module.addOptions("build_options", test_options);
+
+    const run_integration_tests = b.addRunArtifact(integration_tests);
+    test_step.dependOn(&run_integration_tests.step);
 }
