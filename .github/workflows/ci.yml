@@ -22,10 +22,6 @@ jobs:
         with:
           version: ${{ env.ZIG_VERSION }}
 
-      - name: Set Zig version
-        run: |
-          echo "zig_version=$ZIG_VERSION" >> $GITHUB_OUTPUT
-
       - name: Build
         run: zig build
 

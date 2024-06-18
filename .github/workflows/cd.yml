@@ -14,6 +14,9 @@ name: CD
 permissions:
   contents: read
 
+env:
+  ZIG_VERSION: 0.12.0
+
 jobs:
   release:
     name: Create release
@@ -49,7 +52,7 @@ jobs:
           persist-credentials: false
       - uses: goto-bus-stop/setup-zig@v2
         with:
-          version: ${{ inputs.zig_version }}
+          version: ${{ env.ZIG_VERSION }}
 
       - name: Build
         run: |
