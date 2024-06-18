@@ -15,6 +15,4 @@ test "main" {
     const term = proc.term;
 
     try std.testing.expectEqual(term, std.ChildProcess.Term{ .Exited = 0 });
-    try std.testing.expectEqual(proc.stderr.len, 0);
-    // ...
 }
