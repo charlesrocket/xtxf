@@ -39,21 +39,21 @@ pub fn build(b: *std.Build) void {
     unit_tests.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
     unit_tests.linkLibC();
 
-    const run_unit_tests = b.addRunArtifact(unit_tests);
     const test_step = b.step("test", "Run all tests");
-    test_step.dependOn(&run_unit_tests.step);
+    test_step.dependOn(&b.addRunArtifact(unit_tests).step);
 
     const test_options = b.addOptions();
     test_options.addOptionPath("exe_path", exe.getEmittedBin());
 
     const integration_tests = b.addTest(.{
         .root_source_file = .{ .path = "./tests/cli.zig" },
+        .target = target,
+        .optimize = optimize,
     });
 
     integration_tests.root_module.addOptions("build_options", test_options);
 
-    const run_integration_tests = b.addRunArtifact(integration_tests);
-    test_step.dependOn(&run_integration_tests.step);
+    test_step.dependOn(&b.addRunArtifact(integration_tests).step);
 
     const coverage_step = b.step("coverage", "Generate test coverage (kcov)");
     const merge_step = std.Build.Step.Run.create(b, "merge coverage");
