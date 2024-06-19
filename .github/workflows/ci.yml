@@ -26,7 +26,7 @@ jobs:
         run: zig build
 
       - name: Test
-        run: zig build test
+        run: zig build test --summary all
 
   coverage:
     name: Test coverage
@@ -47,7 +47,7 @@ jobs:
             kcov
 
       - name: Generate coverage
-        run: zig build coverage
+        run: zig build coverage --summary all
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
