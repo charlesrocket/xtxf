@@ -187,6 +187,11 @@ fn animation(core: *Core, handler: *Handler) !void {
         std.time.sleep(FRAME);
     }
 
+    if (core.width < 4 or core.height < 2) {
+        std.log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
+        core.active = false;
+    }
+
     while (core.active) {
         try printCells(core, handler, mode, rand);
     }
@@ -300,12 +305,6 @@ pub fn main() !void {
 
     core.width = tb.tb_width();
     core.height = tb.tb_height();
-
-    if (core.width < 4 or core.height < 2) {
-        _ = tb.tb_shutdown();
-        std.debug.print("Insufficient terminal dimensions: W {}, H {}\nExiting\n", .{ core.width, core.height });
-        std.process.exit(0);
-    }
 
     {
         const t_h = try std.Thread.spawn(.{}, Handler.run, .{ &handler, &core });
