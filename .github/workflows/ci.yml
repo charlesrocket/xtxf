@@ -28,9 +28,35 @@ jobs:
       - name: Test
         run: zig build test
 
+  coverage:
+    name: Test coverage
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: goto-bus-stop/setup-zig@v2
+      - name: Install kcov
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            --no-install-recommends \
+            --allow-unauthenticated \
+            kcov
+
+      - name: Generate coverage
+        run: zig build coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          directory: zig-out/coverage/kcov-merged
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   lint:
     name: Format
     runs-on: ubuntu-latest
+    if: "!startsWith(github.ref, 'refs/tags/')"
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2

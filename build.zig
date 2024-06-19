@@ -53,4 +53,36 @@ pub fn build(b: *std.Build) void {
 
     const run_integration_tests = b.addRunArtifact(integration_tests);
     test_step.dependOn(&run_integration_tests.step);
+
+    const coverage_step = b.step("coverage", "Generate test coverage (kcov)");
+    const merge_step = std.Build.Step.Run.create(b, "merge coverage");
+    merge_step.addArgs(&.{ "kcov", "--merge" });
+    merge_step.rename_step_with_output_arg = false;
+    const merged_coverage_output = merge_step.addOutputFileArg(".");
+
+    {
+        const kcov_collect = std.Build.Step.Run.create(b, "collect coverage");
+        kcov_collect.addArgs(&.{ "kcov", "--collect-only" });
+        kcov_collect.addPrefixedDirectoryArg("--include-pattern=", b.path("src"));
+        merge_step.addDirectoryArg(kcov_collect.addOutputFileArg(unit_tests.name));
+        kcov_collect.addArtifactArg(unit_tests);
+        kcov_collect.enableTestRunnerMode();
+    }
+
+    {
+        const kcov_collect = std.Build.Step.Run.create(b, "collect coverage");
+        kcov_collect.addArgs(&.{ "kcov", "--collect-only" });
+        kcov_collect.addPrefixedDirectoryArg("--include-pattern=", b.path("src"));
+        merge_step.addDirectoryArg(kcov_collect.addOutputFileArg(integration_tests.name));
+        kcov_collect.addArtifactArg(integration_tests);
+        kcov_collect.enableTestRunnerMode();
+    }
+
+    const install_coverage = b.addInstallDirectory(.{
+        .source_dir = merged_coverage_output,
+        .install_dir = .{ .custom = "coverage" },
+        .install_subdir = "",
+    });
+
+    coverage_step.dependOn(&install_coverage.step);
 }
