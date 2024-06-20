@@ -52,7 +52,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
-          directory: zig-out/coverage/kcov-merged
+          directory: kcov-out
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
