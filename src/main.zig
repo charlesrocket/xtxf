@@ -271,8 +271,14 @@ pub fn main() !void {
 
     for (args) |arg| {
         if (eqlStr(arg, "--help") or eqlStr(arg, "-h")) {
-            std.debug.print("{s}\n", .{help_message});
-            std.process.exit(0);
+            const stdout_file = std.io.getStdOut().writer();
+            var bw = std.io.bufferedWriter(stdout_file);
+            const stdout = bw.writer();
+
+            try stdout.print("{s}\n", .{help_message});
+            try bw.flush();
+
+            core.active = false;
         }
 
         if (eqlStr(arg, "--color=default") or eqlStr(arg, "-c=default")) {
