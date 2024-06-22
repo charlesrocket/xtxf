@@ -13,6 +13,7 @@ const Color = enum { default, red, green, blue, yellow };
 const FRAME = 39730492;
 
 const Core = struct {
+    allocator: std.mem.Allocator,
     mutex: Mutex,
     active: bool,
     pulse: bool,
@@ -20,8 +21,8 @@ const Core = struct {
     bg: u32,
     width: i32,
     height: i32,
-    width_g_arr: std.BoundedArrayAligned(u32, 4, 2000),
-    height_g_arr: std.BoundedArrayAligned(u32, 4, 2000),
+    width_g_arr: std.ArrayListAligned(u32, null),
+    height_g_arr: std.ArrayListAligned(u32, null),
 
     fn setActive(self: *@This(), value: bool) void {
         self.mutex.lock();
@@ -42,14 +43,16 @@ const Core = struct {
         self.mutex.lock();
         defer self.mutex.unlock();
 
-        self.width_g_arr = try getNthValues(self.width, adv);
+        self.width_g_arr.clearAndFree();
+        self.width_g_arr = try getNthValues(self.width, adv, self.allocator);
     }
 
     fn updateHeightSec(self: *@This(), adv: u32) !void {
         self.mutex.lock();
         defer self.mutex.unlock();
 
-        self.height_g_arr = try getNthValues(self.height, adv);
+        self.height_g_arr.clearAndFree();
+        self.height_g_arr = try getNthValues(self.height, adv, self.allocator);
     }
 };
 
@@ -197,8 +200,8 @@ fn animation(core: *Core, handler: *Handler) !void {
     }
 }
 
-fn getNthValues(number: i32, adv: u32) !std.BoundedArrayAligned(u32, 4, 2000) {
-    var array = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
+fn getNthValues(number: i32, adv: u32, allocator: std.mem.Allocator) !std.ArrayListAligned(u32, null) {
+    var array = std.ArrayList(u32).init(allocator);
     var val = adv;
 
     while (val <= @as(u32, @intCast(number))) {
@@ -206,12 +209,11 @@ fn getNthValues(number: i32, adv: u32) !std.BoundedArrayAligned(u32, 4, 2000) {
         val += adv;
     }
 
-    try array.resize(array.len);
     return array;
 }
 
-fn checkSec(arr: std.BoundedArrayAligned(u32, 4, 2000), value: usize) bool {
-    for (arr.slice()) |el| {
+fn checkSec(arr: std.ArrayListAligned(u32, null), value: usize) bool {
+    for (arr.items) |el| {
         if (el == value) {
             return true;
         }
@@ -233,14 +235,21 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpallocator.allocator();
     defer _ = gpallocator.deinit();
 
-    const args = try std.process.argsAlloc(allocator);
-    defer std.process.argsFree(allocator, args);
-
-    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
+    var core = Core{ .allocator = gpallocator.allocator(), .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
     var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 0, .pause = false, .mode = Mode.binary, .style = Style.default };
+
+    const args = try std.process.argsAlloc(core.allocator);
+    defer std.process.argsFree(core.allocator, args);
+
+    core.width_g_arr = std.ArrayList(u32).init(core.allocator);
+    core.height_g_arr = std.ArrayList(u32).init(core.allocator);
+
+    defer {
+        core.width_g_arr.deinit();
+        core.height_g_arr.deinit();
+    }
 
     const help_message =
         \\
@@ -318,7 +327,7 @@ pub fn main() !void {
 }
 
 test "handler" {
-    var core = Core{ .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
+    var core = Core{ .allocator = std.testing.allocator, .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
     var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 1, .pause = false, .mode = Mode.binary, .style = Style.default };
 
     try handler.run(&core);
@@ -346,9 +355,15 @@ test "compare strings" {
 }
 
 test "check array" {
-    var array1 = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
-    var array2 = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
-    var array3 = try std.BoundedArrayAligned(u32, 4, 2000).init(0);
+    var array1 = std.ArrayList(u32).init(std.testing.allocator);
+    var array2 = std.ArrayList(u32).init(std.testing.allocator);
+    var array3 = std.ArrayList(u32).init(std.testing.allocator);
+
+    defer {
+        array1.deinit();
+        array2.deinit();
+        array3.deinit();
+    }
 
     try array1.append(1);
     try array1.append(2);
@@ -365,10 +380,11 @@ test "check array" {
 }
 
 test "sections" {
-    const array = try getNthValues(12, 4);
+    const array = try getNthValues(12, 4, std.testing.allocator);
+    defer array.deinit();
 
-    try std.testing.expect(array.slice()[0] == 4);
-    try std.testing.expect(array.slice()[1] == 8);
-    try std.testing.expect(array.slice()[2] == 12);
-    try std.testing.expect(array.slice().len == 3);
+    try std.testing.expect(array.items[0] == 4);
+    try std.testing.expect(array.items[1] == 8);
+    try std.testing.expect(array.items[2] == 12);
+    try std.testing.expect(array.items.len == 3);
 }
