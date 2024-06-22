@@ -1,0 +1,23 @@
+---
+
+codecov:
+  require_ci_to_pass: false
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 30%
+    patch: false
+
+flag_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto
+        threshold: 30%
+
+comment:
+  layout: "reach, diff, flags, files"
+  require_changes: true
