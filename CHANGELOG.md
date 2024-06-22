@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2024-06-22
+
+### Bug Fixes
+
+- Move terminal size check
+- Use `process.Child`
+- Add `core.allocator`
+- Improve terminal size check
+
+### Documentation
+
+- Add coverage badge
+- Update usage
+
+### Miscellaneous tasks
+
+- Ignore .zig-cache
+
+### Operations
+
+- Enable tests
+- Generate test coverage
+- Set zig version on coverage
+- Add build summary
+- Bump zig to 0.13.0
+- Fix kcov integration
+- Add codecov settings
+
+### Refactor
+
+- Drop `debug.print()`
+
+### Testing
+
+- Move `main`
+- Fix stderr length
+- Link libc
+- Add `columns`
+- Add `crypto`
+
+### Build
+
+- Set unit tests name
+- Set test attributes
+- Fix root source file
+
 ## [0.2.0] - 2024-06-18
 
 ### Bug Fixes
