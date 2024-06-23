@@ -188,11 +188,10 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
                     core.bg = tb.TB_DEFAULT;
                 }
             }
-
-            core.setRendering(false);
         }
 
         _ = tb.tb_present();
+        core.setRendering(false);
         std.time.sleep(FRAME);
     }
 }
