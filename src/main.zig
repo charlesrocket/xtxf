@@ -177,7 +177,7 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
     }
 }
 
-fn animation(core: *Core, handler: *Handler) !void {
+fn animation(handler: *Handler, core: *Core) !void {
     var prng = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
     const mode: u8 = switch (handler.mode) {
         Mode.binary => 2,
@@ -325,7 +325,7 @@ pub fn main() !void {
         const t_h = try std.Thread.spawn(.{}, Handler.run, .{ &handler, &core });
         defer t_h.join();
 
-        const t_a = try std.Thread.spawn(.{}, animation, .{ &core, &handler });
+        const t_a = try std.Thread.spawn(.{}, animation, .{ &handler, &core });
         defer t_a.join();
     }
 
