@@ -124,14 +124,14 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
     if (!handler.pause) {
         for (1..@intCast(core.width)) |w| {
             if (handler.style != Style.default) {
-                if (checkSec(core.width_g_arr, w)) {
+                if (checkSec(&core.width_g_arr, w)) {
                     continue;
                 }
             }
 
             for (1..@intCast(core.height)) |h| {
                 if (handler.style != Style.default) {
-                    if (checkSec(core.height_g_arr, h)) {
+                    if (checkSec(&core.height_g_arr, h)) {
                         continue;
                     }
                 }
@@ -207,7 +207,7 @@ fn getNthValues(number: i32, adv: u32, allocator: std.mem.Allocator) !std.ArrayL
     return array;
 }
 
-fn checkSec(arr: std.ArrayListAligned(u32, null), value: usize) bool {
+fn checkSec(arr: *std.ArrayListAligned(u32, null), value: usize) bool {
     for (arr.items) |el| {
         if (el == value) {
             return true;
@@ -380,9 +380,9 @@ test "check array" {
 
     try array3.append(1);
 
-    try std.testing.expect(checkSec(array1, 2));
-    try std.testing.expect(!checkSec(array2, 2));
-    try std.testing.expect(!checkSec(array3, 2));
+    try std.testing.expect(checkSec(&array1, 2));
+    try std.testing.expect(!checkSec(&array2, 2));
+    try std.testing.expect(!checkSec(&array3, 2));
 }
 
 test "sections" {
