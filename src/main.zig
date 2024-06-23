@@ -87,13 +87,11 @@ const Handler = struct {
     }
 
     fn run(self: *@This(), core: *Core) !void {
-        if (self.style != Style.default) {
-            if (self.style == Style.crypto) {
-                try core.updateWidthSec(5);
-                try core.updateHeightSec(3);
-            } else if (self.style == Style.columns) {
-                try core.updateWidthSec(4);
-            }
+        if (self.style == Style.crypto) {
+            try core.updateWidthSec(5);
+            try core.updateHeightSec(3);
+        } else if (self.style == Style.columns) {
+            try core.updateWidthSec(4);
         }
 
         var timer = try std.time.Timer.start();
