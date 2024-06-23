@@ -16,6 +16,7 @@ const Core = struct {
     allocator: std.mem.Allocator,
     mutex: Mutex,
     active: bool,
+    rendering: bool,
     pulse: bool,
     color: Color,
     bg: u32,
@@ -29,6 +30,13 @@ const Core = struct {
         defer self.mutex.unlock();
 
         self.active = value;
+    }
+
+    fn setRendering(self: *@This(), value: bool) void {
+        self.mutex.lock();
+        defer self.mutex.unlock();
+
+        self.rendering = value;
     }
 
     fn updateTermSize(self: *@This()) !void {
@@ -107,6 +115,12 @@ const Handler = struct {
             if (@as(u8, @intCast(EVENT.type)) == 1) {
                 core.setActive(false);
             } else if (@as(u8, @intCast(EVENT.type)) == 2) {
+                self.setPause(true);
+
+                while (core.rendering) {
+                    std.time.sleep(FRAME / 2);
+                }
+
                 try core.updateTermSize();
 
                 if (self.style == Style.crypto) {
@@ -115,6 +129,8 @@ const Handler = struct {
                 } else if (self.style == Style.columns) {
                     try core.updateWidthSec(4);
                 }
+
+                self.setPause(false);
             }
         }
     }
@@ -122,6 +138,8 @@ const Handler = struct {
 
 fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !void {
     if (!handler.pause) {
+        core.setRendering(true);
+
         for (1..@intCast(core.width)) |w| {
             if (handler.style != Style.default) {
                 if (checkSec(&core.width_g_arr, w)) {
@@ -170,6 +188,8 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
                     core.bg = tb.TB_DEFAULT;
                 }
             }
+
+            core.setRendering(false);
         }
 
         _ = tb.tb_present();
@@ -232,7 +252,7 @@ pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpallocator.deinit();
 
-    var core = Core{ .allocator = gpallocator.allocator(), .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
+    var core = Core{ .allocator = gpallocator.allocator(), .mutex = Mutex{}, .active = true, .rendering = false, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
     var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 0, .pause = false, .mode = Mode.binary, .style = Style.default };
 
     const args = try std.process.argsAlloc(core.allocator);
@@ -292,6 +312,7 @@ pub fn main() !void {
         } else if (eqlStr(arg, "--color=yellow") or eqlStr(arg, "-c=yellow")) {
             core.color = Color.yellow;
         }
+
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
             handler.mode = Mode.decimal;
         }
@@ -333,7 +354,7 @@ pub fn main() !void {
 }
 
 test "handler" {
-    var core = Core{ .allocator = std.testing.allocator, .mutex = Mutex{}, .active = true, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
+    var core = Core{ .allocator = std.testing.allocator, .mutex = Mutex{}, .active = true, .rendering = false, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
     var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 1, .pause = false, .mode = Mode.binary, .style = Style.default };
 
     try handler.run(&core);
