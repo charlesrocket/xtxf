@@ -1,6 +1,6 @@
 const std = @import("std");
 const tb = @cImport({
-    @cInclude("termbox.h");
+    @cInclude("termbox2.h");
 });
 
 const Thread = std.Thread;
