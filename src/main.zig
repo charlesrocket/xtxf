@@ -288,12 +288,8 @@ pub fn main() !void {
 
     for (args) |arg| {
         if (eqlStr(arg, "--help") or eqlStr(arg, "-h")) {
-            const stdout_file = std.io.getStdOut().writer();
-            var bw = std.io.bufferedWriter(stdout_file);
-            const stdout = bw.writer();
-
-            try stdout.print("{s}\n", .{help_message});
-            try bw.flush();
+            const stdout = std.io.getStdOut();
+            try stdout.writer().print("{s}{s}", .{ help_message, "\n" });
 
             core.active = false;
         }
