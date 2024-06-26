@@ -46,7 +46,7 @@ pub fn build(b: *std.Build) void {
     test_options.addOptionPath("exe_path", exe.getEmittedBin());
 
     const integration_tests = b.addTest(.{
-        .root_source_file = b.path("tests/cli.zig"),
+        .root_source_file = b.path("test/cli.zig"),
         .target = target,
         .optimize = optimize,
     });
