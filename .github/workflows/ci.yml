@@ -28,10 +28,9 @@ jobs:
       - name: Test
         run: zig build test --summary all
 
-  coverage:
-    name: Test coverage
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    if: "!startsWith(github.ref, 'refs/tags/')"
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
@@ -41,20 +40,20 @@ jobs:
       - name: Install kcov
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            --no-install-recommends \
-            --allow-unauthenticated \
-            kcov
+          sudo apt-get install -y kcov
+        if: "!startsWith(github.ref, 'refs/tags/')"
 
       - name: Generate coverage
-        run: zig build coverage --summary all
+        run: |
+          xvfb-run zig build coverage --summary all
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
-          directory: kcov-out
+          file: kcov-out/kcov-merged/cobertura.xml
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
+        if: "!startsWith(github.ref, 'refs/tags/')"
 
   lint:
     name: Format
@@ -66,7 +65,7 @@ jobs:
       - run: zig fmt --check .
 
   release:
-    needs: [build]
+    needs: [build, test]
     permissions:
       contents: write
     if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
