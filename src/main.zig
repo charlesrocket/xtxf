@@ -48,17 +48,11 @@ const Core = struct {
     }
 
     fn updateWidthSec(self: *@This(), adv: u32) !void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
-
         self.width_g_arr.clearAndFree();
         self.width_g_arr = try getNthValues(self.width, adv, self.allocator);
     }
 
     fn updateHeightSec(self: *@This(), adv: u32) !void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
-
         self.height_g_arr.clearAndFree();
         self.height_g_arr = try getNthValues(self.height, adv, self.allocator);
     }
@@ -88,9 +82,15 @@ const Handler = struct {
 
     fn run(self: *@This(), core: *Core) !void {
         if (self.style == Style.crypto) {
+            core.mutex.lock();
+            defer core.mutex.unlock();
+
             try core.updateWidthSec(5);
             try core.updateHeightSec(3);
         } else if (self.style == Style.columns) {
+            core.mutex.lock();
+            defer core.mutex.unlock();
+
             try core.updateWidthSec(4);
         }
 
@@ -122,9 +122,15 @@ const Handler = struct {
                 try core.updateTermSize();
 
                 if (self.style == Style.crypto) {
+                    core.mutex.lock();
+                    defer core.mutex.unlock();
+
                     try core.updateWidthSec(5);
                     try core.updateHeightSec(3);
                 } else if (self.style == Style.columns) {
+                    core.mutex.lock();
+                    defer core.mutex.unlock();
+
                     try core.updateWidthSec(4);
                 }
 
