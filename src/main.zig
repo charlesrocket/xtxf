@@ -126,6 +126,9 @@ const Handler = struct {
 };
 
 fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !void {
+    handler.mutex.lock();
+    defer handler.mutex.unlock();
+
     if (!handler.pause) {
         core.setRendering(true);
 
