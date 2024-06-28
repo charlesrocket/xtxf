@@ -26,23 +26,14 @@ const Core = struct {
     height_g_arr: std.ArrayListAligned(u32, null),
 
     fn setActive(self: *@This(), value: bool) void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
-
         self.active = value;
     }
 
     fn setRendering(self: *@This(), value: bool) void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
-
         self.rendering = value;
     }
 
     fn updateTermSize(self: *@This()) !void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
-
         self.width = tb.tb_width();
         self.height = tb.tb_height();
     }
@@ -67,16 +58,10 @@ const Handler = struct {
     style: Style,
 
     fn setHalt(self: *@This(), value: bool) void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
-
         self.halt = value;
     }
 
     fn setPause(self: *@This(), value: bool) void {
-        self.mutex.lock();
-        defer self.mutex.unlock();
-
         self.pause = value;
     }
 
