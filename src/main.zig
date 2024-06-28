@@ -47,6 +47,21 @@ const Core = struct {
         self.height_g_arr.clearAndFree();
         self.height_g_arr = try getNthValues(self.height, adv, self.allocator);
     }
+
+    fn updateStyle(self: *@This(), style: Style) !void {
+        if (style == Style.crypto) {
+            self.mutex.lock();
+            defer self.mutex.unlock();
+
+            try self.updateWidthSec(5);
+            try self.updateHeightSec(3);
+        } else if (style == Style.columns) {
+            self.mutex.lock();
+            defer self.mutex.unlock();
+
+            try self.updateWidthSec(4);
+        }
+    }
 };
 
 const Handler = struct {
@@ -66,18 +81,7 @@ const Handler = struct {
     }
 
     fn run(self: *@This(), core: *Core) !void {
-        if (self.style == Style.crypto) {
-            core.mutex.lock();
-            defer core.mutex.unlock();
-
-            try core.updateWidthSec(5);
-            try core.updateHeightSec(3);
-        } else if (self.style == Style.columns) {
-            core.mutex.lock();
-            defer core.mutex.unlock();
-
-            try core.updateWidthSec(4);
-        }
+        try core.updateStyle(self.style);
 
         var timer = try std.time.Timer.start();
         const duration = self.duration * 1000000000;
@@ -105,19 +109,7 @@ const Handler = struct {
                 }
 
                 try core.updateTermSize();
-
-                if (self.style == Style.crypto) {
-                    core.mutex.lock();
-                    defer core.mutex.unlock();
-
-                    try core.updateWidthSec(5);
-                    try core.updateHeightSec(3);
-                } else if (self.style == Style.columns) {
-                    core.mutex.lock();
-                    defer core.mutex.unlock();
-
-                    try core.updateWidthSec(4);
-                }
+                try core.updateStyle(self.style);
 
                 self.setPause(false);
             }
