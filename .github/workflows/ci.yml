@@ -24,10 +24,10 @@ jobs:
           version: ${{ env.ZIG_VERSION }}
 
       - name: Build
-        run: zig build
+        run: zig build --summary all
 
       - name: Test
-        run: zig build -Doptimize=Release${{ matrix.mode }} test --summary all
+        run: zig build test -Doptimize=Release${{ matrix.mode }} --summary all
 
   coverage:
     name: Test coverage
