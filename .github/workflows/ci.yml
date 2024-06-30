@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos]
-        mode: [Fast, Safe, Small]
+        mode: [fast, safe, small]
     runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
         run: zig build --summary all
 
       - name: Test
-        run: zig build test -Doptimize=Release${{ matrix.mode }} --summary all
+        run: zig build test --release=${{ matrix.mode }} --summary all
 
   coverage:
     name: Test coverage
