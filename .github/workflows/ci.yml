@@ -10,12 +10,13 @@ env:
   ZIG_VERSION: 0.13.0
 
 jobs:
-  build:
-    name: Build
+  test:
+    name: Test
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu, macos]
+        mode: [Fast, Safe, Small]
+    runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
@@ -26,7 +27,7 @@ jobs:
         run: zig build
 
       - name: Test
-        run: zig build test --summary all
+        run: zig build -Doptimize=Release${{ matrix.mode }} test --summary all
 
   coverage:
     name: Test coverage
@@ -64,7 +65,7 @@ jobs:
       - run: zig fmt --check .
 
   release:
-    needs: [build]
+    needs: [test]
     permissions:
       contents: write
     if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
