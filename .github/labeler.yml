@@ -1,0 +1,20 @@
+---
+
+documentation:
+- changed-files:
+  - any-glob-to-any-file: 'README.md'
+
+build:
+- changed-files:
+  - any-glob-to-any-file: ['build.zig.zon', 'build.zig']
+
+test:
+- changed-files:
+  - any-glob-to-any-file: 'test/**/*'
+
+ops:
+- changed-files:
+  - any-glob-to-any-file: ['.github/**/*', 'codecov.yml']
+
+feature:
+ - head-branch: ['^feature', 'feature']
