@@ -72,4 +72,3 @@ jobs:
     uses: ./.github/workflows/cd.yml
     with:
       tag_name: ${{ github.ref_name }}
-      zig_version: ${{ needs.build.outputs.zig_version }}
