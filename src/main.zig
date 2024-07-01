@@ -7,7 +7,7 @@ const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 
 const Mode = enum { binary, decimal };
-const Style = enum { default, columns, crypto, grid };
+const Style = enum { default, columns, crypto, grid, blocks };
 const Color = enum { default, red, green, blue, yellow };
 
 const FRAME = 39730492;
@@ -61,6 +61,12 @@ const Core = struct {
 
             try self.updateWidthSec(5);
             try self.updateHeightSec(3);
+        } else if (style == Style.blocks) {
+            self.mutex.lock();
+            defer self.mutex.unlock();
+
+            try self.updateWidthSec(10);
+            try self.updateHeightSec(6);
         } else if (style == Style.columns) {
             self.mutex.lock();
             defer self.mutex.unlock();
@@ -271,7 +277,7 @@ pub fn main() !void {
         \\
         \\Options:
         \\  -c, --color     Set color [default, red, green, blue, yellow]
-        \\  -s, --style     Set style [default, columns, crypto, grid]
+        \\  -s, --style     Set style [default, columns, crypto, grid, blocks]
         \\  -t, --time      Set duration [loop, short]
         \\  -p, --pulse     Pulse blocks
         \\  -d, --decimal   Decimal mode
@@ -314,6 +320,8 @@ pub fn main() !void {
             handler.style = Style.crypto;
         } else if (eqlStr(arg, "--style=columns") or eqlStr(arg, "-s=columns")) {
             handler.style = Style.columns;
+        } else if (eqlStr(arg, "--style=blocks") or eqlStr(arg, "-s=blocks")) {
+            handler.style = Style.blocks;
         } else if (eqlStr(arg, "--style=grid") or eqlStr(arg, "-s=grid")) {
             handler.style = Style.grid;
         }
