@@ -2,6 +2,57 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2024-07-01
+
+### Bug Fixes
+
+- Fix segfault on resize
+- Move rendering state
+- Drop mutex locks from section functions
+- Lock `handler`
+
+### Features
+
+- Add `grid` mode
+- Add `blocks` mode
+
+### Miscellaneous tasks
+
+- Bump version to 0.3.0
+- Add funding
+
+### Operations
+
+- Update `ci` workflow
+- Update coverage job
+- Add build mode
+- Update reusable inputs
+- Update build command
+- Add labeler
+- Add pr template
+- Use `release` flag
+
+### Performance
+
+- Point `checkSec()` array
+- Optimize stdout print
+
+### Refactor
+
+- Swap `animation()` parameters
+- Edit `handler.style` conditions
+- Drop mutex locks
+- Add `Core.updateStyle()`
+
+### Testing
+
+- Add `decimal`
+- Add `grid`
+
+### Build
+
+- Bump termbox to `ff767c1`
+
 ## [0.2.1] - 2024-06-22
 
 ### Bug Fixes
