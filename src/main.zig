@@ -74,6 +74,16 @@ const Core = struct {
             try self.updateWidthSec(4);
         }
     }
+
+    fn shutdown(self: *@This(), args: [][:0]u8, allocator: *std.heap.GeneralPurposeAllocator(.{})) void {
+        _ = tb.tb_shutdown();
+
+        self.width_g_arr.deinit();
+        self.height_g_arr.deinit();
+
+        std.process.argsFree(self.allocator, args);
+        _ = allocator.deinit();
+    }
 };
 
 const Handler = struct {
@@ -245,21 +255,13 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpallocator.deinit();
-
     var core = Core{ .allocator = gpallocator.allocator(), .mutex = Mutex{}, .active = true, .rendering = false, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
     var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 0, .pause = false, .mode = Mode.binary, .style = Style.default };
 
     const args = try std.process.argsAlloc(core.allocator);
-    defer std.process.argsFree(core.allocator, args);
 
     core.width_g_arr = std.ArrayList(u32).init(core.allocator);
     core.height_g_arr = std.ArrayList(u32).init(core.allocator);
-
-    defer {
-        core.width_g_arr.deinit();
-        core.height_g_arr.deinit();
-    }
 
     const help_message =
         \\
@@ -289,7 +291,8 @@ pub fn main() !void {
             const stdout = std.io.getStdOut();
             try stdout.writer().print("{s}{s}", .{ help_message, "\n" });
 
-            core.active = false;
+            core.shutdown(args, &gpallocator);
+            std.process.exit(0);
         }
 
         if (eqlStr(arg, "--color=default") or eqlStr(arg, "-c=default")) {
@@ -333,8 +336,9 @@ pub fn main() !void {
     core.height = tb.tb_height();
 
     if (core.width < 4 or core.height < 2) {
+        core.shutdown(args, &gpallocator);
         std.log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
-        core.active = false;
+        std.process.exit(0);
     }
 
     if (core.active) {
@@ -345,7 +349,7 @@ pub fn main() !void {
         defer t_a.join();
     }
 
-    _ = tb.tb_shutdown();
+    core.shutdown(args, &gpallocator);
 }
 
 test "handler" {
