@@ -75,8 +75,20 @@ const Core = struct {
         }
     }
 
+    fn init(self: *@This()) void {
+        _ = tb.tb_init();
+
+        self.width_g_arr = std.ArrayList(u32).init(self.allocator);
+        self.height_g_arr = std.ArrayList(u32).init(self.allocator);
+        self.setActive(true);
+
+        try self.updateTermSize();
+    }
+
     fn shutdown(self: *@This(), args: [][:0]u8, allocator: *std.heap.GeneralPurposeAllocator(.{})) void {
-        _ = tb.tb_shutdown();
+        if (!self.active) {
+            _ = tb.tb_shutdown();
+        }
 
         self.width_g_arr.deinit();
         self.height_g_arr.deinit();
@@ -255,13 +267,10 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
-    var core = Core{ .allocator = gpallocator.allocator(), .mutex = Mutex{}, .active = true, .rendering = false, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
+    var core = Core{ .allocator = gpallocator.allocator(), .mutex = Mutex{}, .active = undefined, .rendering = false, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
     var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 0, .pause = false, .mode = Mode.binary, .style = Style.default };
 
     const args = try std.process.argsAlloc(core.allocator);
-
-    core.width_g_arr = std.ArrayList(u32).init(core.allocator);
-    core.height_g_arr = std.ArrayList(u32).init(core.allocator);
 
     const help_message =
         \\
@@ -330,12 +339,10 @@ pub fn main() !void {
         }
     }
 
-    _ = tb.tb_init();
-
-    core.width = tb.tb_width();
-    core.height = tb.tb_height();
+    core.init();
 
     if (core.width < 4 or core.height < 2) {
+        core.setActive(false);
         core.shutdown(args, &gpallocator);
         std.log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
         std.process.exit(0);
