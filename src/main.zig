@@ -14,16 +14,16 @@ const FRAME = 39730492;
 
 const Core = struct {
     allocator: std.mem.Allocator,
-    mutex: Mutex,
-    active: bool,
-    rendering: bool,
-    pulse: bool,
-    color: Color,
-    bg: u32,
-    width: i32,
-    height: i32,
-    width_g_arr: std.ArrayListAligned(u32, null),
-    height_g_arr: std.ArrayListAligned(u32, null),
+    mutex: Mutex = Mutex{},
+    active: bool = false,
+    rendering: bool = false,
+    pulse: bool = false,
+    color: Color = Color.default,
+    bg: u32 = tb.TB_DEFAULT,
+    width: i32 = 0,
+    height: i32 = 0,
+    width_g_arr: std.ArrayListAligned(u32, null) = undefined,
+    height_g_arr: std.ArrayListAligned(u32, null) = undefined,
 
     fn setActive(self: *@This(), value: bool) void {
         self.active = value;
@@ -99,12 +99,12 @@ const Core = struct {
 };
 
 const Handler = struct {
-    mutex: Mutex,
-    halt: bool,
-    duration: u32,
-    pause: bool,
-    mode: Mode,
-    style: Style,
+    mutex: Mutex = Mutex{},
+    halt: bool = true,
+    duration: u32 = 0,
+    pause: bool = false,
+    mode: Mode = Mode.binary,
+    style: Style = Style.default,
 
     fn setHalt(self: *@This(), value: bool) void {
         self.halt = value;
@@ -268,8 +268,8 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
-    var core = Core{ .allocator = gpallocator.allocator(), .mutex = Mutex{}, .active = undefined, .rendering = false, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = false, .bg = tb.TB_DEFAULT, .color = Color.default };
-    var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 0, .pause = false, .mode = Mode.binary, .style = Style.default };
+    var core = Core{ .allocator = gpallocator.allocator() };
+    var handler = Handler{};
 
     const args = try std.process.argsAlloc(core.allocator);
 
@@ -361,8 +361,8 @@ pub fn main() !void {
 }
 
 test "handler" {
-    var core = Core{ .allocator = std.testing.allocator, .mutex = Mutex{}, .active = true, .rendering = false, .width = undefined, .height = undefined, .width_g_arr = undefined, .height_g_arr = undefined, .pulse = undefined, .bg = undefined, .color = undefined };
-    var handler = Handler{ .mutex = Mutex{}, .halt = true, .duration = 1, .pause = false, .mode = Mode.binary, .style = Style.default };
+    var core = Core{ .allocator = std.testing.allocator, .active = true };
+    var handler = Handler{ .duration = 1 };
 
     try handler.run(&core);
 
