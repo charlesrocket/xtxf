@@ -188,6 +188,7 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
                 if (core.pulse) {
                     const blank = @mod(rand.int(u8), 255);
 
+                    // small probability
                     if (blank >= 254) {
                         core.bg = core.bg | tb.TB_REVERSE;
                     }
