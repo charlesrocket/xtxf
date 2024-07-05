@@ -5,6 +5,7 @@ const tb = @cImport({
 
 const Thread = std.Thread;
 const Mutex = Thread.Mutex;
+const log = std.log.scoped(.xtxf);
 
 const Mode = enum { binary, decimal };
 const Style = enum { default, columns, crypto, grid, blocks };
@@ -345,7 +346,7 @@ pub fn main() !void {
     if (core.width < 4 or core.height < 2) {
         core.setActive(false);
         core.shutdown(args, &gpallocator);
-        std.log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
+        log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
         std.process.exit(0);
     }
 
