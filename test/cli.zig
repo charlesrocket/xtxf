@@ -1,98 +1,58 @@
 const std = @import("std");
-const build_options = @import("build_options");
 
-test "default" {
-    const exe_path = build_options.exe_path;
-    const argv = [_][]const u8{ exe_path, "--time=short" };
+const build_options = @import("build_options");
+const exe_path = build_options.exe_path;
+
+fn runner(args: anytype) !std.process.Child.Term {
     const proc = try std.process.Child.run(.{
         .allocator = std.testing.allocator,
-        .argv = &argv,
+        .argv = &args,
     });
 
     defer std.testing.allocator.free(proc.stdout);
     defer std.testing.allocator.free(proc.stderr);
 
-    const term = proc.term;
+    return proc.term;
+}
+
+test "default" {
+    const argv = [_][]const u8{ exe_path, "--time=short", "-s=default" };
+    const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "columns" {
-    const exe_path = build_options.exe_path;
     const argv = [_][]const u8{ exe_path, "--time=short", "-s=columns" };
-    const proc = try std.process.Child.run(.{
-        .allocator = std.testing.allocator,
-        .argv = &argv,
-    });
-
-    defer std.testing.allocator.free(proc.stdout);
-    defer std.testing.allocator.free(proc.stderr);
-
-    const term = proc.term;
+    const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "crypto" {
-    const exe_path = build_options.exe_path;
     const argv = [_][]const u8{ exe_path, "--time=short", "-s=crypto" };
-    const proc = try std.process.Child.run(.{
-        .allocator = std.testing.allocator,
-        .argv = &argv,
-    });
-
-    defer std.testing.allocator.free(proc.stdout);
-    defer std.testing.allocator.free(proc.stderr);
-
-    const term = proc.term;
+    const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "grid" {
-    const exe_path = build_options.exe_path;
     const argv = [_][]const u8{ exe_path, "--time=short", "-s=grid" };
-    const proc = try std.process.Child.run(.{
-        .allocator = std.testing.allocator,
-        .argv = &argv,
-    });
-
-    defer std.testing.allocator.free(proc.stdout);
-    defer std.testing.allocator.free(proc.stderr);
-
-    const term = proc.term;
+    const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "blocks" {
-    const exe_path = build_options.exe_path;
     const argv = [_][]const u8{ exe_path, "--time=short", "-s=blocks" };
-    const proc = try std.process.Child.run(.{
-        .allocator = std.testing.allocator,
-        .argv = &argv,
-    });
-
-    defer std.testing.allocator.free(proc.stdout);
-    defer std.testing.allocator.free(proc.stderr);
-
-    const term = proc.term;
+    const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "decimal" {
-    const exe_path = build_options.exe_path;
     const argv = [_][]const u8{ exe_path, "--time=short", "--decimal" };
-    const proc = try std.process.Child.run(.{
-        .allocator = std.testing.allocator,
-        .argv = &argv,
-    });
-
-    defer std.testing.allocator.free(proc.stdout);
-    defer std.testing.allocator.free(proc.stderr);
-
-    const term = proc.term;
+    const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
