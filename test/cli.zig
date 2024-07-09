@@ -16,7 +16,35 @@ fn runner(args: anytype) !std.process.Child.Term {
 }
 
 test "default" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-s=default" };
+    const argv = [_][]const u8{ exe_path, "--time=short", "-s=default", "-c=default" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
+test "color: red" {
+    const argv = [_][]const u8{ exe_path, "--time=short", "-c=red" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
+test "color: green" {
+    const argv = [_][]const u8{ exe_path, "--time=short", "-c=green" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
+test "color: blue" {
+    const argv = [_][]const u8{ exe_path, "--time=short", "-c=blue" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
+test "color: yellow" {
+    const argv = [_][]const u8{ exe_path, "--time=short", "-c=yellow" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
