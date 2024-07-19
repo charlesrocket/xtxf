@@ -26,30 +26,30 @@ const Core = struct {
     width_g_arr: std.ArrayListAligned(u32, null) = undefined,
     height_g_arr: std.ArrayListAligned(u32, null) = undefined,
 
-    fn setActive(self: *@This(), value: bool) void {
+    fn setActive(self: *Core, value: bool) void {
         self.active = value;
     }
 
-    fn setRendering(self: *@This(), value: bool) void {
+    fn setRendering(self: *Core, value: bool) void {
         self.rendering = value;
     }
 
-    fn updateTermSize(self: *@This()) !void {
+    fn updateTermSize(self: *Core) !void {
         self.width = tb.tb_width();
         self.height = tb.tb_height();
     }
 
-    fn updateWidthSec(self: *@This(), adv: u32) !void {
+    fn updateWidthSec(self: *Core, adv: u32) !void {
         self.width_g_arr.clearAndFree();
         self.width_g_arr = try getNthValues(self.width, adv, self.allocator);
     }
 
-    fn updateHeightSec(self: *@This(), adv: u32) !void {
+    fn updateHeightSec(self: *Core, adv: u32) !void {
         self.height_g_arr.clearAndFree();
         self.height_g_arr = try getNthValues(self.height, adv, self.allocator);
     }
 
-    fn updateStyle(self: *@This(), style: Style) !void {
+    fn updateStyle(self: *Core, style: Style) !void {
         if (style == Style.grid) {
             self.mutex.lock();
             defer self.mutex.unlock();
@@ -76,7 +76,7 @@ const Core = struct {
         }
     }
 
-    fn init(self: *@This()) void {
+    fn init(self: *Core) void {
         _ = tb.tb_init();
 
         self.width_g_arr = std.ArrayList(u32).init(self.allocator);
@@ -86,7 +86,7 @@ const Core = struct {
         try self.updateTermSize();
     }
 
-    fn shutdown(self: *@This(), args: [][:0]u8, allocator: *std.heap.GeneralPurposeAllocator(.{})) void {
+    fn shutdown(self: *Core, args: [][:0]u8, allocator: *std.heap.GeneralPurposeAllocator(.{})) void {
         if (!self.active) {
             _ = tb.tb_shutdown();
         }
@@ -107,15 +107,15 @@ const Handler = struct {
     mode: Mode = Mode.binary,
     style: Style = Style.default,
 
-    fn setHalt(self: *@This(), value: bool) void {
+    fn setHalt(self: *Handler, value: bool) void {
         self.halt = value;
     }
 
-    fn setPause(self: *@This(), value: bool) void {
+    fn setPause(self: *Handler, value: bool) void {
         self.pause = value;
     }
 
-    fn run(self: *@This(), core: *Core) !void {
+    fn run(self: *Handler, core: *Core) !void {
         try core.updateStyle(self.style);
 
         var timer = try std.time.Timer.start();
