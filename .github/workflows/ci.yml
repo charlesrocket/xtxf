@@ -46,7 +46,7 @@ jobs:
 
       - name: Generate coverage
         run: |
-          xvfb-run zig build coverage --summary all
+          zig build coverage --summary all
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
