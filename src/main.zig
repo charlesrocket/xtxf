@@ -35,8 +35,11 @@ const Core = struct {
     }
 
     fn updateTermSize(self: *Core) !void {
-        self.width = tb.tb_width();
-        self.height = tb.tb_height();
+        const width: i32 = tb.tb_width();
+        const height: i32  = tb.tb_height();
+
+        self.width = if (width < 0) 120 else width;
+        self.height = if (height < 0) 120 else height;
     }
 
     fn updateWidthSec(self: *Core, adv: u32) !void {
