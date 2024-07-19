@@ -23,8 +23,8 @@ const Core = struct {
     bg: u32 = tb.TB_DEFAULT,
     width: i32 = 0,
     height: i32 = 0,
-    width_g_arr: ?std.ArrayListAligned(u32, null) = null,
-    height_g_arr: ?std.ArrayListAligned(u32, null) = null,
+    width_gaps: ?std.ArrayListAligned(u32, null) = null,
+    height_gaps: ?std.ArrayListAligned(u32, null) = null,
 
     fn setActive(self: *Core, value: bool) void {
         self.active = value;
@@ -43,13 +43,13 @@ const Core = struct {
     }
 
     fn updateWidthSec(self: *Core, adv: u32) !void {
-        self.width_g_arr.?.clearAndFree();
-        self.width_g_arr = try getNthValues(self.width, adv, self.allocator);
+        self.width_gaps.?.clearAndFree();
+        self.width_gaps = try getNthValues(self.width, adv, self.allocator);
     }
 
     fn updateHeightSec(self: *Core, adv: u32) !void {
-        self.height_g_arr.?.clearAndFree();
-        self.height_g_arr = try getNthValues(self.height, adv, self.allocator);
+        self.height_gaps.?.clearAndFree();
+        self.height_gaps = try getNthValues(self.height, adv, self.allocator);
     }
 
     fn updateStyle(self: *Core, style: Style) !void {
@@ -82,8 +82,8 @@ const Core = struct {
     fn init(self: *Core) void {
         _ = tb.tb_init();
 
-        self.width_g_arr = std.ArrayList(u32).init(self.allocator);
-        self.height_g_arr = std.ArrayList(u32).init(self.allocator);
+        self.width_gaps = std.ArrayList(u32).init(self.allocator);
+        self.height_gaps = std.ArrayList(u32).init(self.allocator);
         self.setActive(true);
 
         try self.updateTermSize();
@@ -94,8 +94,8 @@ const Core = struct {
             _ = tb.tb_shutdown();
         }
 
-        self.width_g_arr.?.deinit();
-        self.height_g_arr.?.deinit();
+        self.width_gaps.?.deinit();
+        self.height_gaps.?.deinit();
 
         std.process.argsFree(self.allocator, args);
         _ = allocator.deinit();
@@ -164,14 +164,14 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
 
         for (1..@intCast(core.width)) |w| {
             if (handler.style != Style.default) {
-                if (checkSec(&core.width_g_arr.?, w)) {
+                if (checkSec(&core.width_gaps.?, w)) {
                     continue;
                 }
             }
 
             for (1..@intCast(core.height)) |h| {
                 if (handler.style != Style.default) {
-                    if (checkSec(&core.height_g_arr.?, h)) {
+                    if (checkSec(&core.height_gaps.?, h)) {
                         continue;
                     }
                 }
