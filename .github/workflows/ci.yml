@@ -15,7 +15,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos]
-        mode: [fast, safe, small]
+        mode: ["fast", "safe", "small", "off"]
+
     runs-on: ${{ matrix.os }}-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,8 +25,7 @@ jobs:
           version: ${{ env.ZIG_VERSION }}
 
       - name: Build
-        run: zig build --summary all
-
+        run: zig build --release=${{ matrix.mode }} --verbose --summary all
       - name: Test
         run: zig build test --release=${{ matrix.mode }} --summary all
 
@@ -45,8 +45,7 @@ jobs:
           sudo apt-get install -y kcov
 
       - name: Generate coverage
-        run: |
-          zig build coverage --summary all
+        run: zig build coverage --summary all
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4
