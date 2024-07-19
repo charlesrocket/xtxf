@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2024-07-19
+
+### Bug Fixes
+
+- Add `Core.shutdown()`
+- Set `log` scope
+- Catch negative dimensions
+
+### Documentation
+
+- Update options
+- Comment `pulse`
+
+### Operations
+
+- Drop `xvfb`
+- Update build commands
+
+### Refactor
+
+- Add `Core.init()`
+- Set default struct values
+- Drop `@This()`
+
+### Styling
+
+- Fix `updateTermSize()`
+
+### Testing
+
+- Add `runner()`
+- Add color tests
+
 ## [0.3.0] - 2024-07-01
 
 ### Bug Fixes
@@ -18,7 +51,6 @@ All notable changes to this project will be documented in this file.
 
 ### Miscellaneous tasks
 
-- Bump version to 0.3.0
 - Add funding
 
 ### Operations
