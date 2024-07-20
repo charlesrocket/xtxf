@@ -79,7 +79,11 @@ const Core = struct {
         }
     }
 
-    fn init(self: *Core) void {
+    fn init(gpallocator: std.mem.Allocator) Core {
+        return .{ .allocator = gpallocator };
+    }
+
+    fn start(self: *Core) void {
         _ = tb.tb_init();
 
         self.width_gaps = std.ArrayList(u32).init(self.allocator);
@@ -94,11 +98,18 @@ const Core = struct {
             _ = tb.tb_shutdown();
         }
 
-        self.width_gaps.?.deinit();
-        self.height_gaps.?.deinit();
+        if (self.width_gaps != null) {
+            self.width_gaps.?.deinit();
+        }
+
+        if (self.height_gaps != null) {
+            self.height_gaps.?.deinit();
+        }
 
         std.process.argsFree(self.allocator, args);
         _ = allocator.deinit();
+
+        std.process.exit(0);
     }
 };
 
@@ -272,7 +283,7 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
-    var core = Core{ .allocator = gpallocator.allocator() };
+    var core = Core.init(gpallocator.allocator());
     var handler = Handler{};
 
     const args = try std.process.argsAlloc(core.allocator);
@@ -306,7 +317,6 @@ pub fn main() !void {
             try stdout.writer().print("{s}{s}", .{ help_message, "\n" });
 
             core.shutdown(args, &gpallocator);
-            std.process.exit(0);
         }
 
         if (eqlStr(arg, "--color=default") or eqlStr(arg, "-c=default")) {
@@ -344,7 +354,7 @@ pub fn main() !void {
         }
     }
 
-    core.init();
+    core.start();
 
     if (core.width < 4 or core.height < 2) {
         core.setActive(false);
