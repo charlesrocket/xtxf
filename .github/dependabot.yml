@@ -8,7 +8,9 @@ updates:
     schedule:
       interval: "daily"
 
+    reviewers:
+      - "charlesrocket"
+
     commit-message:
       prefix: "ops"
       include: "scope"
- 
