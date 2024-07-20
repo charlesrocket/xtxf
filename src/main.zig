@@ -164,6 +164,10 @@ const Handler = struct {
             }
         }
     }
+
+    fn init() Handler {
+        return .{};
+    }
 };
 
 fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !void {
@@ -284,7 +288,7 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
     var core = Core.init(gpallocator.allocator());
-    var handler = Handler{};
+    var handler = Handler.init();
 
     const args = try std.process.argsAlloc(core.allocator);
 
