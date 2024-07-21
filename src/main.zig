@@ -86,8 +86,14 @@ const Core = struct {
     fn start(self: *Core) void {
         _ = tb.tb_init();
 
-        self.width_gaps = std.ArrayList(u32).init(self.allocator);
-        self.height_gaps = std.ArrayList(u32).init(self.allocator);
+        if (self.width_gaps == null) {
+            self.width_gaps = std.ArrayList(u32).init(self.allocator);
+        }
+
+        if (self.height_gaps == null) {
+            self.height_gaps = std.ArrayList(u32).init(self.allocator);
+        }
+
         self.setActive(true);
 
         try self.updateTermSize();
