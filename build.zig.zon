@@ -7,5 +7,9 @@
             .url = "https://github.com/termbox/termbox2/archive/ff767c1e8452bc19e24760df9a82b4c0c50f096f.zip",
             .hash = "12208cf79b3a9670fcf38da261ad546b09a5d80a36f0671e922b3d32a26517979e60",
         },
+        .ghext = .{
+            .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.3.0.tar.gz",
+            .hash = "12200acee906e217dafde5539a1e5905d093c97b6ba2408e0653772814e3643efc76",
+        },
     },
 }

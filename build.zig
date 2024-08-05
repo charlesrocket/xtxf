@@ -11,9 +11,17 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const ghext_dep = b.dependency("ghext", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const ghext = ghext_dep.module("ghext");
+
     exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
     exe.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
     exe.linkLibC();
+    exe.root_module.addImport("ghext", ghext);
 
     b.installArtifact(exe);
 
