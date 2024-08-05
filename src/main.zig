@@ -3,6 +3,8 @@ const tb = @cImport({
     @cInclude("termbox2.h");
 });
 
+const Ghext = @import("ghext");
+
 const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 const log = std.log.scoped(.xtxf);
@@ -318,6 +320,7 @@ pub fn main() !void {
         \\  -t, --time      Set duration [loop, short]
         \\  -p, --pulse     Pulse blocks
         \\  -d, --decimal   Decimal mode
+        \\  -v, --version   Print version
         \\  -h, --help      Print this message
     ;
 
@@ -361,6 +364,16 @@ pub fn main() !void {
             handler.style = Style.blocks;
         } else if (eqlStr(arg, "--style=grid") or eqlStr(arg, "-s=grid")) {
             handler.style = Style.grid;
+        }
+
+        if (eqlStr(arg, "--version") or eqlStr(arg, "-v")) {
+            // TODO add SemVer string
+            var gxt = try Ghext.read(core.allocator);
+            const stdout = std.io.getStdOut();
+            try stdout.writer().print("{s}{s}{s}", .{ "xtxf ", gxt.hash[0..7], "\n" });
+
+            gxt.deinit(core.allocator);
+            core.shutdown(args, &gpallocator);
         }
     }
 
