@@ -50,6 +50,13 @@ test "color: yellow" {
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
+test "color: magenta" {
+    const argv = [_][]const u8{ exe_path, "--time=short", "-c=magenta" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
 test "columns" {
     const argv = [_][]const u8{ exe_path, "--time=short", "-s=columns" };
     const term = try runner(argv);

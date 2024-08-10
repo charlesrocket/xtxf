@@ -11,7 +11,7 @@ const log = std.log.scoped(.xtxf);
 
 const Mode = enum { binary, decimal };
 const Style = enum { default, columns, crypto, grid, blocks };
-const Color = enum { default, red, green, blue, yellow };
+const Color = enum { default, red, green, blue, yellow, magenta };
 
 const FRAME = 39730492;
 
@@ -208,6 +208,7 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
                     Color.green => tb.TB_GREEN,
                     Color.blue => tb.TB_BLUE,
                     Color.yellow => tb.TB_YELLOW,
+                    Color.magenta => tb.TB_MAGENTA,
                 };
 
                 const bold = rand.boolean();
@@ -315,7 +316,7 @@ pub fn main() !void {
         \\Example: xtxf -p -c=red -s=crypto
         \\
         \\Options:
-        \\  -c, --color     Set color [default, red, green, blue, yellow]
+        \\  -c, --color     Set color [default, red, green, blue, yellow, magenta]
         \\  -s, --style     Set style [default, columns, crypto, grid, blocks]
         \\  -t, --time      Set duration [loop, short]
         \\  -p, --pulse     Pulse blocks
@@ -342,6 +343,8 @@ pub fn main() !void {
             core.color = Color.blue;
         } else if (eqlStr(arg, "--color=yellow") or eqlStr(arg, "-c=yellow")) {
             core.color = Color.yellow;
+        } else if (eqlStr(arg, "--color=magenta") or eqlStr(arg, "-c=magenta")) {
+            core.color = Color.magenta;
         }
 
         if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
