@@ -98,3 +98,10 @@ test "version" {
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
+
+test "help" {
+    const argv = [_][]const u8{ exe_path, "-h" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
