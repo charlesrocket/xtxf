@@ -91,3 +91,10 @@ test "decimal" {
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
+
+test "version" {
+    const argv = [_][]const u8{ exe_path, "-v" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
