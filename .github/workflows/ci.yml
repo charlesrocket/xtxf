@@ -67,6 +67,7 @@ jobs:
       - run: zig fmt --check .
 
   release:
+    name: Release
     needs: [test]
     permissions:
       contents: write
