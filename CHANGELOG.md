@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2024-08-16
+
+### Bug Fixes
+
+- Check gap array status
+
+### Documentation
+
+- Update usage
+- Add `Compilation`
+
+### Features
+
+- Add `version`
+- Add `Color.magenta`
+
+### Operations
+
+- Configure dependabot
+- Set dependabot pr reviewers
+- Change dependabot schedule
+- Add binary attestation
+- Fix `id-token`
+- Rename release jobs
+
+### Refactor
+
+- Drop undefined gap arrays
+- Rename gap arrays
+- Add `Core.start()`
+- Add `Handler.init()`
+
+### Testing
+
+- Add `version`
+- Add `help`
+
+### Build
+
+- Add ghext
+- Bump termbox to `d4128b4`
+
 ## [0.3.1] - 2024-07-19
 
 ### Bug Fixes
