@@ -4,7 +4,9 @@ name: CI
 "on": [push, pull_request]
 
 permissions:
+  id-token: read
   contents: read
+  attestations: read
 
 env:
   ZIG_VERSION: 0.13.0
@@ -58,6 +60,7 @@ jobs:
     name: Format
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
+
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
@@ -67,7 +70,11 @@ jobs:
     needs: [test]
     permissions:
       contents: write
+      id-token: write
+      attestations: write
+
     if: github.repository_owner == 'charlesrocket' && startsWith(github.ref, 'refs/tags/')
+
     uses: ./.github/workflows/cd.yml
     with:
       tag_name: ${{ github.ref_name }}
