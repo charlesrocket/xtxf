@@ -9,7 +9,7 @@ name: CD
         type: string
 
 permissions:
-  id-token: read
+  id-token: write
   contents: read
   attestations: read
 

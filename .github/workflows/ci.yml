@@ -4,7 +4,7 @@ name: CI
 "on": [push, pull_request]
 
 permissions:
-  id-token: read
+  id-token: write
   contents: read
   attestations: read
 
