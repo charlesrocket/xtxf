@@ -66,11 +66,6 @@ jobs:
           mv zig-out/bin/xtxf xtxf
           tar -czvf xtxf-${{ matrix.target}}.tar.gz xtxf
 
-      - name: Attest
-        uses: actions/attest-build-provenance@v1
-        with:
-          subject-path: 'xtxf-${{ matrix.target}}.tar.gz'
-
       - name: Upload
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,6 +73,11 @@ jobs:
         run: |
           gh release upload ${{ inputs.tag_name }} \
           xtxf-${{ matrix.target }}.tar.gz
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: 'xtxf-${{ matrix.target}}.tar.gz'
 
       - name: Verify attestation
         shell: bash
@@ -119,11 +119,6 @@ jobs:
           mv zig-out/bin/xtxf xtxf
           tar -czvf xtxf-${{ matrix.target }}.tar.gz xtxf
 
-      - name: Attest
-        uses: actions/attest-build-provenance@v1
-        with:
-          subject-path: 'xtxf-${{ matrix.target }}.tar.gz'
-
       - name: Upload
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -131,6 +126,11 @@ jobs:
         run: |
           gh release upload ${{ inputs.tag_name }} \
           xtxf-${{ matrix.target }}.tar.gz
+
+      - name: Attest
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: 'xtxf-${{ matrix.target }}.tar.gz':w
 
       - name: Verify attestation
         shell: bash
