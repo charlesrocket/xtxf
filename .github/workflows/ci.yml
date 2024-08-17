@@ -21,8 +21,10 @@ jobs:
 
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: goto-bus-stop/setup-zig@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
         with:
           version: ${{ env.ZIG_VERSION }}
 
@@ -36,8 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     if: "!startsWith(github.ref, 'refs/tags/')"
     steps:
-      - uses: actions/checkout@v4
-      - uses: goto-bus-stop/setup-zig@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
         with:
           version: ${{ env.ZIG_VERSION }}
 
@@ -62,9 +66,12 @@ jobs:
     if: "!startsWith(github.ref, 'refs/tags/')"
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: goto-bus-stop/setup-zig@v2
-      - run: zig fmt --check .
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
+      - name: Check formatting
+        run: zig fmt --check .
 
   release:
     name: Release
