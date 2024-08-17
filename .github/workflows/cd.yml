@@ -134,7 +134,7 @@ jobs:
       - name: Attest
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: 'xtxf-${{ matrix.target }}.tar.gz':w
+          subject-path: 'xtxf-${{ matrix.target }}.tar.gz'
 
       - name: Verify attestation
         shell: bash
