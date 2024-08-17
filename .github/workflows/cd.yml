@@ -142,4 +142,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
         run: |
-          gh attestation verify xtxf-${{ matrix.target }}.tar.gz --owner "$GITHUB_REPOSITORY_OWNER"
+          gh attestation verify xtxf-${{ matrix.target }}.tar.gz \
+          --owner "$GITHUB_REPOSITORY_OWNER"
