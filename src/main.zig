@@ -8,6 +8,7 @@ const Ghext = @import("ghext");
 const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 const log = std.log.scoped(.xtxf);
+const assets = @import("assets.zig");
 
 const Mode = enum { binary, decimal };
 const Style = enum { default, columns, crypto, grid, blocks };
@@ -301,34 +302,10 @@ pub fn main() !void {
 
     const args = try std.process.argsAlloc(core.allocator);
 
-    const help_message =
-        \\
-        \\          ██             ████
-        \\         ░██            ░██░
-        \\██   ██ ██████ ██   ██ ██████
-        \\ ██ ██░   ██░  ░██ ██   ░██
-        \\ ░███     ██     ███░    ██
-        \\ ██░██   ░██    ██ ██   ░██
-        \\██   ██   ██   ██  ░██   ██
-        \\
-        \\Usage: xtxf [OPTIONS]
-        \\
-        \\Example: xtxf -p -c=red -s=crypto
-        \\
-        \\Options:
-        \\  -c, --color    Set color [default, red, green, blue, yellow, magenta]
-        \\  -s, --style    Set style [default, columns, crypto, grid, blocks]
-        \\  -t, --time     Set duration [loop, short]
-        \\  -p, --pulse    Pulse blocks
-        \\  -d, --decimal  Decimal mode
-        \\  -v, --version  Print version
-        \\  -h, --help     Print this message
-    ;
-
     for (args) |arg| {
         if (eqlStr(arg, "--help") or eqlStr(arg, "-h")) {
             const stdout = std.io.getStdOut();
-            try stdout.writer().print("{s}{s}", .{ help_message, "\n" });
+            try stdout.writer().print("{s}{s}", .{ assets.logo ++ "\n" ++ assets.help_message, "\n" });
 
             core.shutdown(args, &gpallocator);
         }
