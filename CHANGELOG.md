@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2024-08-18
+
+### Bug Fixes
+
+- Reformat help message
+
+### Operations
+
+- Set release job name
+- Use `gzip`
+- Move `Upload` step
+- Add missing step names
+- Fix `subject-path`
+
+### Refactor
+
+- Add `assets`
+
+### Styling
+
+- Fix yaml formatting
+
 ## [0.4.0] - 2024-08-16
 
 ### Bug Fixes
