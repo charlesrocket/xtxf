@@ -19,9 +19,9 @@ pub const Error = error{
 
 const FRAME = 39730492;
 
-const Mode = enum { binary, decimal };
+const Mode = enum(u8) { binary = 2, decimal = 10 };
 const Style = enum { default, columns, crypto, grid, blocks };
-const Color = enum { default, red, green, blue, yellow, magenta };
+const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
 pub const CommandT = cova.Command.Custom(.{
     .help_header_fmt = assets.help_message,
@@ -306,7 +306,7 @@ const Handler = struct {
     }
 };
 
-fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !void {
+fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
     handler.mutex.lock();
     defer handler.mutex.unlock();
 
@@ -327,17 +327,10 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
                     }
                 }
 
-                const number = @mod(rand.int(u8), mode);
+                const number = @mod(rand.int(u8), @intFromEnum(handler.mode));
                 const int: u8 = @intCast(number);
 
-                var color: u32 = switch (core.color) {
-                    Color.default => tb.TB_DEFAULT,
-                    Color.red => tb.TB_RED,
-                    Color.green => tb.TB_GREEN,
-                    Color.blue => tb.TB_BLUE,
-                    Color.yellow => tb.TB_YELLOW,
-                    Color.magenta => tb.TB_MAGENTA,
-                };
+                var color = @intFromEnum(core.color);
 
                 const bold = rand.boolean();
 
@@ -373,10 +366,6 @@ fn printCells(core: *Core, handler: *Handler, mode: u8, rand: std.rand.Random) !
 
 fn animation(handler: *Handler, core: *Core) !void {
     var prng = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
-    const mode: u8 = switch (handler.mode) {
-        Mode.binary => 2,
-        Mode.decimal => 10,
-    };
 
     const rand = prng.random();
 
@@ -385,7 +374,7 @@ fn animation(handler: *Handler, core: *Core) !void {
     }
 
     while (core.active) {
-        try printCells(core, handler, mode, rand);
+        try printCells(core, handler, rand);
     }
 }
 
