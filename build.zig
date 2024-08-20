@@ -11,6 +11,20 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const cova_dep = b.dependency("cova", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const cova = cova_dep.module("cova");
+
+    const cova_gen = @import("cova").addCovaDocGenStep(b, cova_dep, exe, .{
+        .kinds = &.{.all},
+    });
+
+    const meta_doc_gen = b.step("gen-doc", "Generate Meta Docs");
+    meta_doc_gen.dependOn(&cova_gen.step);
+
     const ghext_dep = b.dependency("ghext", .{
         .target = target,
         .optimize = optimize,
@@ -21,6 +35,7 @@ pub fn build(b: *std.Build) void {
     exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
     exe.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
     exe.linkLibC();
+    exe.root_module.addImport("cova", cova);
     exe.root_module.addImport("ghext", ghext);
 
     b.installArtifact(exe);

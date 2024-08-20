@@ -3,6 +3,7 @@ const tb = @cImport({
     @cInclude("termbox2.h");
 });
 
+const cova = @import("cova");
 const Ghext = @import("ghext");
 
 const Thread = std.Thread;
@@ -10,11 +11,142 @@ const Mutex = Thread.Mutex;
 const log = std.log.scoped(.xtxf);
 const assets = @import("assets.zig");
 
+pub const Error = error{
+    InvalidColor,
+    InvalidStyle,
+    IndalidMode,
+};
+
+const FRAME = 39730492;
+
 const Mode = enum { binary, decimal };
 const Style = enum { default, columns, crypto, grid, blocks };
 const Color = enum { default, red, green, blue, yellow, magenta };
 
-const FRAME = 39730492;
+pub const CommandT = cova.Command.Custom(.{
+    .help_header_fmt = assets.help_message,
+    .opt_config = .{
+        .usage_fmt = assets.cli_usage,
+    },
+    .val_config = .{
+        .custom_types = &.{
+            Color,
+            Style,
+            Mode,
+        },
+        .child_type_parse_fns = &.{
+            .{
+                .ChildT = Color,
+                .parse_fn = struct {
+                    pub fn parseColor(color: [:0]const u8) !Color {
+                        if (eqlStr("default", color)) {
+                            return Color.default;
+                        } else if (eqlStr("red", color)) {
+                            return Color.red;
+                        } else if (eqlStr("green", color)) {
+                            return Color.green;
+                        } else if (eqlStr("blue", color)) {
+                            return Color.blue;
+                        } else if (eqlStr("yellow", color)) {
+                            return Color.yellow;
+                        } else if (eqlStr("magenta", color)) {
+                            return Color.magenta;
+                        } else {
+                            return error.InvalidColor;
+                        }
+                    }
+                }.parseColor,
+            },
+            .{
+                .ChildT = Style,
+                .parse_fn = struct {
+                    pub fn parseStyle(style: [:0]const u8) !Style {
+                        if (eqlStr("default", style)) {
+                            return Style.default;
+                        } else if (eqlStr("columns", style)) {
+                            return Style.columns;
+                        } else if (eqlStr("crypto", style)) {
+                            return Style.crypto;
+                        } else if (eqlStr("grid", style)) {
+                            return Style.grid;
+                        } else if (eqlStr("blocks", style)) {
+                            return Style.blocks;
+                        } else {
+                            return error.InvalidStyle;
+                        }
+                    }
+                }.parseStyle,
+            },
+            .{
+                .ChildT = Mode,
+                .parse_fn = struct {
+                    pub fn parseMode(mode: [:0]const u8) !Mode {
+                        if (eqlStr("binary", mode)) {
+                            return Mode.binary;
+                        } else if (eqlStr("decimal", mode)) {
+                            return Mode.decimal;
+                        } else {
+                            return error.InvalidMode;
+                        }
+                    }
+                }.parseMode,
+            },
+        },
+    },
+});
+
+const ValueT = CommandT.ValueT;
+
+pub const setup_cmd: CommandT = .{
+    .name = "xtxf",
+    .description = "Binary matrix.",
+
+    .opts = &.{
+        .{
+            .name = "color",
+            .description = "Set output color",
+            .short_name = 'c',
+            .long_name = "color",
+            .val = ValueT.ofType(Color, .{ .name = "STRING", .description = "A string value.", .default_val = Color.default, .alias_child_type = "Color" }),
+        },
+        .{
+            .name = "style",
+            .description = "Set output style.",
+            .short_name = 's',
+            .long_name = "style",
+            .val = ValueT.ofType(Style, .{ .name = "STRING", .description = "A string value.", .default_val = Style.default, .alias_child_type = "Style" }),
+        },
+        .{
+            .name = "mode",
+            .description = "Set symbol mode.",
+            .short_name = 'm',
+            .long_name = "mode",
+            .val = ValueT.ofType(Mode, .{ .name = "STRING", .description = "STRING", .default_val = Mode.binary, .alias_child_type = "Mode" }),
+        },
+        .{
+            .name = "time",
+            .description = "Set duration (in seconds).",
+            .short_name = 't',
+            .long_name = "time",
+            .val = ValueT.ofType(u32, .{
+                .name = "INTEGER",
+                .description = "INTEGER",
+                .default_val = 0,
+            }),
+        },
+        .{
+            .name = "pulse",
+            .description = "Enable pulse blocks.",
+            .short_name = 'p',
+            .long_name = "pulse",
+            .val = ValueT.ofType(bool, .{
+                .name = "FLAG",
+                .description = "Flag",
+                .default_val = false,
+            }),
+        },
+    },
+};
 
 const Core = struct {
     allocator: std.mem.Allocator,
@@ -102,7 +234,7 @@ const Core = struct {
         try self.updateTermSize();
     }
 
-    fn shutdown(self: *Core, args: [][:0]u8, allocator: *std.heap.GeneralPurposeAllocator(.{})) void {
+    fn shutdown(self: *Core) void {
         if (!self.active) {
             _ = tb.tb_shutdown();
         }
@@ -114,11 +246,6 @@ const Core = struct {
         if (self.height_gaps != null) {
             self.height_gaps.?.deinit();
         }
-
-        std.process.argsFree(self.allocator, args);
-        _ = allocator.deinit();
-
-        std.process.exit(0);
     }
 };
 
@@ -142,12 +269,12 @@ const Handler = struct {
         try core.updateStyle(self.style);
 
         var timer = try std.time.Timer.start();
-        const duration = self.duration * 1000000000;
+        const duration = self.duration;
 
         self.setHalt(false);
 
         while (core.active) {
-            if (timer.read() >= duration and self.duration != 0) {
+            if ((timer.read() / std.time.ns_per_s) >= duration and self.duration != 0) {
                 core.setActive(false);
             }
 
@@ -297,84 +424,61 @@ fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
 
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = gpallocator.deinit();
+
     var core = Core.init(gpallocator.allocator());
     var handler = Handler.init();
 
-    const args = try std.process.argsAlloc(core.allocator);
+    const stdout = std.io.getStdOut().writer();
+    const main_cmd = try setup_cmd.init(core.allocator, .{});
+    defer main_cmd.deinit();
 
-    for (args) |arg| {
-        if (eqlStr(arg, "--help") or eqlStr(arg, "-h")) {
-            const stdout = std.io.getStdOut();
-            try stdout.writer().print("{s}{s}", .{ assets.logo ++ "\n" ++ assets.help_message, "\n" });
+    var args_iter = try cova.ArgIteratorGeneric.init(core.allocator);
+    defer args_iter.deinit();
 
-            core.shutdown(args, &gpallocator);
-        }
+    cova.parseArgs(&args_iter, CommandT, main_cmd, stdout, .{}) catch |err| switch (err) {
+        error.UsageHelpCalled => {},
+        else => return err,
+    };
 
-        if (eqlStr(arg, "--color=default") or eqlStr(arg, "-c=default")) {
-            core.color = Color.default;
-        } else if (eqlStr(arg, "--color=red") or eqlStr(arg, "-c=red")) {
-            core.color = Color.red;
-        } else if (eqlStr(arg, "--color=green") or eqlStr(arg, "-c=green")) {
-            core.color = Color.green;
-        } else if (eqlStr(arg, "--color=blue") or eqlStr(arg, "-c=blue")) {
-            core.color = Color.blue;
-        } else if (eqlStr(arg, "--color=yellow") or eqlStr(arg, "-c=yellow")) {
-            core.color = Color.yellow;
-        } else if (eqlStr(arg, "--color=magenta") or eqlStr(arg, "-c=magenta")) {
-            core.color = Color.magenta;
-        }
-
-        if (eqlStr(arg, "--decimal") or eqlStr(arg, "-d")) {
-            handler.mode = Mode.decimal;
-        }
-
-        if (eqlStr(arg, "--pulse") or eqlStr(arg, "-p")) {
-            core.pulse = true;
-        }
-
-        if (eqlStr(arg, "--time=short") or eqlStr(arg, "-t=short")) {
-            handler.duration = 1;
-        }
-
-        if (eqlStr(arg, "--style=crypto") or eqlStr(arg, "-s=crypto")) {
-            handler.style = Style.crypto;
-        } else if (eqlStr(arg, "--style=columns") or eqlStr(arg, "-s=columns")) {
-            handler.style = Style.columns;
-        } else if (eqlStr(arg, "--style=blocks") or eqlStr(arg, "-s=blocks")) {
-            handler.style = Style.blocks;
-        } else if (eqlStr(arg, "--style=grid") or eqlStr(arg, "-s=grid")) {
-            handler.style = Style.grid;
-        }
-
-        if (eqlStr(arg, "--version") or eqlStr(arg, "-v")) {
-            // TODO add SemVer string
-            var gxt = try Ghext.read(core.allocator);
-            const stdout = std.io.getStdOut();
-            try stdout.writer().print("{s}{s}{s}", .{ "xtxf ", gxt.hash[0..7], "\n" });
-
-            gxt.deinit(core.allocator);
-            core.shutdown(args, &gpallocator);
-        }
+    if ((try main_cmd.getOpts(.{})).get("color")) |color| {
+        core.color = try color.val.getAs(Color);
     }
 
-    core.start();
-
-    if (core.width < 4 or core.height < 2) {
-        core.setActive(false);
-        core.shutdown(args, &gpallocator);
-        log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
-        std.process.exit(0);
+    if ((try main_cmd.getOpts(.{})).get("style")) |style| {
+        handler.style = try style.val.getAs(Style);
     }
 
-    if (core.active) {
-        const t_h = try std.Thread.spawn(.{}, Handler.run, .{ &handler, &core });
-        defer t_h.join();
-
-        const t_a = try std.Thread.spawn(.{}, animation, .{ &handler, &core });
-        defer t_a.join();
+    if ((try main_cmd.getOpts(.{})).get("mode")) |mode| {
+        handler.mode = try mode.val.getAs(Mode);
     }
 
-    core.shutdown(args, &gpallocator);
+    if ((try main_cmd.getOpts(.{})).get("time")) |time| {
+        handler.duration = try time.val.getAs(u32);
+    }
+
+    if ((try main_cmd.getOpts(.{})).get("pulse")) |pulse| {
+        core.pulse = try pulse.val.getAs(bool);
+    }
+
+    if (!main_cmd.checkOpts(&.{"help"}, .{}) and !main_cmd.checkSubCmd("help") and !main_cmd.checkSubCmd("usage")) {
+        core.start();
+
+        if (core.width < 4 or core.height < 2) {
+            core.setActive(false);
+            log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
+        }
+
+        if (core.active) {
+            const t_h = try std.Thread.spawn(.{}, Handler.run, .{ &handler, &core });
+            defer t_h.join();
+
+            const t_a = try std.Thread.spawn(.{}, animation, .{ &handler, &core });
+            defer t_a.join();
+        }
+
+        core.shutdown();
+    }
 }
 
 test "handler" {

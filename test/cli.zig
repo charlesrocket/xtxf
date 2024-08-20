@@ -16,91 +16,77 @@ fn runner(args: anytype) !std.process.Child.Term {
 }
 
 test "default" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-s=default", "-c=default" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-s=default", "-c=default" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "color: red" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-c=red" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-c=red" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "color: green" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-c=green" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-c=green" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "color: blue" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-c=blue" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-c=blue" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "color: yellow" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-c=yellow" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-c=yellow" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "color: magenta" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-c=magenta" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-c=magenta" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "columns" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-s=columns" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-s=columns" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "crypto" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-s=crypto" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-s=crypto" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "grid" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-s=grid" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-s=grid" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "blocks" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "-s=blocks" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-s=blocks" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
 test "decimal" {
-    const argv = [_][]const u8{ exe_path, "--time=short", "--decimal" };
-    const term = try runner(argv);
-
-    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
-}
-
-test "version" {
-    const argv = [_][]const u8{ exe_path, "-v" };
-    const term = try runner(argv);
-
-    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
-}
-
-test "help" {
-    const argv = [_][]const u8{ exe_path, "-h" };
+    const argv = [_][]const u8{ exe_path, "--time=1", "-m=decimal" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });

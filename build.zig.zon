@@ -7,6 +7,10 @@
             .url = "https://github.com/termbox/termbox2/archive/d4128b49ca4b4c934c5f07b8b7d734421a4a76a0.zip",
             .hash = "12200705c160371d843e7a806133f3f803d8da9af8a50c4f43dea7cec3264de1d1c7",
         },
+        .cova = .{
+            .url = "https://github.com/00JCIV00/cova/archive/b49e22d8f4727a92e86c80932df7a034e5498295.tar.gz",
+            .hash = "12200ac5cfa52c6ed5df6cbbf6be03f5b5b4a95abe67b750f9f2b0216da11b21e70c",
+        },
         .ghext = .{
             .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.3.0.tar.gz",
             .hash = "12200acee906e217dafde5539a1e5905d093c97b6ba2408e0653772814e3643efc76",
