@@ -14,4 +14,4 @@ pub const help_message =
     \\
 ;
 
-pub const cli_usage = "{u}{?u}{s} {s}{s?} <{s}:{s}>";
+pub const opt_usage = "{u}{?u}{s} {s}{s?} <{s}:{s}>";

@@ -3,6 +3,7 @@ const std = @import("std");
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const build_options = b.addOptions();
 
     const exe = b.addExecutable(.{
         .name = "xtxf",
@@ -16,7 +17,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const cova = cova_dep.module("cova");
+    const cova_mod = cova_dep.module("cova");
 
     const cova_gen = @import("cova").addCovaDocGenStep(b, cova_dep, exe, .{
         .kinds = &.{.all},
@@ -25,19 +26,13 @@ pub fn build(b: *std.Build) void {
     const meta_doc_gen = b.step("gen-doc", "Generate Meta Docs");
     meta_doc_gen.dependOn(&cova_gen.step);
 
-    const ghext_dep = b.dependency("ghext", .{
-        .target = target,
-        .optimize = optimize,
-    });
-
-    const ghext = ghext_dep.module("ghext");
-
     exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
     exe.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
     exe.linkLibC();
-    exe.root_module.addImport("cova", cova);
-    exe.root_module.addImport("ghext", ghext);
+    exe.root_module.addImport("cova", cova_mod);
+    exe.root_module.addOptions("build_options", build_options);
 
+    build_options.addOption([]const u8, "head_hash", try hash());
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
@@ -90,4 +85,9 @@ pub fn build(b: *std.Build) void {
 
     const coverage_step = b.step("coverage", "Generate test coverage (kcov)");
     coverage_step.dependOn(&merge_step.step);
+}
+
+inline fn hash() ![]const u8 {
+    const gxt = @import("ghext").Ghext.read(std.heap.page_allocator) catch unreachable;
+    return gxt.hash;
 }

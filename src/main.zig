@@ -4,7 +4,7 @@ const tb = @cImport({
 });
 
 const cova = @import("cova");
-const Ghext = @import("ghext");
+const build_opt = @import("build_options");
 
 const Thread = std.Thread;
 const Mutex = Thread.Mutex;
@@ -24,9 +24,10 @@ const Style = enum { default, columns, crypto, grid, blocks };
 const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
 pub const CommandT = cova.Command.Custom(.{
+    .global_help_prefix = "xtxf-" ++ build_opt.head_hash[0..7],
     .help_header_fmt = assets.help_message,
     .opt_config = .{
-        .usage_fmt = assets.cli_usage,
+        .usage_fmt = assets.opt_usage,
     },
     .val_config = .{
         .custom_types = &.{
