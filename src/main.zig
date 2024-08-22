@@ -140,7 +140,7 @@ pub const setup_cmd: CommandT = .{
             .short_name = 'p',
             .long_name = "pulse",
             .val = ValueT.ofType(bool, .{
-                .name = "flag",
+                .name = "pulse_flag",
                 .default_val = false,
             }),
         },
