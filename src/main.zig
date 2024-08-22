@@ -125,16 +125,6 @@ pub const setup_cmd: CommandT = .{
             .val = ValueT.ofType(Mode, .{ .name = "string", .default_val = Mode.binary, .alias_child_type = "mode" }),
         },
         .{
-            .name = "time",
-            .description = "Set duration (seconds).",
-            .short_name = 't',
-            .long_name = "time",
-            .val = ValueT.ofType(u32, .{
-                .name = "integer",
-                .default_val = 0,
-            }),
-        },
-        .{
             .name = "pulse",
             .description = "Enable pulse blocks.",
             .short_name = 'p',
@@ -142,6 +132,16 @@ pub const setup_cmd: CommandT = .{
             .val = ValueT.ofType(bool, .{
                 .name = "pulse_flag",
                 .default_val = false,
+            }),
+        },
+        .{
+            .name = "time",
+            .description = "Set duration (seconds).",
+            .short_name = 't',
+            .long_name = "time",
+            .val = ValueT.ofType(u32, .{
+                .name = "integer",
+                .default_val = 0,
             }),
         },
     },
