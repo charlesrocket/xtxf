@@ -26,6 +26,7 @@ const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.T
 pub const CommandT = cova.Command.Custom(.{
     .global_help_prefix = "xtxf-" ++ build_opt.head_hash[0..7],
     .help_header_fmt = assets.help_message,
+    .examples_header_fmt = assets.examples_header,
     .opt_config = .{
         .usage_fmt = assets.opt_usage,
     },
@@ -101,7 +102,9 @@ const ValueT = CommandT.ValueT;
 pub const setup_cmd: CommandT = .{
     .name = "xtxf",
     .description = "Binary matrix.",
-
+    .examples = &.{
+        "xtxf -p -m decimal -c red -s crypto",
+    },
     .opts = &.{
         .{
             .name = "color",
