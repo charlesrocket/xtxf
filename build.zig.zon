@@ -8,8 +8,8 @@
             .hash = "12200705c160371d843e7a806133f3f803d8da9af8a50c4f43dea7cec3264de1d1c7",
         },
         .cova = .{
-            .url = "https://github.com/00JCIV00/cova/archive/2055b94f7c55a5e51c11542a27fb5b9b935e692c.tar.gz",
-            .hash = "122041c39bad9eea3621c94b9d06dedceb48c6fd49b4bb85017758babd6d4367b62a",
+            .url = "https://github.com/00JCIV00/cova/archive/e45e297ec0ef453c8c9880c86435e85a68dd7db3.tar.gz",
+            .hash = "122072a1c30f3e4aad35f04c4df190c34d3e1fa324907c9f74a326a542346ae9b2d4",
         },
         .ghext = .{
             .url = "https://github.com/charlesrocket/ghext/archive/983eac9d280b2db7c7ca9ede2c977815c26b0074.tar.gz",

@@ -28,7 +28,7 @@ pub const CommandT = cova.Command.Custom(.{
     .help_header_fmt = assets.help_message,
     .examples_header_fmt = assets.examples_header,
     .global_usage_fn = struct {
-        fn usage(self: anytype, writer: anytype, _: std.mem.Allocator) !void {
+        fn usage(self: anytype, writer: anytype, _: ?std.mem.Allocator) !void {
             const CmdT = @TypeOf(self.*);
             const OptT = CmdT.OptionT;
             const indent_fmt = CmdT.indent_fmt;
