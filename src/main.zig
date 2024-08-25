@@ -38,7 +38,7 @@ pub const CommandT = cova.Command.Custom(.{
             try writer.print("USAGE:\n", .{});
             if (self.opts) |opts| {
                 no_args = false;
-                try writer.print("{s}{s} ", .{
+                try writer.print("{s}{s} [", .{
                     indent_fmt,
                     self.name,
                 });
@@ -47,11 +47,11 @@ pub const CommandT = cova.Command.Custom(.{
                         pre_sep,
                         OptT.long_prefix orelse opt.short_prefix,
                         opt.long_name orelse &.{opt.short_name orelse 0},
-                        opt.val.name(),
+                        opt.val.childTypeName(),
                     });
-                    pre_sep = "\n " ++ indent_fmt ++ indent_fmt;
+                    pre_sep = "\n  " ++ indent_fmt ++ indent_fmt;
                 }
-                try writer.print("\n\n", .{});
+                try writer.print(" ]\n\n", .{});
             }
             if (self.sub_cmds) |cmds| {
                 no_args = false;
@@ -160,21 +160,21 @@ pub const setup_cmd: CommandT = .{
             .description = "Set output color (default, red, green, blue, yellow, magenta).",
             .short_name = 'c',
             .long_name = "color",
-            .val = ValueT.ofType(Color, .{ .name = "string", .default_val = Color.default, .alias_child_type = "color" }),
+            .val = ValueT.ofType(Color, .{ .name = "color_val", .default_val = Color.default, .alias_child_type = "string" }),
         },
         .{
             .name = "style",
             .description = "Set output style (default, columns, crypto, grid, blocks).",
             .short_name = 's',
             .long_name = "style",
-            .val = ValueT.ofType(Style, .{ .name = "string", .default_val = Style.default, .alias_child_type = "style" }),
+            .val = ValueT.ofType(Style, .{ .name = "style_val", .default_val = Style.default, .alias_child_type = "string" }),
         },
         .{
             .name = "mode",
             .description = "Set symbol mode (binary, decimal).",
             .short_name = 'm',
             .long_name = "mode",
-            .val = ValueT.ofType(Mode, .{ .name = "string", .default_val = Mode.binary, .alias_child_type = "mode" }),
+            .val = ValueT.ofType(Mode, .{ .name = "mode_val", .default_val = Mode.binary, .alias_child_type = "string" }),
         },
         .{
             .name = "pulse",
@@ -192,7 +192,7 @@ pub const setup_cmd: CommandT = .{
             .short_name = 't',
             .long_name = "time",
             .val = ValueT.ofType(u32, .{
-                .name = "integer",
+                .name = "time",
                 .default_val = 0,
             }),
         },
