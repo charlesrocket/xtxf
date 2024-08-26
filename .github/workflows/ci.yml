@@ -18,6 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        mode: ["fast", "safe", "small", "off"]
         target:
           - "x86-linux"
           - "x86_64-linux"
