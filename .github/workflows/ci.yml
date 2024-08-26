@@ -12,6 +12,31 @@ env:
   ZIG_VERSION: 0.13.0
 
 jobs:
+  build-cross:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - "x86-linux"
+          - "x86_64-linux"
+          - "aarch64-linux"
+          - "x86_64-macos"
+          - "aarch64-macos"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: ${{ env.ZIG_VERSION }}
+
+      - name: Build
+        run: |
+          zig build -Dtarget=${{ matrix.target }} --release=${{ matrix.mode }} --verbose --summary all
+
   test:
     name: Test
     strategy:
