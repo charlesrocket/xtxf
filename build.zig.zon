@@ -12,8 +12,8 @@
             .hash = "122072a1c30f3e4aad35f04c4df190c34d3e1fa324907c9f74a326a542346ae9b2d4",
         },
         .ghext = .{
-            .url = "https://github.com/charlesrocket/ghext/archive/983eac9d280b2db7c7ca9ede2c977815c26b0074.tar.gz",
-            .hash = "122081d642ad5e81b306b7a0b849b4f9e976f4653468eb18580d2115c3b4654b23b6",
+            .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.5.0.tar.gz",
+            .hash = "1220ed067da7e0bd0181f58cf577872effb95e96ef7b1a31cc30550bad57ff04644e",
         },
     },
 }

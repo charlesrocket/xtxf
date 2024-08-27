@@ -17,6 +17,12 @@ pub const Error = error{
     IndalidMode,
 };
 
+const HEAD_HASH = build_opt.gxt.hash[0..7];
+const VERSION = if (build_opt.gxt.dirty == null) HEAD_HASH ++ "-unverified" else switch (build_opt.gxt.dirty.?) {
+    true => HEAD_HASH ++ "-dirty",
+    false => HEAD_HASH,
+};
+
 const FRAME = 39730492;
 
 const Mode = enum(u8) { binary = 2, decimal = 10 };
@@ -24,7 +30,7 @@ const Style = enum { default, columns, crypto, grid, blocks };
 const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
 pub const CommandT = cova.Command.Custom(.{
-    .global_help_prefix = "xtxf-" ++ build_opt.head_hash[0..7],
+    .global_help_prefix = "xtxf " ++ VERSION,
     .help_header_fmt = assets.help_message,
     .examples_header_fmt = assets.examples_header,
     .global_usage_fn = struct {

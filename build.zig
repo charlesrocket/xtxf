@@ -1,4 +1,5 @@
 const std = @import("std");
+const Ghext = @import("ghext").Ghext;
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -34,7 +35,7 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("cova", cova_mod);
     exe.root_module.addOptions("build_options", build_options);
 
-    build_options.addOption([]const u8, "head_hash", try hash());
+    build_options.addOption(Ghext, "gxt", try read_repo());
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
@@ -89,7 +90,7 @@ pub fn build(b: *std.Build) void {
     coverage_step.dependOn(&merge_step.step);
 }
 
-inline fn hash() ![]const u8 {
-    const gxt = @import("ghext").Ghext.read(std.heap.page_allocator) catch unreachable;
-    return gxt.hash;
+inline fn read_repo() !Ghext {
+    const gxt = Ghext.read(std.heap.page_allocator) catch unreachable;
+    return gxt;
 }
