@@ -32,6 +32,9 @@ const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.T
 pub const CommandT = cova.Command.Custom(.{
     .global_help_prefix = "xtxf " ++ VERSION,
     .help_header_fmt = assets.help_message,
+    .help_category_order = &.{
+        .Prefix, .Header, .Aliases, .Examples, .Commands, .Options, .Values,
+    },
     .examples_header_fmt = assets.examples_header,
     .global_usage_fn = struct {
         fn usage(self: anytype, writer: anytype, _: ?std.mem.Allocator) !void {
