@@ -4,7 +4,11 @@ const tb = @cImport({
 });
 
 const cova = @import("cova");
+const cli = @import("cli.zig");
 const build_opt = @import("build_options");
+
+pub const CommandT = cli.CommandT;
+pub const setup_cmd = cli.setup_cmd;
 
 const Thread = std.Thread;
 const Mutex = Thread.Mutex;
@@ -25,205 +29,9 @@ const VERSION = if (build_opt.gxt.dirty == null) HEAD_HASH ++ "-unverified" else
 
 const FRAME = 39730492;
 
-const Mode = enum(u8) { binary = 2, decimal = 10 };
-const Style = enum { default, columns, crypto, grid, blocks };
-const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
-
-pub const CommandT = cova.Command.Custom(.{
-    .global_help_prefix = "xtxf",
-    .help_header_fmt = assets.help_message,
-    .help_category_order = &.{
-        .Prefix, .Header, .Aliases, .Examples, .Commands, .Options, .Values,
-    },
-    .examples_header_fmt = assets.examples_header,
-    .global_usage_fn = struct {
-        fn usage(self: anytype, writer: anytype, _: ?std.mem.Allocator) !void {
-            const CmdT = @TypeOf(self.*);
-            const OptT = CmdT.OptionT;
-            const indent_fmt = CmdT.indent_fmt;
-            var no_args = true;
-            var pre_sep: []const u8 = "";
-
-            try writer.print("USAGE:\n", .{});
-            if (self.opts) |opts| {
-                no_args = false;
-                try writer.print("{s}{s} [", .{
-                    indent_fmt,
-                    self.name,
-                });
-                for (opts) |opt| {
-                    try writer.print("{s} {s}{s} <{s}>", .{
-                        pre_sep,
-                        OptT.long_prefix orelse opt.short_prefix,
-                        opt.long_name orelse &.{opt.short_name orelse 0},
-                        opt.val.childTypeName(),
-                    });
-                    pre_sep = "\n  " ++ indent_fmt ++ indent_fmt;
-                }
-                try writer.print(" ]\n\n", .{});
-            }
-            if (self.sub_cmds) |cmds| {
-                no_args = false;
-                try writer.print("{s}{s} [", .{
-                    indent_fmt,
-                    self.name,
-                });
-                pre_sep = "";
-                for (cmds) |cmd| {
-                    try writer.print("{s} {s} ", .{
-                        pre_sep,
-                        cmd.name,
-                    });
-                    pre_sep = "|";
-                }
-                try writer.print("]\n\n", .{});
-            }
-            if (no_args) try writer.print("{s}{s}{s}", .{
-                indent_fmt,
-                indent_fmt,
-                self.name,
-            });
-        }
-    }.usage,
-    .opt_config = .{
-        .usage_fmt = assets.opt_usage,
-    },
-    .val_config = .{
-        .custom_types = &.{
-            Color,
-            Style,
-            Mode,
-        },
-        .child_type_parse_fns = &.{
-            .{
-                .ChildT = Color,
-                .parse_fn = struct {
-                    pub fn parseColor(color: [:0]const u8) !Color {
-                        if (eqlStr("default", color)) {
-                            return Color.default;
-                        } else if (eqlStr("red", color)) {
-                            return Color.red;
-                        } else if (eqlStr("green", color)) {
-                            return Color.green;
-                        } else if (eqlStr("blue", color)) {
-                            return Color.blue;
-                        } else if (eqlStr("yellow", color)) {
-                            return Color.yellow;
-                        } else if (eqlStr("magenta", color)) {
-                            return Color.magenta;
-                        } else {
-                            return error.InvalidColor;
-                        }
-                    }
-                }.parseColor,
-            },
-            .{
-                .ChildT = Style,
-                .parse_fn = struct {
-                    pub fn parseStyle(style: [:0]const u8) !Style {
-                        if (eqlStr("default", style)) {
-                            return Style.default;
-                        } else if (eqlStr("columns", style)) {
-                            return Style.columns;
-                        } else if (eqlStr("crypto", style)) {
-                            return Style.crypto;
-                        } else if (eqlStr("grid", style)) {
-                            return Style.grid;
-                        } else if (eqlStr("blocks", style)) {
-                            return Style.blocks;
-                        } else {
-                            return error.InvalidStyle;
-                        }
-                    }
-                }.parseStyle,
-            },
-            .{
-                .ChildT = Mode,
-                .parse_fn = struct {
-                    pub fn parseMode(mode: [:0]const u8) !Mode {
-                        if (eqlStr("binary", mode)) {
-                            return Mode.binary;
-                        } else if (eqlStr("decimal", mode)) {
-                            return Mode.decimal;
-                        } else {
-                            return error.InvalidMode;
-                        }
-                    }
-                }.parseMode,
-            },
-        },
-    },
-});
-
-const ValueT = CommandT.ValueT;
-
-pub const setup_cmd: CommandT = .{
-    .name = "xtxf",
-    .description = "Binary matrix.",
-    .examples = &.{
-        "xtxf -p -m decimal -c red -s crypto",
-    },
-    .sub_cmds_mandatory = false,
-    .sub_cmds = &.{
-        .{
-            .name = "version",
-            .description = "Show the 'xtxf' version.",
-        },
-    },
-    .opts = &.{
-        .{
-            .name = "color",
-            .description = "Set output color (default, red, green, blue, yellow, magenta).",
-            .short_name = 'c',
-            .long_name = "color",
-            .val = ValueT.ofType(Color, .{ .name = "color_val", .default_val = Color.default, .alias_child_type = "string" }),
-        },
-        .{
-            .name = "style",
-            .description = "Set output style (default, columns, crypto, grid, blocks).",
-            .short_name = 's',
-            .long_name = "style",
-            .val = ValueT.ofType(Style, .{ .name = "style_val", .default_val = Style.default, .alias_child_type = "string" }),
-        },
-        .{
-            .name = "mode",
-            .description = "Set symbol mode (binary, decimal).",
-            .short_name = 'm',
-            .long_name = "mode",
-            .val = ValueT.ofType(Mode, .{ .name = "mode_val", .default_val = Mode.binary, .alias_child_type = "string" }),
-        },
-        .{
-            .name = "pulse",
-            .description = "Enable pulse blocks.",
-            .short_name = 'p',
-            .long_name = "pulse",
-            .val = ValueT.ofType(bool, .{
-                .name = "pulse_flag",
-                .default_val = false,
-            }),
-        },
-        .{
-            .name = "time",
-            .description = "Set duration (seconds).",
-            .short_name = 't',
-            .long_name = "time",
-            .val = ValueT.ofType(u32, .{
-                .name = "time",
-                .default_val = 0,
-            }),
-        },
-        .{
-            .name = "version",
-            .description = "Show the 'xtxf' version.",
-            .short_name = 'v',
-            .long_name = "version",
-            .val = ValueT.ofType(bool, .{
-                .name = "version_flag",
-                .default_val = false,
-            }),
-        },
-    },
-};
+pub const Mode = enum(u8) { binary = 2, decimal = 10 };
+pub const Style = enum { default, columns, crypto, grid, blocks };
+pub const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
 const Core = struct {
     allocator: std.mem.Allocator,
@@ -477,17 +285,6 @@ fn checkSec(arr: *std.ArrayListAligned(u32, null), value: usize) bool {
     return false;
 }
 
-fn eqlStr(a: [:0]const u8, b: [:0]const u8) bool {
-    if (a.len != b.len) return false;
-    if (a.ptr == b.ptr) return true;
-
-    for (a, b) |a_el, b_el| {
-        if (a_el != b_el) return false;
-    }
-
-    return true;
-}
-
 pub fn main() !void {
     var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpallocator.deinit();
@@ -559,25 +356,6 @@ test "handler" {
     try handler.run(&core);
 
     try std.testing.expect(!core.active);
-}
-
-test "compare strings" {
-    const a1 = "deFg13z";
-    const a2 = "DeFg13z";
-    const b1 = "abcDeFg13z";
-    const b2 = "abcdefg11a";
-    const c1 = "abcDeFg823_@#$mdh6132";
-    const c2 = "abcDeFg823_@#$mdh6132";
-    const d1 = "a";
-    const d2 = "a";
-    const e1 = "b";
-    const e2 = "c";
-
-    try std.testing.expect(!eqlStr(a1, a2));
-    try std.testing.expect(!eqlStr(b1, b2));
-    try std.testing.expect(eqlStr(c1, c2));
-    try std.testing.expect(eqlStr(d1, d2));
-    try std.testing.expect(!eqlStr(e1, e2));
 }
 
 test "check array" {
