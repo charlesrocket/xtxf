@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2024-08-28
+
+### Bug Fixes
+
+- Update argument descriptions
+- Rename `pulse` flag
+- Change help message types
+- Generate meta on native targets
+- Check repository state
+- Set `help_category_order`
+
+### Documentation
+
+- Reformat usage
+- Update example command
+
+### Features
+
+- [**breaking**] Use `cova` for argument parsing
+- Add custom usage function
+- Reintroduce `version`
+
+### Operations
+
+- Add `build-cross` job
+- Add cross build mode
+
+### Refactor
+
+- Drop `Mode`/`Color` switch
+- Move `Ghext` to the build system
+- Move `time` option
+
+### Build
+
+- Bump cova to `2055b94`
+- Fix meta docs
+
 ## [0.4.1] - 2024-08-18
 
 ### Bug Fixes
