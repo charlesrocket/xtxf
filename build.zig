@@ -19,12 +19,14 @@ pub fn build(b: *std.Build) void {
 
     const cova_mod = cova_dep.module("cova");
 
-    const cova_gen = @import("cova").addCovaDocGenStep(b, cova_dep, exe, .{
-        .kinds = &.{.all},
-    });
+    if (target.query.cpu_arch == null) {
+        const cova_gen = @import("cova").addCovaDocGenStep(b, cova_dep, exe, .{
+            .kinds = &.{.all},
+        });
 
-    const meta_doc_gen = b.step("gen-doc", "Generate Meta Docs");
-    meta_doc_gen.dependOn(&cova_gen.step);
+        const meta_doc_gen = b.step("gen-doc", "Generate Meta Docs");
+        meta_doc_gen.dependOn(&cova_gen.step);
+    }
 
     exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
     exe.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
