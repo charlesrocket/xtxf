@@ -30,7 +30,7 @@ const Style = enum { default, columns, crypto, grid, blocks };
 const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
 pub const CommandT = cova.Command.Custom(.{
-    .global_help_prefix = "xtxf " ++ VERSION,
+    .global_help_prefix = "xtxf",
     .help_header_fmt = assets.help_message,
     .help_category_order = &.{
         .Prefix, .Header, .Aliases, .Examples, .Commands, .Options, .Values,
@@ -163,6 +163,13 @@ pub const setup_cmd: CommandT = .{
     .examples = &.{
         "xtxf -p -m decimal -c red -s crypto",
     },
+    .sub_cmds_mandatory = false,
+    .sub_cmds = &.{
+        .{
+            .name = "version",
+            .description = "Show the 'xtxf' version.",
+        },
+    },
     .opts = &.{
         .{
             .name = "color",
@@ -203,6 +210,16 @@ pub const setup_cmd: CommandT = .{
             .val = ValueT.ofType(u32, .{
                 .name = "time",
                 .default_val = 0,
+            }),
+        },
+        .{
+            .name = "version",
+            .description = "Show the 'xtxf' version.",
+            .short_name = 'v',
+            .long_name = "version",
+            .val = ValueT.ofType(bool, .{
+                .name = "version_flag",
+                .default_val = false,
             }),
         },
     },
@@ -510,7 +527,12 @@ pub fn main() !void {
         core.pulse = try pulse.val.getAs(bool);
     }
 
-    if (!main_cmd.checkOpts(&.{"help"}, .{}) and !main_cmd.checkSubCmd("help") and !main_cmd.checkSubCmd("usage")) {
+    if ((try ((try main_cmd.getOpts(.{})).get("version")).?.val.getAs(bool)) or main_cmd.checkSubCmd("version")) {
+        // TODO add SemVer string
+        try stdout.print("{s}{s}{s}", .{ "xtxf version ", VERSION, "\n" });
+    }
+
+    if (!main_cmd.checkOpts(&.{ "help", "version" }, .{}) and !main_cmd.checkSubCmd("help") and !main_cmd.checkSubCmd("usage") and !main_cmd.checkSubCmd("version")) {
         core.start();
 
         if (core.width < 4 or core.height < 2) {
