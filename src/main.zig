@@ -299,7 +299,7 @@ pub fn main() !void {
     var args_iter = try cova.ArgIteratorGeneric.init(core.allocator);
     defer args_iter.deinit();
 
-    cova.parseArgs(&args_iter, CommandT, main_cmd, stdout, .{}) catch |err| switch (err) {
+    cova.parseArgs(&args_iter, CommandT, main_cmd, stdout, .{ .err_reaction = .Usage }) catch |err| switch (err) {
         error.UsageHelpCalled => {},
         else => return err,
     };
