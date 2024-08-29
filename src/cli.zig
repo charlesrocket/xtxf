@@ -9,7 +9,7 @@ const Style = main.Style;
 const Mode = main.Mode;
 
 pub const CommandT = cova.Command.Custom(.{
-    .global_help_prefix = "xtxf",
+    .global_help_prefix = assets.help_prefix,
     .help_header_fmt = assets.help_message,
     .help_category_order = &.{
         .Prefix, .Header, .Aliases, .Examples, .Commands, .Options, .Values,
@@ -23,7 +23,7 @@ pub const CommandT = cova.Command.Custom(.{
             var no_args = true;
             var pre_sep: []const u8 = "";
 
-            try writer.print("USAGE:\n", .{});
+            try writer.print("{s}{s}USAGE:\n", .{ assets.help_prefix, "\n" });
             if (self.opts) |opts| {
                 no_args = false;
                 try writer.print("{s}{s} [", .{

@@ -1,5 +1,4 @@
 pub const help_message =
-    \\
     \\           ██             ████
     \\          ░██            ░██░
     \\ ██   ██ ██████ ██   ██ ██████
@@ -12,6 +11,12 @@ pub const help_message =
     \\{s}{s}
     \\
     \\
+;
+
+pub const help_prefix =
+    \\┌────┐
+    \\│xtxf│
+    \\└────┘
 ;
 
 pub const opt_usage = "{u}{?u}{s} {s}{s?} <{s}>";
