@@ -329,7 +329,7 @@ pub fn main() !void {
         try stdout.print("{s}{s}{s}", .{ "xtxf version ", VERSION, "\n" });
     }
 
-    if (!main_cmd.checkOpts(&.{ "help", "version" }, .{}) and !main_cmd.checkSubCmd("help") and !main_cmd.checkSubCmd("usage") and !main_cmd.checkSubCmd("version")) {
+    if (!main_cmd.checkOpts(&.{ "help", "version", "usage" }, .{}) and !main_cmd.checkSubCmd("help") and !main_cmd.checkSubCmd("usage") and !main_cmd.checkSubCmd("version")) {
         core.start();
 
         if (core.width < 4 or core.height < 2) {
