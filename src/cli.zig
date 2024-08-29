@@ -80,7 +80,7 @@ const ValueT = CommandT.ValueT;
 
 pub const setup_cmd: CommandT = .{
     .name = "xtxf",
-    .description = "Binary matrix.",
+    .description = "2D matrix screensaver.",
     .examples = &.{
         "xtxf -p -m decimal -c red -s crypto",
     },
