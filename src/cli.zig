@@ -73,64 +73,6 @@ pub const CommandT = cova.Command.Custom(.{
             Style,
             Mode,
         },
-        .child_type_parse_fns = &.{
-            .{
-                .ChildT = Color,
-                .parse_fn = struct {
-                    pub fn parseColor(color: [:0]const u8) !Color {
-                        if (std.mem.eql(u8, "default", color)) {
-                            return Color.default;
-                        } else if (std.mem.eql(u8, "red", color)) {
-                            return Color.red;
-                        } else if (std.mem.eql(u8, "green", color)) {
-                            return Color.green;
-                        } else if (std.mem.eql(u8, "blue", color)) {
-                            return Color.blue;
-                        } else if (std.mem.eql(u8, "yellow", color)) {
-                            return Color.yellow;
-                        } else if (std.mem.eql(u8, "magenta", color)) {
-                            return Color.magenta;
-                        } else {
-                            return error.InvalidColor;
-                        }
-                    }
-                }.parseColor,
-            },
-            .{
-                .ChildT = Style,
-                .parse_fn = struct {
-                    pub fn parseStyle(style: [:0]const u8) !Style {
-                        if (std.mem.eql(u8, "default", style)) {
-                            return Style.default;
-                        } else if (std.mem.eql(u8, "columns", style)) {
-                            return Style.columns;
-                        } else if (std.mem.eql(u8, "crypto", style)) {
-                            return Style.crypto;
-                        } else if (std.mem.eql(u8, "grid", style)) {
-                            return Style.grid;
-                        } else if (std.mem.eql(u8, "blocks", style)) {
-                            return Style.blocks;
-                        } else {
-                            return error.InvalidStyle;
-                        }
-                    }
-                }.parseStyle,
-            },
-            .{
-                .ChildT = Mode,
-                .parse_fn = struct {
-                    pub fn parseMode(mode: [:0]const u8) !Mode {
-                        if (std.mem.eql(u8, "binary", mode)) {
-                            return Mode.binary;
-                        } else if (std.mem.eql(u8, "decimal", mode)) {
-                            return Mode.decimal;
-                        } else {
-                            return error.InvalidMode;
-                        }
-                    }
-                }.parseMode,
-            },
-        },
     },
 });
 
