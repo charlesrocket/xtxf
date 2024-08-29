@@ -15,12 +15,6 @@ const Mutex = Thread.Mutex;
 const log = std.log.scoped(.xtxf);
 const assets = @import("assets.zig");
 
-pub const Error = error{
-    InvalidColor,
-    InvalidStyle,
-    IndalidMode,
-};
-
 const HEAD_HASH = build_opt.gxt.hash[0..7];
 const VERSION = if (build_opt.gxt.dirty == null) HEAD_HASH ++ "-unverified" else switch (build_opt.gxt.dirty.?) {
     true => HEAD_HASH ++ "-dirty",
