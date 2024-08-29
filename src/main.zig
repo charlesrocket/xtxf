@@ -298,27 +298,29 @@ pub fn main() !void {
         else => return err,
     };
 
-    if ((try main_cmd.getOpts(.{})).get("color")) |color| {
+    const opts = try main_cmd.getOpts(.{});
+
+    if (opts.get("color")) |color| {
         core.color = try color.val.getAs(Color);
     }
 
-    if ((try main_cmd.getOpts(.{})).get("style")) |style| {
+    if (opts.get("style")) |style| {
         handler.style = try style.val.getAs(Style);
     }
 
-    if ((try main_cmd.getOpts(.{})).get("mode")) |mode| {
+    if (opts.get("mode")) |mode| {
         handler.mode = try mode.val.getAs(Mode);
     }
 
-    if ((try main_cmd.getOpts(.{})).get("time")) |time| {
+    if (opts.get("time")) |time| {
         handler.duration = try time.val.getAs(u32);
     }
 
-    if ((try main_cmd.getOpts(.{})).get("pulse")) |pulse| {
+    if (opts.get("pulse")) |pulse| {
         core.pulse = try pulse.val.getAs(bool);
     }
 
-    if ((try ((try main_cmd.getOpts(.{})).get("version")).?.val.getAs(bool)) or main_cmd.checkSubCmd("version")) {
+    if ((try (opts.get("version")).?.val.getAs(bool)) or main_cmd.checkSubCmd("version")) {
         // TODO add SemVer string
         try stdout.print("{s}{s}{s}", .{ "xtxf version ", VERSION, "\n" });
     }
