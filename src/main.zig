@@ -320,12 +320,12 @@ pub fn main() !void {
         core.pulse = try pulse.val.getAs(bool);
     }
 
-    if ((try (opts.get("version")).?.val.getAs(bool)) or main_cmd.checkSubCmd("version")) {
+    if (main_cmd.checkFlag("version")) {
         // TODO add SemVer string
         try stdout.print("{s}{s}{s}", .{ "xtxf version ", VERSION, "\n" });
     }
 
-    if (!main_cmd.checkOpts(&.{ "help", "version", "usage" }, .{}) and !main_cmd.checkSubCmd("help") and !main_cmd.checkSubCmd("usage") and !main_cmd.checkSubCmd("version")) {
+    if (!(main_cmd.checkFlag("version") or main_cmd.checkFlag("help") or main_cmd.checkFlag("usage"))) {
         core.start();
 
         if (core.width < 4 or core.height < 2) {
