@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2024-08-30
+
+### Bug Fixes
+
+- Catch `usage` flags
+- Print `usage` on errors
+- Update description
+- Update help prefix
+
+### Operations
+
+- Set zig version in `lint`
+
+### Refactor
+
+- Move `cli` structs
+- Drop `child_type_parse_fns`
+- Drop parser errors
+- Add `opts`
+- Use `checkFlag()`
+
 ## [0.5.0] - 2024-08-28
 
 ### Bug Fixes
