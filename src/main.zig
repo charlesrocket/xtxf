@@ -23,7 +23,7 @@ const VERSION = if (build_opt.gxt.dirty == null) HEAD_HASH ++ "-unverified" else
 
 const FRAME = 39730492;
 
-pub const Mode = enum(u8) { binary = 2, decimal = 10 };
+pub const Mode = enum(u8) { binary, decimal, hexadecimal };
 pub const Style = enum { default, columns, crypto, grid, blocks };
 pub const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
@@ -206,8 +206,11 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     }
                 }
 
-                const number = @mod(rand.int(u8), @intFromEnum(handler.mode));
-                const int: u8 = @intCast(number);
+                const rand_int = switch (handler.mode) {
+                    .binary => rand.int(u1),
+                    .decimal => rand.uintLessThan(u8, 10),
+                    .hexadecimal => rand.uintLessThan(u8, 16),
+                };
 
                 var color = @intFromEnum(core.color);
 
@@ -226,8 +229,10 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     color = color | tb.TB_BOLD;
                 }
 
-                var buf: [2]u8 = undefined;
-                const slice: [:0]u8 = try std.fmt.bufPrintZ(&buf, "{d}", .{int});
+                const char = if (handler.mode == .hexadecimal) assets.hex_chars[rand_int] else rand_int;
+
+                var buf: [3]u8 = undefined;
+                const slice: [:0]u8 = if (handler.mode == .hexadecimal) try std.fmt.bufPrintZ(&buf, "{c}", .{char}) else try std.fmt.bufPrintZ(&buf, "{d}", .{char});
 
                 _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), slice);
 

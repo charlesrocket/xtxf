@@ -108,7 +108,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "mode",
-            .description = "Set symbol mode (binary, decimal).",
+            .description = "Set symbol mode (binary, decimal, hexadecimal).",
             .short_name = 'm',
             .long_name = "mode",
             .val = ValueT.ofType(Mode, .{ .name = "mode_val", .default_val = Mode.binary, .alias_child_type = "string" }),
