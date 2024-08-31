@@ -209,7 +209,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 const rand_int = switch (handler.mode) {
                     .binary => rand.int(u1),
                     .decimal => rand.uintLessThan(u8, 10),
-                    .hexadecimal => rand.uintLessThan(u8, 16),
+                    .hexadecimal => rand.int(u4),
                 };
 
                 var color = @intFromEnum(core.color);
