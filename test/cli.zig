@@ -22,6 +22,20 @@ test "default" {
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
+test "mode: decimal" {
+    const argv = [_][]const u8{ exe_path, "--time=1", "-m=decimal" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
+test "mode: hexadecimal" {
+    const argv = [_][]const u8{ exe_path, "--time=1", "-m=hexadecimal" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
 test "color: red" {
     const argv = [_][]const u8{ exe_path, "--time=1", "-c=red" };
     const term = try runner(argv);
@@ -57,36 +71,29 @@ test "color: magenta" {
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
-test "columns" {
+test "style: columns" {
     const argv = [_][]const u8{ exe_path, "--time=1", "-s=columns" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
-test "crypto" {
+test "style: crypto" {
     const argv = [_][]const u8{ exe_path, "--time=1", "-s=crypto" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
-test "grid" {
+test "style: grid" {
     const argv = [_][]const u8{ exe_path, "--time=1", "-s=grid" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
-test "blocks" {
+test "style: blocks" {
     const argv = [_][]const u8{ exe_path, "--time=1", "-s=blocks" };
-    const term = try runner(argv);
-
-    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
-}
-
-test "decimal" {
-    const argv = [_][]const u8{ exe_path, "--time=1", "-m=decimal" };
     const term = try runner(argv);
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
