@@ -229,12 +229,10 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     color = color | tb.TB_BOLD;
                 }
 
-                const char = if (handler.mode == .hexadecimal) assets.hex_chars[rand_int] else rand_int;
-
                 var buf: [3]u8 = undefined;
-                const slice: [:0]u8 = if (handler.mode == .hexadecimal) try std.fmt.bufPrintZ(&buf, "{c}", .{char}) else try std.fmt.bufPrintZ(&buf, "{d}", .{char});
+                const char: [:0]u8 = if (handler.mode == .hexadecimal) try std.fmt.bufPrintZ(&buf, "{c}", .{assets.hex_chars[rand_int]}) else try std.fmt.bufPrintZ(&buf, "{d}", .{rand_int});
 
-                _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), slice);
+                _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), char);
 
                 if (core.pulse) {
                     core.bg = tb.TB_DEFAULT;
