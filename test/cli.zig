@@ -36,6 +36,13 @@ test "mode: hexadecimal" {
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
+test "mode: textual" {
+    const argv = [_][]const u8{ exe_path, "--time=1", "-m=textual" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
 test "color: red" {
     const argv = [_][]const u8{ exe_path, "--time=1", "-c=red" };
     const term = try runner(argv);
