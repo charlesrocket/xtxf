@@ -27,6 +27,10 @@ pub const Mode = enum(u8) { binary, decimal, hexadecimal, textual };
 pub const Style = enum { default, columns, crypto, grid, blocks };
 pub const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
+var sbuf: [2]u8 = undefined;
+var mbuf: [3]u8 = undefined;
+var lbuf: [4]u8 = undefined;
+
 const Core = struct {
     allocator: std.mem.Allocator,
     mutex: Mutex = Mutex{},
@@ -230,11 +234,10 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     color = color | tb.TB_BOLD;
                 }
 
-                var buf: [4]u8 = undefined;
                 const char: [:0]u8 = switch (handler.mode) {
-                    .binary, .decimal => try std.fmt.bufPrintZ(&buf, "{d}", .{rand_int}),
-                    .hexadecimal => try std.fmt.bufPrintZ(&buf, "{c}", .{assets.hex_chars[rand_int]}),
-                    .textual => try std.fmt.bufPrintZ(&buf, "{u}", .{assets.tex_chars[rand_int]}),
+                    .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{rand_int}),
+                    .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[rand_int]}),
+                    .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[rand_int]}),
                 };
 
                 _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), char);
