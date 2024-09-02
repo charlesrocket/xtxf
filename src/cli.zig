@@ -4,6 +4,7 @@ const std = @import("std");
 const cova = @import("cova");
 const assets = @import("assets.zig");
 
+const Speed = main.Speed;
 const Color = main.Color;
 const Style = main.Style;
 const Mode = main.Mode;
@@ -69,6 +70,7 @@ pub const CommandT = cova.Command.Custom(.{
     },
     .val_config = .{
         .custom_types = &.{
+            Speed,
             Color,
             Style,
             Mode,
@@ -131,6 +133,16 @@ pub const setup_cmd: CommandT = .{
             .val = ValueT.ofType(u32, .{
                 .name = "time",
                 .default_val = 0,
+            }),
+        },
+        .{
+            .name = "speed",
+            .description = "Set speed (fast, slow).",
+            .long_name = "speed",
+            .val = ValueT.ofType(Speed, .{
+                .name = "speed_val",
+                .default_val = Speed.fast,
+                .alias_child_type = "string",
             }),
         },
         .{

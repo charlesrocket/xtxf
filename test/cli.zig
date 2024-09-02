@@ -22,6 +22,13 @@ test "default" {
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
 
+test "speed" {
+    const argv = [_][]const u8{ exe_path, "--time=1", "-s=default", "--speed=slow" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}
+
 test "mode: decimal" {
     const argv = [_][]const u8{ exe_path, "--time=1", "-m=decimal" };
     const term = try runner(argv);

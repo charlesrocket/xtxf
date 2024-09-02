@@ -23,7 +23,8 @@ const VERSION = if (build_opt.gxt.dirty == null) HEAD_HASH ++ "-unverified" else
 
 const FRAME = 39730492;
 
-pub const Mode = enum(u8) { binary, decimal, hexadecimal, textual };
+pub const Speed = enum { slow, fast };
+pub const Mode = enum { binary, decimal, hexadecimal, textual };
 pub const Style = enum { default, columns, crypto, grid, blocks };
 pub const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
@@ -135,6 +136,7 @@ const Core = struct {
 const Handler = struct {
     mutex: Mutex = Mutex{},
     halt: bool = true,
+    speed: Speed = .fast,
     duration: u32 = 0,
     pause: bool = false,
     mode: Mode = Mode.binary,
@@ -250,7 +252,10 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
         _ = tb.tb_present();
         core.setRendering(false);
-        std.time.sleep(FRAME);
+        std.time.sleep(switch (handler.speed) {
+            .slow => FRAME * 2,
+            .fast => FRAME,
+        });
     }
 }
 
@@ -325,6 +330,10 @@ pub fn main() !void {
 
     if (opts.get("time")) |time| {
         handler.duration = try time.val.getAs(u32);
+    }
+
+    if (opts.get("speed")) |speed| {
+        handler.speed = try speed.val.getAs(Speed);
     }
 
     if (opts.get("pulse")) |pulse| {
