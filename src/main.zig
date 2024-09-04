@@ -25,7 +25,7 @@ const FRAME = 39730492;
 
 pub const Speed = enum { slow, fast };
 pub const Mode = enum { binary, decimal, hexadecimal, textual };
-pub const Style = enum { default, columns, crypto, grid, blocks };
+pub const Style = enum { default, columns, crypto, grid, blocks, rain };
 pub const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
 
 var sbuf: [2]u8 = undefined;
@@ -42,6 +42,7 @@ const Core = struct {
     bg: u32 = tb.TB_DEFAULT,
     width: i32 = 0,
     height: i32 = 0,
+    lines: ?std.ArrayListAligned([]?u8, null) = null,
     width_gaps: ?std.ArrayListAligned(u32, null) = null,
     height_gaps: ?std.ArrayListAligned(u32, null) = null,
 
@@ -105,6 +106,10 @@ const Core = struct {
     fn start(self: *Core) void {
         _ = tb.tb_init();
 
+        if (self.lines == null) {
+            self.lines = std.ArrayList([]?u8).init(self.allocator);
+        }
+
         if (self.width_gaps == null) {
             self.width_gaps = std.ArrayList(u32).init(self.allocator);
         }
@@ -121,6 +126,10 @@ const Core = struct {
     fn shutdown(self: *Core) void {
         if (!self.active) {
             _ = tb.tb_shutdown();
+        }
+
+        if (self.lines != null) {
+            self.lines.?.deinit();
         }
 
         if (self.width_gaps != null) {
@@ -196,67 +205,141 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
     defer handler.mutex.unlock();
 
     if (!handler.pause) {
-        core.setRendering(true);
+        _ = tb.tb_clear();
+        if (handler.style != .rain) {
+            core.setRendering(true);
 
-        for (1..@intCast(core.width)) |w| {
-            if (handler.style != Style.default) {
-                if (checkSec(&core.width_gaps.?, w)) {
-                    continue;
-                }
-            }
-
-            for (1..@intCast(core.height)) |h| {
+            for (0..@intCast(core.width)) |w| {
                 if (handler.style != Style.default) {
-                    if (checkSec(&core.height_gaps.?, h)) {
+                    if (checkSec(&core.width_gaps.?, w)) {
                         continue;
                     }
                 }
 
-                const rand_int = switch (handler.mode) {
-                    .binary => rand.int(u1),
-                    .decimal => rand.uintLessThan(u8, 10),
-                    .hexadecimal => rand.int(u4),
-                    .textual => rand.uintLessThan(u8, 76),
-                };
+                for (0..@intCast(core.height)) |h| {
+                    if (handler.style != Style.default) {
+                        if (checkSec(&core.height_gaps.?, h)) {
+                            continue;
+                        }
+                    }
 
-                var color = @intFromEnum(core.color);
+                    const rand_int = switch (handler.mode) {
+                        .binary => rand.int(u1),
+                        .decimal => rand.uintLessThan(u8, 10),
+                        .hexadecimal => rand.int(u4),
+                        .textual => rand.uintLessThan(u8, 76),
+                    };
 
-                const bold = rand.boolean();
+                    var color = @intFromEnum(core.color);
 
-                if (core.pulse) {
-                    const blank = @mod(rand.int(u8), 255);
+                    const bold = rand.boolean();
 
-                    // small probability
-                    if (blank >= 254) {
-                        core.bg = core.bg | tb.TB_REVERSE;
+                    if (core.pulse) {
+                        const blank = @mod(rand.int(u8), 255);
+
+                        // small probability
+                        if (blank >= 254) {
+                            core.bg = core.bg | tb.TB_REVERSE;
+                        }
+                    }
+
+                    if (bold) {
+                        color = color | tb.TB_BOLD;
+                    }
+
+                    const char: [:0]u8 = switch (handler.mode) {
+                        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{rand_int}),
+                        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[rand_int]}),
+                        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[rand_int]}),
+                    };
+
+                    tbPrint(w, h, color, core.bg, char);
+
+                    if (core.pulse) {
+                        core.bg = tb.TB_DEFAULT;
+                    }
+                }
+            }
+        } else {
+            height: for (0..@intCast(core.height)) |_| {
+                var arr = std.ArrayList(?u8).init(core.allocator);
+                defer arr.deinit();
+
+                for (0..@intCast(core.width)) |_| {
+                    const rand_int = switch (handler.mode) {
+                        .binary => rand.int(u1),
+                        .decimal => rand.uintLessThan(u8, 10),
+                        .hexadecimal => rand.int(u4),
+                        .textual => rand.uintLessThan(u8, 76),
+                    };
+
+                    var color = @intFromEnum(core.color);
+
+                    const bold = rand.boolean();
+
+                    if (core.pulse) {
+                        const blank = @mod(rand.int(u8), 255);
+
+                        // small probability
+                        if (blank >= 254) {
+                            core.bg = core.bg | tb.TB_REVERSE;
+                        }
+                    }
+
+                    if (bold) {
+                        color = color | tb.TB_BOLD;
+                    }
+
+                    const skip = rand.boolean();
+
+                    if (skip) {
+                        try arr.append(null);
+                    } else {
+                        try arr.append(rand_int);
                     }
                 }
 
-                if (bold) {
-                    color = color | tb.TB_BOLD;
+                const slice = try arr.toOwnedSlice();
+
+                if (core.lines.?.items.len == core.height) {
+                    _ = core.lines.?.pop();
+                    try core.lines.?.insert(0, slice);
+                    break :height;
                 }
 
-                const char: [:0]u8 = switch (handler.mode) {
-                    .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{rand_int}),
-                    .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[rand_int]}),
-                    .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[rand_int]}),
-                };
+                try core.lines.?.insert(0, slice);
+            }
 
-                _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(color), @intCast(core.bg), char);
+            for (0..core.lines.?.items.len) |h| {
+                for (0..@intCast(core.width)) |w| {
+                    const rand_int = core.lines.?.items[h][w];
+                    if (rand_int == null) continue;
+                    const char: [:0]u8 = switch (handler.mode) {
+                        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{rand_int.?}),
+                        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[rand_int.?]}),
+                        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[rand_int.?]}),
+                    };
 
-                if (core.pulse) {
-                    core.bg = tb.TB_DEFAULT;
+                    tbPrint(w, h, @intFromEnum(core.color), core.bg, char);
                 }
             }
         }
 
         _ = tb.tb_present();
         core.setRendering(false);
-        std.time.sleep(switch (handler.speed) {
-            .slow => FRAME * 2,
-            .fast => FRAME,
-        });
+        if (handler.style != .rain) {
+            std.time.sleep(switch (handler.speed) {
+                .slow => FRAME * 2,
+                .fast => FRAME,
+            });
+        } else {
+            std.time.sleep(FRAME * 5);
+        }
     }
+}
+
+fn tbPrint(w: usize, h: usize, c: usize, b: usize, char: [*c]const u8) void {
+    _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(c), @intCast(b), char);
 }
 
 fn animation(handler: *Handler, core: *Core) !void {
