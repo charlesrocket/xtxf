@@ -103,7 +103,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "style",
-            .description = "Set output style (default, columns, crypto, grid, blocks).",
+            .description = "Set output style (default, columns, crypto, grid, blocks, rain).",
             .short_name = 's',
             .long_name = "style",
             .val = ValueT.ofType(Style, .{ .name = "style_val", .default_val = Style.default, .alias_child_type = "string" }),
