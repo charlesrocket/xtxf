@@ -266,7 +266,6 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
         } else {
             height: for (0..@intCast(core.height)) |_| {
                 var arr = std.ArrayList(?u8).init(core.allocator);
-                defer arr.deinit();
 
                 for (0..@intCast(core.width)) |_| {
                     const rand_int = switch (handler.mode) {
@@ -307,11 +306,12 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 if (core.lines.?.items.len == core.height) {
                     const old_line = core.lines.?.pop();
                     core.allocator.free(old_line);
+
                     try core.lines.?.insert(0, slice);
                     break :height;
+                } else {
+                    try core.lines.?.insert(0, slice);
                 }
-
-                try core.lines.?.insert(0, slice);
             }
 
             for (0..core.lines.?.items.len) |h| {
