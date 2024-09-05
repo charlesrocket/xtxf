@@ -128,8 +128,11 @@ const Core = struct {
             _ = tb.tb_shutdown();
         }
 
-        if (self.lines != null) {
-            self.lines.?.deinit();
+        if (self.lines) |lines| {
+            for (lines.items) |line| {
+                self.allocator.free(line);
+            }
+            lines.deinit();
         }
 
         if (self.width_gaps != null) {
@@ -302,7 +305,8 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 const slice = try arr.toOwnedSlice();
 
                 if (core.lines.?.items.len == core.height) {
-                    _ = core.lines.?.pop();
+                    const old_line = core.lines.?.pop();
+                    core.allocator.free(old_line);
                     try core.lines.?.insert(0, slice);
                     break :height;
                 }
