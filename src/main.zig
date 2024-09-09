@@ -359,14 +359,23 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
             }
 
             for (0..@intCast(core.width)) |w| {
+                if (rand.boolean()) continue;
                 if (core.columns.?.items[w].?.chars.items.len == core.height) {
                     const old_char = core.columns.?.items[w].?.chars.pop();
                     core.allocator.destroy(&old_char);
                 }
 
-                if (rand.boolean()) continue;
+                if (rand.uintLessThan(u3, 7) < 5) {
+                    try core.columns.?.items[w].?.chars.insert(0, null);
+                    continue;
+                }
 
                 const str_len = core.columns.?.items[w].?.strLen();
+
+                if ((str_len == 0) and rand.boolean()) {
+                    try core.columns.?.items[w].?.chars.insert(0, null);
+                    continue;
+                }
 
                 if (str_len < @as(u32, @intCast(core.height)) / 2) {
                     if (str_len < 12) {
