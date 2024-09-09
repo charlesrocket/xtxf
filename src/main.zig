@@ -72,6 +72,15 @@ const Core = struct {
         self.height_gaps = try getNthValues(self.height, adv, self.allocator);
     }
 
+    fn updateColumns(self: *Core) !void {
+        for (self.columns.?.items) |column| {
+            column.?.chars.deinit();
+        }
+
+        self.columns.?.clearAndFree();
+        try self.columns.?.ensureTotalCapacity(@as(u32, @intCast(self.width)));
+    }
+
     fn updateStyle(self: *Core, style: Style) !void {
         if (style == Style.grid) {
             self.mutex.lock();
@@ -96,6 +105,11 @@ const Core = struct {
             defer self.mutex.unlock();
 
             try self.updateWidthSec(4);
+        } else if (style == Style.rain) {
+            self.mutex.lock();
+            defer self.mutex.unlock();
+
+            try self.updateColumns();
         }
     }
 
@@ -216,6 +230,23 @@ const Column = struct {
         };
     }
 
+    fn strLen(self: *Column) usize {
+        var len: usize = 0;
+        var target: usize = 0;
+        var check = true;
+
+        while (check) {
+            if (self.chars.items[target] != null) {
+                len += 1;
+                target += 1;
+            } else {
+                check = false;
+            }
+        }
+
+        return len;
+    }
+
     fn newChar(self: *Column, core: *Core, mode: Mode, rand: std.rand.Random) !void {
         const rand_int = switch (mode) {
             .binary => rand.int(u1),
@@ -333,13 +364,17 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     core.allocator.destroy(&old_char);
                 }
 
-                if (core.columns.?.items[w].?.chars.items[0] != null) {
-                    //if (rand.boolean())
-                }
+                if (rand.boolean()) continue;
 
-                //const char_len = rand.uintLessThan(u4, 13);
-                const new_char = rand.uintLessThan(u3, 7);
-                if (new_char == 6) {
+                const str_len = core.columns.?.items[w].?.strLen();
+
+                if (str_len < @as(u32, @intCast(core.height)) / 2) {
+                    if (str_len < 12) {
+                        try core.columns.?.items[w].?.newChar(core, handler.mode, rand);
+                    } else {
+                        try core.columns.?.items[w].?.chars.insert(0, null);
+                    }
+
                     try core.columns.?.items[w].?.newChar(core, handler.mode, rand);
                 } else {
                     try core.columns.?.items[w].?.chars.insert(0, null);
