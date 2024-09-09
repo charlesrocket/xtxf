@@ -525,6 +525,24 @@ pub fn main() !void {
     }
 }
 
+test "column" {
+    var prng = std.rand.DefaultPrng.init(1337);
+    const rand = prng.random();
+
+    var core = Core{ .allocator = std.testing.allocator };
+    core.start();
+
+    const column = Column.init(core.allocator);
+    try core.columns.?.append(column);
+    try core.columns.?.items[0].?.newChar(&core, Mode.decimal, rand);
+    try core.columns.?.items[0].?.newChar(&core, Mode.decimal, rand);
+
+    try std.testing.expect(core.columns.?.items[0].?.chars.items.len == 2);
+
+    core.active = false;
+    core.shutdown();
+}
+
 test "handler" {
     var core = Core{ .allocator = std.testing.allocator, .active = true };
     var handler = Handler{ .duration = 1 };
