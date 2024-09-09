@@ -255,11 +255,10 @@ const Column = struct {
             .textual => rand.uintLessThan(u8, 76),
         };
 
-        const color = @intFromEnum(core.color);
-        var bold = color;
+        var color = @intFromEnum(core.color);
         var pulse = core.bg;
 
-        const is_bold = rand.boolean();
+        const bold = rand.boolean();
 
         if (core.pulse) {
             const blank = @mod(rand.int(u8), 255);
@@ -270,11 +269,15 @@ const Column = struct {
             }
         }
 
-        if (is_bold) {
-            bold = color | tb.TB_BOLD;
+        if (bold) {
+            color = color | tb.TB_BOLD;
         }
 
-        try self.chars.insert(0, Char{ .i = rand_int, .p = pulse, .b = bold });
+        try self.chars.insert(0, Char{ .i = rand_int, .p = pulse, .b = color });
+
+        if (core.pulse) {
+            core.bg = tb.TB_DEFAULT;
+        }
     }
 
     fn skip(self: *Column) !void {
@@ -403,7 +406,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                         .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[column_char.?.i]}),
                     };
 
-                    tbPrint(w, h, @intFromEnum(core.color), column_char.?.p, char);
+                    tbPrint(w, h, column_char.?.b, column_char.?.p, char);
                 }
             }
         }
