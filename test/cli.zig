@@ -112,3 +112,10 @@ test "style: blocks" {
 
     try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
 }
+
+test "style: rain" {
+    const argv = [_][]const u8{ exe_path, "--time=1", "-s=rain" };
+    const term = try runner(argv);
+
+    try std.testing.expectEqual(term, std.process.Child.Term{ .Exited = 0 });
+}

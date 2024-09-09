@@ -312,10 +312,11 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 }
             }
         } else {
+            // init columns
             if (core.columns.?.items.len != core.width) {
                 for (0..@intCast(core.width)) |_| {
                     var column = Column.init(core.allocator);
-                    try column.newChar(core, handler.mode, rand);
+                    try column.chars.append(null);
                     try core.columns.?.append(column);
                 }
 
@@ -371,7 +372,10 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 .fast => FRAME,
             });
         } else {
-            std.time.sleep(FRAME * 5);
+            std.time.sleep(switch (handler.speed) {
+                .slow => FRAME * 23,
+                .fast => FRAME * 5,
+            });
         }
     }
 }
