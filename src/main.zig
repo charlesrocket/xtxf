@@ -42,7 +42,7 @@ const Core = struct {
     bg: u32 = tb.TB_DEFAULT,
     width: i32 = 0,
     height: i32 = 0,
-    lines: ?std.ArrayListAligned([]?u8, null) = null,
+    columns: ?std.ArrayListAligned(?Column, null) = null,
     width_gaps: ?std.ArrayListAligned(u32, null) = null,
     height_gaps: ?std.ArrayListAligned(u32, null) = null,
 
@@ -106,8 +106,8 @@ const Core = struct {
     fn start(self: *Core) void {
         _ = tb.tb_init();
 
-        if (self.lines == null) {
-            self.lines = std.ArrayList([]?u8).init(self.allocator);
+        if (self.columns == null) {
+            self.columns = std.ArrayList(?Column).init(self.allocator);
         }
 
         if (self.width_gaps == null) {
@@ -128,11 +128,12 @@ const Core = struct {
             _ = tb.tb_shutdown();
         }
 
-        if (self.lines) |lines| {
-            for (lines.items) |line| {
-                self.allocator.free(line);
+        if (self.columns) |columns| {
+            for (columns.items) |column| {
+                column.?.chars.deinit();
             }
-            lines.deinit();
+
+            columns.deinit();
         }
 
         if (self.width_gaps != null) {
@@ -203,6 +204,53 @@ const Handler = struct {
     }
 };
 
+const Char = struct { i: u8, p: u32, b: u32 };
+
+const Column = struct {
+    chars: std.ArrayList(?Char),
+    printing: bool = false,
+
+    fn init(allocator: std.mem.Allocator) Column {
+        return .{
+            .chars = std.ArrayList(?Char).init(allocator),
+        };
+    }
+
+    fn newChar(self: *Column, core: *Core, mode: Mode, rand: std.rand.Random) !void {
+        const rand_int = switch (mode) {
+            .binary => rand.int(u1),
+            .decimal => rand.uintLessThan(u8, 10),
+            .hexadecimal => rand.int(u4),
+            .textual => rand.uintLessThan(u8, 76),
+        };
+
+        const color = @intFromEnum(core.color);
+        var bold = color;
+        var pulse = core.bg;
+
+        const is_bold = rand.boolean();
+
+        if (core.pulse) {
+            const blank = @mod(rand.int(u8), 255);
+
+            // small probability
+            if (blank >= 254) {
+                pulse = core.bg | tb.TB_REVERSE;
+            }
+        }
+
+        if (is_bold) {
+            bold = color | tb.TB_BOLD;
+        }
+
+        try self.chars.insert(0, Char{ .i = rand_int, .p = pulse, .b = bold });
+    }
+
+    fn skip(self: *Column) !void {
+        try self.chars.append(null);
+    }
+};
+
 fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
     handler.mutex.lock();
     defer handler.mutex.unlock();
@@ -264,67 +312,53 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 }
             }
         } else {
-            height: for (0..@intCast(core.height)) |_| {
-                var arr = std.ArrayList(?u8).init(core.allocator);
-
+            if (core.columns.?.items.len != core.width) {
                 for (0..@intCast(core.width)) |_| {
-                    const rand_int = switch (handler.mode) {
-                        .binary => rand.int(u1),
-                        .decimal => rand.uintLessThan(u8, 10),
-                        .hexadecimal => rand.int(u4),
-                        .textual => rand.uintLessThan(u8, 76),
-                    };
-
-                    var color = @intFromEnum(core.color);
-
-                    const bold = rand.boolean();
-
-                    if (core.pulse) {
-                        const blank = @mod(rand.int(u8), 255);
-
-                        // small probability
-                        if (blank >= 254) {
-                            core.bg = core.bg | tb.TB_REVERSE;
-                        }
-                    }
-
-                    if (bold) {
-                        color = color | tb.TB_BOLD;
-                    }
-
-                    const skip = rand.boolean();
-
-                    if (skip) {
-                        try arr.append(null);
-                    } else {
-                        try arr.append(rand_int);
-                    }
+                    var column = Column.init(core.allocator);
+                    try column.newChar(core, handler.mode, rand);
+                    try core.columns.?.append(column);
                 }
 
-                const slice = try arr.toOwnedSlice();
-
-                if (core.lines.?.items.len == core.height) {
-                    const old_line = core.lines.?.pop();
-                    core.allocator.free(old_line);
-
-                    try core.lines.?.insert(0, slice);
-                    break :height;
-                } else {
-                    try core.lines.?.insert(0, slice);
+                for (0..@intCast(core.width)) |w| {
+                    for (0..@intCast(core.height)) |_| {
+                        try core.columns.?.items[w].?.chars.append(null);
+                    }
                 }
             }
 
-            for (0..core.lines.?.items.len) |h| {
-                for (0..@intCast(core.width)) |w| {
-                    const rand_int = core.lines.?.items[h][w];
-                    if (rand_int == null) continue;
+            for (0..@intCast(core.width)) |w| {
+                if (core.columns.?.items[w].?.chars.items.len == core.height) {
+                    const old_char = core.columns.?.items[w].?.chars.pop();
+                    core.allocator.destroy(&old_char);
+                }
+
+                if (core.columns.?.items[w].?.chars.items[0] != null) {
+                    //if (rand.boolean())
+                }
+
+                //const char_len = rand.uintLessThan(u4, 13);
+                const new_char = rand.uintLessThan(u3, 7);
+                if (new_char == 6) {
+                    try core.columns.?.items[w].?.newChar(core, handler.mode, rand);
+                } else {
+                    try core.columns.?.items[w].?.chars.insert(0, null);
+                }
+            }
+
+            for (0..core.columns.?.items.len) |w| {
+                h_loop: for (0..@intCast(core.height)) |h| {
+                    const column_char = core.columns.?.items[w].?.chars.items[h];
+                    if (column_char == null) {
+                        continue :h_loop;
+                    }
+
                     const char: [:0]u8 = switch (handler.mode) {
-                        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{rand_int.?}),
-                        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[rand_int.?]}),
-                        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[rand_int.?]}),
+                        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{column_char.?.i}),
+                        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[column_char.?.i]}),
+                        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[column_char.?.i]}),
                     };
 
-                    tbPrint(w, h, @intFromEnum(core.color), core.bg, char);
+                    tbPrint(w, h, @intFromEnum(core.color), column_char.?.p, char);
                 }
             }
         }
