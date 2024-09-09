@@ -449,6 +449,8 @@ fn getNthValues(number: i32, adv: u32, allocator: std.mem.Allocator) !std.ArrayL
     var array = std.ArrayList(u32).init(allocator);
     var val = adv;
 
+    try array.append(0);
+
     while (val <= @as(u32, @intCast(number))) {
         try array.append(val);
         val += adv;
@@ -593,8 +595,9 @@ test "sections" {
     const array = try getNthValues(12, 4, std.testing.allocator);
     defer array.deinit();
 
-    try std.testing.expect(array.items[0] == 4);
-    try std.testing.expect(array.items[1] == 8);
-    try std.testing.expect(array.items[2] == 12);
-    try std.testing.expect(array.items.len == 3);
+    try std.testing.expect(array.items[0] == 0);
+    try std.testing.expect(array.items[1] == 4);
+    try std.testing.expect(array.items[2] == 8);
+    try std.testing.expect(array.items[3] == 12);
+    try std.testing.expect(array.items.len == 4);
 }
