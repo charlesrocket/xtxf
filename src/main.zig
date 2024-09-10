@@ -218,7 +218,7 @@ const Handler = struct {
     }
 };
 
-const Char = struct { i: u8, p: u32, b: u32 };
+const Char = struct { i: u8, b: u32, c: u32 };
 
 const Column = struct {
     chars: std.ArrayList(?Char),
@@ -273,7 +273,7 @@ const Column = struct {
             color = color | tb.TB_BOLD;
         }
 
-        try self.chars.insert(0, Char{ .i = rand_int, .p = pulse, .b = color });
+        try self.chars.insert(0, Char{ .i = rand_int, .b = pulse, .c = color });
 
         if (core.pulse) {
             core.bg = tb.TB_DEFAULT;
@@ -406,7 +406,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                         .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[column_char.?.i]}),
                     };
 
-                    tbPrint(w, h, column_char.?.b, column_char.?.p, char);
+                    tbPrint(w, h, column_char.?.c, column_char.?.b, char);
                 }
             }
         }
