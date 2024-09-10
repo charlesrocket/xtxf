@@ -368,7 +368,7 @@ fn newChar(core: *Core, mode: Mode, rand: std.rand.Random) Char {
     const bold = rand.boolean();
     const rand_int = switch (mode) {
         .binary => rand.int(u1),
-        .decimal => rand.uintLessThan(u8, 10),
+        .decimal => rand.uintLessThan(u4, 10),
         .hexadecimal => rand.int(u4),
         .textual => rand.uintLessThan(u8, 73),
     };
