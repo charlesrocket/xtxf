@@ -575,3 +575,10 @@ test "sections" {
     try std.testing.expect(array.items[3] == 12);
     try std.testing.expect(array.items.len == 4);
 }
+
+test "char format" {
+    try std.testing.expectEqualStrings("1", try fmtChar(1, Mode.binary));
+    try std.testing.expectEqualStrings("6", try fmtChar(6, Mode.decimal));
+    try std.testing.expectEqualStrings("D", try fmtChar(13, Mode.hexadecimal));
+    try std.testing.expectEqualStrings("ﾌ", try fmtChar(42, Mode.textual));
+}
