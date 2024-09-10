@@ -82,30 +82,30 @@ const Core = struct {
     }
 
     fn updateStyle(self: *Core, style: Style) !void {
-        if (style == Style.grid) {
+        if (style == .grid) {
             self.mutex.lock();
             defer self.mutex.unlock();
 
             try self.updateWidthSec(2);
             try self.updateHeightSec(2);
-        } else if (style == Style.crypto) {
+        } else if (style == .crypto) {
             self.mutex.lock();
             defer self.mutex.unlock();
 
             try self.updateWidthSec(5);
             try self.updateHeightSec(3);
-        } else if (style == Style.blocks) {
+        } else if (style == .blocks) {
             self.mutex.lock();
             defer self.mutex.unlock();
 
             try self.updateWidthSec(10);
             try self.updateHeightSec(6);
-        } else if (style == Style.columns) {
+        } else if (style == .columns) {
             self.mutex.lock();
             defer self.mutex.unlock();
 
             try self.updateWidthSec(4);
-        } else if (style == Style.rain) {
+        } else if (style == .rain) {
             self.mutex.lock();
             defer self.mutex.unlock();
 
@@ -267,14 +267,14 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
             core.setRendering(true);
 
             for (0..@intCast(core.width)) |w| {
-                if (handler.style != Style.default) {
+                if (handler.style != .default) {
                     if (checkSec(&core.width_gaps.?, w)) {
                         continue;
                     }
                 }
 
                 for (0..@intCast(core.height)) |h| {
-                    if (handler.style != Style.default) {
+                    if (handler.style != .default) {
                         if (checkSec(&core.height_gaps.?, h)) {
                             continue;
                         }
