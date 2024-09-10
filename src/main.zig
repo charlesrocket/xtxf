@@ -247,41 +247,13 @@ const Column = struct {
         return len;
     }
 
-    fn newChar(self: *Column, core: *Core, mode: Mode, rand: std.rand.Random) !void {
-        const rand_int = switch (mode) {
-            .binary => rand.int(u1),
-            .decimal => rand.uintLessThan(u8, 10),
-            .hexadecimal => rand.int(u4),
-            .textual => rand.uintLessThan(u8, 76),
-        };
-
-        var color = @intFromEnum(core.color);
-        var pulse = core.bg;
-
-        const bold = rand.boolean();
-
-        if (core.pulse) {
-            const blank = @mod(rand.int(u8), 255);
-
-            // small probability
-            if (blank >= 254) {
-                pulse = core.bg | tb.TB_REVERSE;
-            }
-        }
-
-        if (bold) {
-            color = color | tb.TB_BOLD;
-        }
-
-        try self.chars.insert(0, Char{ .i = rand_int, .b = pulse, .c = color });
-
-        if (core.pulse) {
-            core.bg = tb.TB_DEFAULT;
-        }
+    fn addChar(self: *Column, core: *Core, mode: Mode, rand: std.rand.Random) !void {
+        const char = newChar(core, mode, rand);
+        try self.chars.insert(0, char);
     }
 
-    fn skip(self: *Column) !void {
-        try self.chars.append(null);
+    fn addNull(self: *Column) !void {
+        try self.chars.insert(0, null);
     }
 };
 
@@ -308,41 +280,10 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                         }
                     }
 
-                    const rand_int = switch (handler.mode) {
-                        .binary => rand.int(u1),
-                        .decimal => rand.uintLessThan(u8, 10),
-                        .hexadecimal => rand.int(u4),
-                        .textual => rand.uintLessThan(u8, 76),
-                    };
+                    const char = newChar(core, handler.mode, rand);
+                    const out = try fmtChar(char.i, handler.mode);
 
-                    var color = @intFromEnum(core.color);
-
-                    const bold = rand.boolean();
-
-                    if (core.pulse) {
-                        const blank = @mod(rand.int(u8), 255);
-
-                        // small probability
-                        if (blank >= 254) {
-                            core.bg = core.bg | tb.TB_REVERSE;
-                        }
-                    }
-
-                    if (bold) {
-                        color = color | tb.TB_BOLD;
-                    }
-
-                    const char: [:0]u8 = switch (handler.mode) {
-                        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{rand_int}),
-                        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[rand_int]}),
-                        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[rand_int]}),
-                    };
-
-                    tbPrint(w, h, color, core.bg, char);
-
-                    if (core.pulse) {
-                        core.bg = tb.TB_DEFAULT;
-                    }
+                    tbPrint(w, h, char.c, char.b, out);
                 }
             }
         } else {
@@ -350,13 +291,13 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
             if (core.columns.?.items.len != core.width) {
                 for (0..@intCast(core.width)) |_| {
                     var column = Column.init(core.allocator);
-                    try column.chars.append(null);
+                    try column.addNull();
                     try core.columns.?.append(column);
                 }
 
                 for (0..@intCast(core.width)) |w| {
                     for (0..@intCast(core.height)) |_| {
-                        try core.columns.?.items[w].?.chars.append(null);
+                        try core.columns.?.items[w].?.addNull();
                     }
                 }
             }
@@ -369,27 +310,27 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 }
 
                 if (rand.uintLessThan(u3, 7) < 5) {
-                    try core.columns.?.items[w].?.chars.insert(0, null);
+                    try core.columns.?.items[w].?.addNull();
                     continue;
                 }
 
                 const str_len = core.columns.?.items[w].?.strLen();
 
                 if ((str_len == 0) and rand.boolean()) {
-                    try core.columns.?.items[w].?.chars.insert(0, null);
+                    try core.columns.?.items[w].?.addNull();
                     continue;
                 }
 
                 if (str_len < @as(u32, @intCast(core.height)) / 2) {
                     if (str_len < 12) {
-                        try core.columns.?.items[w].?.newChar(core, handler.mode, rand);
+                        try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                     } else {
-                        try core.columns.?.items[w].?.chars.insert(0, null);
+                        try core.columns.?.items[w].?.addNull();
                     }
 
-                    try core.columns.?.items[w].?.newChar(core, handler.mode, rand);
+                    try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                 } else {
-                    try core.columns.?.items[w].?.chars.insert(0, null);
+                    try core.columns.?.items[w].?.addNull();
                 }
             }
 
@@ -400,13 +341,9 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                         continue :h_loop;
                     }
 
-                    const char: [:0]u8 = switch (handler.mode) {
-                        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{column_char.?.i}),
-                        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[column_char.?.i]}),
-                        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[column_char.?.i]}),
-                    };
+                    const out: [:0]u8 = try fmtChar(column_char.?.i, handler.mode);
 
-                    tbPrint(w, h, column_char.?.c, column_char.?.b, char);
+                    tbPrint(w, h, column_char.?.c, column_char.?.b, out);
                 }
             }
         }
@@ -425,6 +362,42 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
             });
         }
     }
+}
+
+fn newChar(core: *Core, mode: Mode, rand: std.rand.Random) Char {
+    const bold = rand.boolean();
+    const rand_int = switch (mode) {
+        .binary => rand.int(u1),
+        .decimal => rand.uintLessThan(u8, 10),
+        .hexadecimal => rand.int(u4),
+        .textual => rand.uintLessThan(u8, 76),
+    };
+
+    var color = @intFromEnum(core.color);
+    var bg = core.bg;
+
+    if (core.pulse) {
+        const blank = @mod(rand.int(u8), 255);
+
+        // small probability
+        if (blank >= 254) {
+            bg = bg | tb.TB_REVERSE;
+        }
+    }
+
+    if (bold) {
+        color = color | tb.TB_BOLD;
+    }
+
+    return Char{ .i = rand_int, .b = bg, .c = color };
+}
+
+fn fmtChar(int: u32, mode: Mode) ![:0]u8 {
+    return switch (mode) {
+        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{int}),
+        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[int]}),
+        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[int]}),
+    };
 }
 
 fn tbPrint(w: usize, h: usize, c: usize, b: usize, char: [*c]const u8) void {
@@ -548,10 +521,11 @@ test "column" {
 
     const column = Column.init(core.allocator);
     try core.columns.?.append(column);
-    try core.columns.?.items[0].?.newChar(&core, Mode.decimal, rand);
-    try core.columns.?.items[0].?.newChar(&core, Mode.decimal, rand);
+    try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
+    try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
+    try core.columns.?.items[0].?.addNull();
 
-    try std.testing.expect(core.columns.?.items[0].?.chars.items.len == 2);
+    try std.testing.expect(core.columns.?.items[0].?.chars.items.len == 3);
 
     core.active = false;
     core.shutdown();
