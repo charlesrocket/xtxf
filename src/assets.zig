@@ -1,5 +1,5 @@
 pub const hex_chars = [16]u8{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-pub const tex_chars = [76]u21{
+pub const tex_chars = [73]u21{
     '#',
     '~',
     '|',
@@ -17,7 +17,6 @@ pub const tex_chars = [76]u21{
     '0',
     '1',
     '2',
-    '3',
     '4',
     '5',
     '6',
@@ -71,11 +70,9 @@ pub const tex_chars = [76]u21{
     'ﾇ',
     'ﾍ',
     'T',
-    'X',
-    'x',
+    'M',
     'V',
-    'v',
-    'z',
+    'N',
 };
 
 pub const help_message =

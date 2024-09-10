@@ -370,7 +370,7 @@ fn newChar(core: *Core, mode: Mode, rand: std.rand.Random) Char {
         .binary => rand.int(u1),
         .decimal => rand.uintLessThan(u8, 10),
         .hexadecimal => rand.int(u4),
-        .textual => rand.uintLessThan(u8, 76),
+        .textual => rand.uintLessThan(u8, 73),
     };
 
     var color = @intFromEnum(core.color);
