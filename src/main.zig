@@ -42,6 +42,7 @@ const Core = struct {
     bg: u32 = tb.TB_DEFAULT,
     width: i32 = 0,
     height: i32 = 0,
+    active_columns: usize = 0,
     columns: ?std.ArrayListAligned(?Column, null) = null,
     width_gaps: ?std.ArrayListAligned(u32, null) = null,
     height_gaps: ?std.ArrayListAligned(u32, null) = null,
@@ -78,6 +79,7 @@ const Core = struct {
         }
 
         self.columns.?.clearAndFree();
+        self.active_columns = 0;
         try self.columns.?.ensureTotalCapacity(@as(u32, @intCast(self.width)));
     }
 
@@ -221,6 +223,7 @@ const Handler = struct {
 const Char = struct { i: u8, b: u32, c: u32 };
 
 const Column = struct {
+    active: bool = false,
     chars: std.ArrayList(?Char),
 
     fn init(allocator: std.mem.Allocator) Column {
@@ -253,6 +256,16 @@ const Column = struct {
 
     fn addNull(self: *Column) !void {
         try self.chars.insert(0, null);
+    }
+
+    fn activate(self: *Column, core: *Core) void {
+        self.active = true;
+        core.active_columns += 1;
+    }
+
+    fn deactivate(self: *Column, core: *Core) void {
+        self.active = false;
+        core.active_columns -= 1;
     }
 };
 
@@ -301,33 +314,43 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 }
             }
 
+            if (core.active_columns >= 2) {
+                core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.deactivate(core);
+            } else {
+                core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.activate(core);
+            }
+
             for (0..@intCast(core.width)) |w| {
-                if (rand.boolean()) continue;
-                if (core.columns.?.items[w].?.chars.items.len == core.height) {
-                    const old_char = core.columns.?.items[w].?.chars.pop();
-                    core.allocator.destroy(&old_char);
-                }
+                if (core.columns.?.items[w].?.active) {
+                    if (rand.boolean()) continue;
+                    if (core.columns.?.items[w].?.chars.items.len == core.height) {
+                        const old_char = core.columns.?.items[w].?.chars.pop();
+                        core.allocator.destroy(&old_char);
+                    }
 
-                if (rand.uintLessThan(u3, 7) < 5) {
-                    try core.columns.?.items[w].?.addNull();
-                    continue;
-                }
-
-                const str_len = core.columns.?.items[w].?.strLen();
-
-                if ((str_len == 0) and rand.boolean()) {
-                    try core.columns.?.items[w].?.addNull();
-                    continue;
-                }
-
-                // max string length
-                if (str_len < @as(u32, @intCast(core.height)) / 2) {
-                    if (str_len < 12) {
-                        try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
-                        continue;
-                    } else {
+                    if (rand.uintLessThan(u3, 7) < 3) {
                         try core.columns.?.items[w].?.addNull();
                         continue;
+                    }
+
+                    const str_len = core.columns.?.items[w].?.strLen();
+
+                    if ((str_len == 0) and rand.boolean()) {
+                        try core.columns.?.items[w].?.addNull();
+                        continue;
+                    }
+
+                    // max string length
+                    if (str_len < @as(u32, @intCast(core.height)) / 2) {
+                        if (str_len < 12) {
+                            try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
+                            continue;
+                        } else {
+                            try core.columns.?.items[w].?.addNull();
+                            continue;
+                        }
+                    } else {
+                        try core.columns.?.items[w].?.addNull();
                     }
                 } else {
                     try core.columns.?.items[w].?.addNull();
@@ -357,8 +380,8 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
             });
         } else {
             std.time.sleep(switch (handler.speed) {
-                .slow => FRAME * 23,
-                .fast => FRAME * 5,
+                .slow => FRAME * 20,
+                .fast => FRAME * 3,
             });
         }
     }
