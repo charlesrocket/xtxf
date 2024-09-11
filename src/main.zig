@@ -222,7 +222,6 @@ const Char = struct { i: u8, b: u32, c: u32 };
 
 const Column = struct {
     chars: std.ArrayList(?Char),
-    printing: bool = false,
 
     fn init(allocator: std.mem.Allocator) Column {
         return .{
@@ -321,14 +320,15 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     continue;
                 }
 
+                // max string length
                 if (str_len < @as(u32, @intCast(core.height)) / 2) {
                     if (str_len < 12) {
                         try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
+                        continue;
                     } else {
                         try core.columns.?.items[w].?.addNull();
+                        continue;
                     }
-
-                    try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                 } else {
                     try core.columns.?.items[w].?.addNull();
                 }
