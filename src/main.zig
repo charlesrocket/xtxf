@@ -55,7 +55,7 @@ const Core = struct {
         self.rendering = value;
     }
 
-    fn updateTermSize(self: *Core) !void {
+    fn updateTermSize(self: *Core) void {
         const width: i32 = tb.tb_width();
         const height: i32 = tb.tb_height();
 
@@ -135,8 +135,7 @@ const Core = struct {
         }
 
         self.setActive(true);
-
-        try self.updateTermSize();
+        self.updateTermSize();
     }
 
     fn shutdown(self: *Core) void {
@@ -207,7 +206,7 @@ const Handler = struct {
                     std.time.sleep(FRAME / 2);
                 }
 
-                try core.updateTermSize();
+                core.updateTermSize();
                 try core.updateStyle(self.style);
 
                 self.setPause(false);
