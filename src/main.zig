@@ -324,8 +324,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     if (core.columns.?.items[w].?.active) {
                         if (rand.boolean()) continue;
                         if (core.columns.?.items[w].?.chars.items.len == core.height) {
-                            const old_char = core.columns.?.items[w].?.chars.pop();
-                            core.allocator.destroy(&old_char);
+                            _ = core.columns.?.items[w].?.chars.pop();
                         }
 
                         if (rand.uintLessThan(u3, 7) < 3) {
