@@ -301,6 +301,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 }
             },
             .rain => {
+                core.setRendering(true);
                 // init columns
                 if (core.columns.?.items.len != core.width) {
                     for (0..@intCast(core.width)) |_| {
