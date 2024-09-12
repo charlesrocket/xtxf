@@ -543,7 +543,7 @@ test "column" {
     const rand = prng.random();
 
     var core = Core{ .allocator = std.testing.allocator };
-    core.start();
+    try core.start(Style.default);
 
     const column = Column.init(core.allocator);
     try core.columns.?.append(column);
