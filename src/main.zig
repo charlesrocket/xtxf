@@ -275,100 +275,103 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
     if (!handler.pause) {
         _ = tb.tb_clear();
-        if (handler.style != .rain) {
-            core.setRendering(true);
+        switch (handler.style) {
+            .default, .columns, .crypto, .grid, .blocks => {
+                core.setRendering(true);
 
-            for (0..@intCast(core.width)) |w| {
-                if (handler.style != .default) {
-                    if (checkSec(&core.width_gaps.?, w)) {
-                        continue;
-                    }
-                }
-
-                for (0..@intCast(core.height)) |h| {
+                for (0..@intCast(core.width)) |w| {
                     if (handler.style != .default) {
-                        if (checkSec(&core.height_gaps.?, h)) {
+                        if (checkSec(&core.width_gaps.?, w)) {
                             continue;
                         }
                     }
 
-                    const char = newChar(core, handler.mode, rand);
-                    const out = try fmtChar(char.i, handler.mode);
+                    for (0..@intCast(core.height)) |h| {
+                        if (handler.style != .default) {
+                            if (checkSec(&core.height_gaps.?, h)) {
+                                continue;
+                            }
+                        }
 
-                    tbPrint(w, h, char.c, char.b, out);
+                        const char = newChar(core, handler.mode, rand);
+                        const out = try fmtChar(char.i, handler.mode);
+
+                        tbPrint(w, h, char.c, char.b, out);
+                    }
                 }
-            }
-        } else {
-            // init columns
-            if (core.columns.?.items.len != core.width) {
-                for (0..@intCast(core.width)) |_| {
-                    var column = Column.init(core.allocator);
-                    try column.addNull();
-                    try core.columns.?.append(column);
+            },
+            .rain => {
+                // init columns
+                if (core.columns.?.items.len != core.width) {
+                    for (0..@intCast(core.width)) |_| {
+                        var column = Column.init(core.allocator);
+                        try column.addNull();
+                        try core.columns.?.append(column);
+                    }
+
+                    for (0..@intCast(core.width)) |w| {
+                        for (0..@intCast(core.height)) |_| {
+                            try core.columns.?.items[w].?.addNull();
+                        }
+                    }
+                }
+
+                if (core.active_columns >= 2) {
+                    core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.deactivate(core);
+                } else {
+                    core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.activate(core);
                 }
 
                 for (0..@intCast(core.width)) |w| {
-                    for (0..@intCast(core.height)) |_| {
-                        try core.columns.?.items[w].?.addNull();
-                    }
-                }
-            }
+                    if (core.columns.?.items[w].?.active) {
+                        if (rand.boolean()) continue;
+                        if (core.columns.?.items[w].?.chars.items.len == core.height) {
+                            const old_char = core.columns.?.items[w].?.chars.pop();
+                            core.allocator.destroy(&old_char);
+                        }
 
-            if (core.active_columns >= 2) {
-                core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.deactivate(core);
-            } else {
-                core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.activate(core);
-            }
-
-            for (0..@intCast(core.width)) |w| {
-                if (core.columns.?.items[w].?.active) {
-                    if (rand.boolean()) continue;
-                    if (core.columns.?.items[w].?.chars.items.len == core.height) {
-                        const old_char = core.columns.?.items[w].?.chars.pop();
-                        core.allocator.destroy(&old_char);
-                    }
-
-                    if (rand.uintLessThan(u3, 7) < 3) {
-                        try core.columns.?.items[w].?.addNull();
-                        continue;
-                    }
-
-                    const str_len = core.columns.?.items[w].?.strLen();
-
-                    if ((str_len == 0) and rand.boolean()) {
-                        try core.columns.?.items[w].?.addNull();
-                        continue;
-                    }
-
-                    // max string length
-                    if (str_len < @as(u32, @intCast(core.height)) / 2) {
-                        if (str_len < 12) {
-                            try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
-                            continue;
-                        } else {
+                        if (rand.uintLessThan(u3, 7) < 3) {
                             try core.columns.?.items[w].?.addNull();
                             continue;
+                        }
+
+                        const str_len = core.columns.?.items[w].?.strLen();
+
+                        if ((str_len == 0) and rand.boolean()) {
+                            try core.columns.?.items[w].?.addNull();
+                            continue;
+                        }
+
+                        // max string length
+                        if (str_len < @as(u32, @intCast(core.height)) / 2) {
+                            if (str_len < 12) {
+                                try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
+                                continue;
+                            } else {
+                                try core.columns.?.items[w].?.addNull();
+                                continue;
+                            }
+                        } else {
+                            try core.columns.?.items[w].?.addNull();
                         }
                     } else {
                         try core.columns.?.items[w].?.addNull();
                     }
-                } else {
-                    try core.columns.?.items[w].?.addNull();
                 }
-            }
 
-            for (0..core.columns.?.items.len) |w| {
-                h_loop: for (0..@intCast(core.height)) |h| {
-                    const column_char = core.columns.?.items[w].?.chars.items[h];
-                    if (column_char == null) {
-                        continue :h_loop;
+                for (0..core.columns.?.items.len) |w| {
+                    h_loop: for (0..@intCast(core.height)) |h| {
+                        const column_char = core.columns.?.items[w].?.chars.items[h];
+                        if (column_char == null) {
+                            continue :h_loop;
+                        }
+
+                        const out: [:0]u8 = try fmtChar(column_char.?.i, handler.mode);
+
+                        tbPrint(w, h, column_char.?.c, column_char.?.b, out);
                     }
-
-                    const out: [:0]u8 = try fmtChar(column_char.?.i, handler.mode);
-
-                    tbPrint(w, h, column_char.?.c, column_char.?.b, out);
                 }
-            }
+            },
         }
 
         _ = tb.tb_present();
