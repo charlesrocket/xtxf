@@ -317,7 +317,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     }
                 }
 
-                if (core.active_columns >= 2) {
+                if (core.active_columns > 2) {
                     core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.deactivate(core);
                 } else {
                     core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.activate(core);
