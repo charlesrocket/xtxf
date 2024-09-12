@@ -140,9 +140,7 @@ const Core = struct {
     }
 
     fn shutdown(self: *Core) void {
-        if (!self.active) {
-            _ = tb.tb_shutdown();
-        }
+        _ = tb.tb_shutdown();
 
         if (self.columns) |columns| {
             for (columns.items) |column| {
@@ -442,6 +440,7 @@ fn animation(handler: *Handler, core: *Core) !void {
 
     while (core.active) {
         try printCells(core, handler, rand);
+        errdefer core.shutdown();
     }
 }
 
