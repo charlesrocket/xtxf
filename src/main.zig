@@ -272,11 +272,11 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
     defer handler.mutex.unlock();
 
     if (!handler.pause) {
+        core.setRendering(true);
         _ = tb.tb_clear();
+
         switch (handler.style) {
             .default, .columns, .crypto, .grid, .blocks => {
-                core.setRendering(true);
-
                 for (0..@intCast(core.width)) |w| {
                     if (handler.style != .default) {
                         if (checkSec(&core.width_gaps.?, w)) {
@@ -299,7 +299,6 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 }
             },
             .rain => {
-                core.setRendering(true);
                 // init columns
                 if (core.columns.?.items.len != core.width) {
                     for (0..@intCast(core.width)) |_| {
