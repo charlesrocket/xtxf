@@ -119,7 +119,7 @@ const Core = struct {
         return .{ .allocator = gpallocator };
     }
 
-    fn start(self: *Core) void {
+    fn start(self: *Core, style: Style) !void {
         _ = tb.tb_init();
 
         if (self.columns == null) {
@@ -136,6 +136,7 @@ const Core = struct {
 
         self.setActive(true);
         self.updateTermSize();
+        try self.updateStyle(style);
     }
 
     fn shutdown(self: *Core) void {
@@ -519,7 +520,7 @@ pub fn main() !void {
     }
 
     if (!(main_cmd.checkFlag("version") or main_cmd.checkFlag("help") or main_cmd.checkFlag("usage"))) {
-        core.start();
+        try core.start(handler.style);
 
         if (core.width < 4 or core.height < 2) {
             core.setActive(false);
