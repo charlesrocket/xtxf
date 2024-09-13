@@ -540,7 +540,7 @@ test "column" {
     var core = Core{ .allocator = std.testing.allocator };
     try core.start(Style.default);
 
-    const column = Column.init(core.allocator);
+    const column = Column.init(core.allocator, @intCast(core.height));
     try core.columns.?.append(column);
     try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
     try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
