@@ -40,8 +40,8 @@ const Core = struct {
     pulse: bool = false,
     color: Color = Color.default,
     bg: u32 = tb.TB_DEFAULT,
-    width: i32 = 0,
-    height: i32 = 0,
+    width: u32 = 0,
+    height: u32 = 0,
     active_columns: usize = 0,
     columns: ?std.ArrayListAligned(?Column, null) = null,
     width_gaps: ?std.ArrayListAligned(u32, null) = null,
@@ -56,8 +56,8 @@ const Core = struct {
     }
 
     fn updateTermSize(self: *Core) void {
-        const width: i32 = tb.tb_width();
-        const height: i32 = tb.tb_height();
+        const width: u32 = @intCast(tb.tb_width());
+        const height: u32 = @intCast(tb.tb_height());
 
         self.width = if (width < 0) 120 else width;
         self.height = if (height < 0) 120 else height;
@@ -80,7 +80,7 @@ const Core = struct {
 
         self.columns.?.clearAndFree();
         self.active_columns = 0;
-        try self.columns.?.ensureTotalCapacity(@as(u32, @intCast(self.width)));
+        try self.columns.?.ensureTotalCapacity(self.width);
     }
 
     fn updateStyle(self: *Core, style: Style) !void {
@@ -277,14 +277,14 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
         switch (handler.style) {
             .default, .columns, .crypto, .grid, .blocks => {
-                for (0..@intCast(core.width)) |w| {
+                for (0..core.width) |w| {
                     if (handler.style != .default) {
                         if (checkSec(&core.width_gaps.?, w)) {
                             continue;
                         }
                     }
 
-                    for (0..@intCast(core.height)) |h| {
+                    for (0..core.height) |h| {
                         if (handler.style != .default) {
                             if (checkSec(&core.height_gaps.?, h)) {
                                 continue;
@@ -301,25 +301,25 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
             .rain => {
                 // init columns
                 if (core.columns.?.items.len == 0) {
-                    for (0..@intCast(core.width)) |_| {
-                        const column = Column.init(core.allocator, @intCast(core.height));
+                    for (0..core.width) |_| {
+                        const column = Column.init(core.allocator, core.height);
                         try core.columns.?.append(column);
                     }
 
-                    for (0..@intCast(core.width)) |w| {
-                        for (0..@intCast(core.height)) |_| {
+                    for (0..core.width) |w| {
+                        for (0..core.height) |_| {
                             try core.columns.?.items[w].?.addNull();
                         }
                     }
                 }
 
                 if (core.active_columns >= 2) {
-                    core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.deactivate(core);
+                    core.columns.?.items[rand.uintLessThan(u32, core.width)].?.deactivate(core);
                 } else {
-                    core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.activate(core);
+                    core.columns.?.items[rand.uintLessThan(u32, core.width)].?.activate(core);
                 }
 
-                for (0..@intCast(core.width)) |w| {
+                for (0..core.width) |w| {
                     if (rand.boolean()) continue;
                     _ = core.columns.?.items[w].?.chars.pop();
 
@@ -337,7 +337,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                         }
 
                         // max string length
-                        if (str_len < @as(u32, @intCast(core.height)) / 2) {
+                        if (str_len < @as(u32, core.height) / 2) {
                             if (str_len < 12) {
                                 try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                             } else {
@@ -352,7 +352,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                 }
 
                 for (0..core.columns.?.items.len) |w| {
-                    h_loop: for (0..@intCast(core.height)) |h| {
+                    h_loop: for (0..core.height) |h| {
                         const column_char = core.columns.?.items[w].?.chars.items[h];
                         if (column_char == null) {
                             continue :h_loop;
@@ -441,13 +441,13 @@ fn animation(handler: *Handler, core: *Core) !void {
     }
 }
 
-fn getNthValues(number: i32, adv: u32, allocator: std.mem.Allocator) !std.ArrayListAligned(u32, null) {
+fn getNthValues(number: u32, adv: u32, allocator: std.mem.Allocator) !std.ArrayListAligned(u32, null) {
     var array = std.ArrayList(u32).init(allocator);
     var val = adv;
 
     try array.append(0);
 
-    while (val <= @as(u32, @intCast(number))) {
+    while (val <= number) {
         try array.append(val);
         val += adv;
     }
@@ -542,7 +542,7 @@ test "column" {
     var core = Core{ .allocator = std.testing.allocator };
     try core.start(Style.default);
 
-    const column = Column.init(core.allocator, @intCast(core.height));
+    const column = Column.init(core.allocator, core.height);
     try core.columns.?.append(column);
     try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
     try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
