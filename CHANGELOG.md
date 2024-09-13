@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2024-09-13
+
+### Bug Fixes
+
+- Set `rain` speed
+- Fix bold chars in `rain`
+- Update `getNthValues()`
+- Allow shorter column strings
+- Set rendering mode for `rain`
+- Adjust the amount of active columns
+- Start with `updateStyle()`
+- Shutdown on error
+- Resolve expanding `chars`
+
+### Features
+
+- Add `hexadecimal` mode
+- Add `textual` mode
+- Add `speed` option
+- Add `rain` style
+- Update `style` description
+- Randomize `rain` columns
+- Delay columns
+- Implement active columns
+
+### Performance
+
+- Use dynamic char buffer
+
+### Refactor
+
+- Switch `.hexadecimal` to u4
+- Drop `slice` const
+- Drop redundant `deinit()` in `height:`
+- Use columns in `rain`
+- Fix `Char` elements
+- Reorganize `Column` fns
+- Drop redundant enum definitions
+- Edit `tex_chars`
+- Use u4 with `decimal`
+- Switch `printCells()` over `Style`
+- Drop `updateTermSize()` error
+- Move `core.setRendering(true)`
+- Remove `old_char` deallocation
+
+### Testing
+
+- Add `hexadecimal`
+- Add `column`
+- Check `fmtChar()`
+- Fix `column` start
+- Fix `column` init
+
 ## [0.5.1] - 2024-08-30
 
 ### Bug Fixes
