@@ -340,10 +340,8 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                         if (str_len < @as(u32, @intCast(core.height)) / 2) {
                             if (str_len < 12) {
                                 try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
-                                continue;
                             } else {
                                 try core.columns.?.items[w].?.addNull();
-                                continue;
                             }
                         } else {
                             try core.columns.?.items[w].?.addNull();
@@ -370,16 +368,20 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
         _ = tb.tb_present();
         core.setRendering(false);
-        if (handler.style != .rain) {
-            std.time.sleep(switch (handler.speed) {
-                .slow => FRAME * 2,
-                .fast => FRAME,
-            });
-        } else {
-            std.time.sleep(switch (handler.speed) {
-                .slow => FRAME * 20,
-                .fast => FRAME * 3,
-            });
+
+        switch (handler.style) {
+            .default, .columns, .crypto, .grid, .blocks => {
+                std.time.sleep(switch (handler.speed) {
+                    .slow => FRAME * 2,
+                    .fast => FRAME,
+                });
+            },
+            .rain => {
+                std.time.sleep(switch (handler.speed) {
+                    .slow => FRAME * 20,
+                    .fast => FRAME * 3,
+                });
+            },
         }
     }
 }
