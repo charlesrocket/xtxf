@@ -550,7 +550,6 @@ test "column" {
 
     try std.testing.expect(core.columns.?.items[0].?.chars.items.len == 3);
 
-    core.active = false;
     core.shutdown();
 }
 
