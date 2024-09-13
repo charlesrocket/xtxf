@@ -224,9 +224,9 @@ const Column = struct {
     active: bool = false,
     chars: std.ArrayList(?Char),
 
-    fn init(allocator: std.mem.Allocator) Column {
+    fn init(allocator: std.mem.Allocator, size: usize) Column {
         return .{
-            .chars = std.ArrayList(?Char).init(allocator),
+            .chars = std.ArrayList(?Char).initCapacity(allocator, size) catch undefined,
         };
     }
 
@@ -300,10 +300,9 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
             },
             .rain => {
                 // init columns
-                if (core.columns.?.items.len != core.width) {
+                if (core.columns.?.items.len == 0) {
                     for (0..@intCast(core.width)) |_| {
-                        var column = Column.init(core.allocator);
-                        try column.addNull();
+                        const column = Column.init(core.allocator, @intCast(core.height));
                         try core.columns.?.append(column);
                     }
 
@@ -314,19 +313,17 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                     }
                 }
 
-                if (core.active_columns > 2) {
+                if (core.active_columns >= 2) {
                     core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.deactivate(core);
                 } else {
                     core.columns.?.items[rand.uintLessThan(u32, @intCast(core.width))].?.activate(core);
                 }
 
                 for (0..@intCast(core.width)) |w| {
-                    if (core.columns.?.items[w].?.active) {
-                        if (rand.boolean()) continue;
-                        if (core.columns.?.items[w].?.chars.items.len == core.height) {
-                            _ = core.columns.?.items[w].?.chars.pop();
-                        }
+                    if (rand.boolean()) continue;
+                    _ = core.columns.?.items[w].?.chars.pop();
 
+                    if (core.columns.?.items[w].?.active) {
                         if (rand.uintLessThan(u3, 7) < 3) {
                             try core.columns.?.items[w].?.addNull();
                             continue;
