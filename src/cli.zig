@@ -146,6 +146,15 @@ pub const setup_cmd: CommandT = .{
             }),
         },
         .{
+            .name = "debug",
+            .description = "Enable debug mode.",
+            .long_name = "debug",
+            .val = ValueT.ofType(bool, .{
+                .name = "debug_flag",
+                .default_val = false,
+            }),
+        },
+        .{
             .name = "version",
             .description = "Show the 'xtxf' version.",
             .short_name = 'v',

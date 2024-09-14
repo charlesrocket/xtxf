@@ -60,11 +60,13 @@ const Core = struct {
         const width = tb.tb_width();
         const height = tb.tb_height();
 
-        if ((width < 0) or (height < 0)) {
-            self.debug = true;
-            _ = tb.tb_shutdown();
+        if (!self.debug) {
+            if ((width < 0) or (height < 0)) {
+                self.debug = true;
+                _ = tb.tb_shutdown();
 
-            log.warn("Unable to read terminal size! Debug mode activated.", .{});
+                log.warn("Unable to read terminal size! Debug mode activated.", .{});
+            }
         }
 
         self.width = if (self.debug) 20 else @intCast(width);
@@ -128,7 +130,7 @@ const Core = struct {
     }
 
     fn start(self: *Core, style: Style) !void {
-        if (!self.debug) _ = tb.tb_init();
+        if (!self.debug) _ = tb.tb_init() else log.info("DEBUG MODE", .{});
 
         if (self.columns == null) {
             self.columns = std.ArrayList(?Column).init(self.allocator);
@@ -205,25 +207,27 @@ const Handler = struct {
                 core.setActive(false);
             }
 
-            var EVENT = tb.tb_event{
-                .type = 0,
-            };
+            if (!core.debug) {
+                var EVENT = tb.tb_event{
+                    .type = 0,
+                };
 
-            _ = tb.tb_peek_event(&EVENT, 100);
+                _ = tb.tb_peek_event(&EVENT, 100);
 
-            if (@as(u8, @intCast(EVENT.type)) == 1) {
-                core.setActive(false);
-            } else if (@as(u8, @intCast(EVENT.type)) == 2) {
-                self.setPause(true);
+                if (@as(u8, @intCast(EVENT.type)) == 1) {
+                    core.setActive(false);
+                } else if (@as(u8, @intCast(EVENT.type)) == 2) {
+                    self.setPause(true);
 
-                while (core.rendering) {
-                    std.time.sleep(FRAME / 2);
+                    while (core.rendering) {
+                        std.time.sleep(FRAME / 2);
+                    }
+
+                    core.updateTermSize();
+                    try core.updateStyle(self.style);
+
+                    self.setPause(false);
                 }
-
-                core.updateTermSize();
-                try core.updateStyle(self.style);
-
-                self.setPause(false);
             }
         }
     }
@@ -496,6 +500,10 @@ pub fn main() !void {
     };
 
     const opts = try main_cmd.getOpts(.{});
+
+    if (opts.get("debug")) |debug| {
+        core.debug = try debug.val.getAs(bool);
+    }
 
     if (opts.get("color")) |color| {
         core.color = try color.val.getAs(Color);

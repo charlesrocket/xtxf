@@ -64,6 +64,8 @@ pub fn build(b: *std.Build) void {
     test_step.dependOn(&b.addRunArtifact(unit_tests).step);
 
     const test_options = b.addOptions();
+    const test_live = b.option(bool, "test_live", "Live integration tests") orelse false;
+    test_options.addOption(bool, "test_live", test_live);
     test_options.addOptionPath("exe_path", exe.getEmittedBin());
 
     const integration_tests = b.addTest(.{
