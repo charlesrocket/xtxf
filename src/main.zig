@@ -35,6 +35,7 @@ var lbuf: [4]u8 = undefined;
 const Core = struct {
     allocator: std.mem.Allocator,
     mutex: Mutex = Mutex{},
+    debug: bool = false,
     active: bool = false,
     rendering: bool = false,
     pulse: bool = false,
@@ -56,11 +57,18 @@ const Core = struct {
     }
 
     fn updateTermSize(self: *Core) void {
-        const width: u32 = @intCast(tb.tb_width());
-        const height: u32 = @intCast(tb.tb_height());
+        const width = tb.tb_width();
+        const height = tb.tb_height();
 
-        self.width = if (width < 0) 120 else width;
-        self.height = if (height < 0) 120 else height;
+        if ((width < 0) or (height < 0)) {
+            self.debug = true;
+            _ = tb.tb_shutdown();
+
+            log.warn("Unable to read terminal size! Debug mode activated.", .{});
+        }
+
+        self.width = if (self.debug) 20 else @intCast(width);
+        self.height = if (self.debug) 20 else @intCast(height);
     }
 
     fn updateWidthSec(self: *Core, adv: u32) !void {
@@ -120,7 +128,7 @@ const Core = struct {
     }
 
     fn start(self: *Core, style: Style) !void {
-        _ = tb.tb_init();
+        if (!self.debug) _ = tb.tb_init();
 
         if (self.columns == null) {
             self.columns = std.ArrayList(?Column).init(self.allocator);
@@ -140,7 +148,7 @@ const Core = struct {
     }
 
     fn shutdown(self: *Core) void {
-        _ = tb.tb_shutdown();
+        if (!self.debug) _ = tb.tb_shutdown();
 
         if (self.columns) |columns| {
             for (columns.items) |column| {
@@ -157,6 +165,10 @@ const Core = struct {
         if (self.height_gaps != null) {
             self.height_gaps.?.deinit();
         }
+    }
+
+    fn tbPrint(self: *Core, w: usize, h: usize, c: usize, b: usize, char: [*c]const u8) void {
+        if (!self.debug) _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(c), @intCast(b), char) else log.info("{s}: {d}x{d} {d}/{d}", .{ char, w, h, c, b });
     }
 };
 
@@ -187,6 +199,9 @@ const Handler = struct {
 
         while (core.active) {
             if ((timer.read() / std.time.ns_per_s) >= duration and self.duration != 0) {
+                core.setActive(false);
+            } else if (core.debug) {
+                std.time.sleep(FRAME * 2);
                 core.setActive(false);
             }
 
@@ -273,7 +288,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
     if (!handler.pause) {
         core.setRendering(true);
-        _ = tb.tb_clear();
+        if (!core.debug) _ = tb.tb_clear();
 
         switch (handler.style) {
             .default, .columns, .crypto, .grid, .blocks => {
@@ -294,7 +309,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
                         const char = newChar(core, handler.mode, rand);
                         const out = try fmtChar(char.i, handler.mode);
 
-                        tbPrint(w, h, char.c, char.b, out);
+                        core.tbPrint(w, h, char.c, char.b, out);
                     }
                 }
             },
@@ -308,7 +323,7 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
                     for (0..core.width) |w| {
                         for (0..core.height) |_| {
-                            try core.columns.?.items[w].?.addNull();
+                            if (!core.debug) try core.columns.?.items[w].?.addNull() else try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                         }
                     }
                 }
@@ -360,13 +375,13 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
                         const out: [:0]u8 = try fmtChar(column_char.?.i, handler.mode);
 
-                        tbPrint(w, h, column_char.?.c, column_char.?.b, out);
+                        core.tbPrint(w, h, column_char.?.c, column_char.?.b, out);
                     }
                 }
             },
         }
 
-        _ = tb.tb_present();
+        if (!core.debug) _ = tb.tb_present() else core.active = false;
         core.setRendering(false);
 
         switch (handler.style) {
@@ -422,25 +437,6 @@ fn fmtChar(int: u32, mode: Mode) ![:0]u8 {
     };
 }
 
-fn tbPrint(w: usize, h: usize, c: usize, b: usize, char: [*c]const u8) void {
-    _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(c), @intCast(b), char);
-}
-
-fn animation(handler: *Handler, core: *Core) !void {
-    var prng = std.rand.DefaultPrng.init(@as(u64, @bitCast(std.time.milliTimestamp())));
-
-    const rand = prng.random();
-
-    while (handler.halt) {
-        std.time.sleep(FRAME);
-    }
-
-    while (core.active) {
-        try printCells(core, handler, rand);
-        errdefer core.shutdown();
-    }
-}
-
 fn getNthValues(number: u32, adv: u32, allocator: std.mem.Allocator) !std.ArrayListAligned(u32, null) {
     var array = std.ArrayList(u32).init(allocator);
     var val = adv;
@@ -463,6 +459,21 @@ fn checkSec(arr: *std.ArrayListAligned(u32, null), value: usize) bool {
     }
 
     return false;
+}
+
+fn animation(handler: *Handler, core: *Core) !void {
+    var prng = std.rand.DefaultPrng.init(if (core.debug) 42 else @as(u64, @bitCast(std.time.milliTimestamp())));
+
+    const rand = prng.random();
+
+    while (handler.halt) {
+        std.time.sleep(FRAME);
+    }
+
+    while (core.active) {
+        try printCells(core, handler, rand);
+        errdefer core.shutdown();
+    }
 }
 
 pub fn main() !void {
