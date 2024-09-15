@@ -30,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v2
+        uses: mlugg/setup-zig@v1
         with:
           version: ${{ env.ZIG_VERSION }}
 
@@ -50,7 +50,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v2
+        uses: mlugg/setup-zig@v1
         with:
           version: ${{ env.ZIG_VERSION }}
 
@@ -67,7 +67,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v2
+        uses: mlugg/setup-zig@v1
         with:
           version: ${{ env.ZIG_VERSION }}
 
@@ -95,7 +95,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v2
+        uses: mlugg/setup-zig@v1
         with:
           version: ${{ env.ZIG_VERSION }}
 

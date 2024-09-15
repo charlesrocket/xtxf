@@ -59,7 +59,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v2
+        uses: mlugg/setup-zig@v1
         with:
           version: ${{ env.ZIG_VERSION }}
 
@@ -113,7 +113,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Zig
-        uses: goto-bus-stop/setup-zig@v2
+        uses: mlugg/setup-zig@v1
         with:
           version: ${{ env.ZIG_VERSION }}
 
