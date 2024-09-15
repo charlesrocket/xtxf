@@ -1,11 +1,19 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const tb = @cImport({
     @cInclude("termbox2.h");
 });
 
 const cova = @import("cova");
 const cli = @import("cli.zig");
-const build_opt = @import("build_options");
+const build_options = @import("build_options");
+
+pub const std_options = .{
+    .log_level = switch (builtin.mode) {
+        .Debug => .debug,
+        else => .info,
+    },
+};
 
 pub const CommandT = cli.CommandT;
 pub const setup_cmd = cli.setup_cmd;
@@ -15,8 +23,8 @@ const Mutex = Thread.Mutex;
 const log = std.log.scoped(.xtxf);
 const assets = @import("assets.zig");
 
-const HEAD_HASH = build_opt.gxt.hash[0..7];
-const VERSION = if (build_opt.gxt.dirty == null) HEAD_HASH ++ "-unverified" else switch (build_opt.gxt.dirty.?) {
+const HEAD_HASH = build_options.gxt.hash[0..7];
+const VERSION = if (build_options.gxt.dirty == null) HEAD_HASH ++ "-unverified" else switch (build_options.gxt.dirty.?) {
     true => HEAD_HASH ++ "-dirty",
     false => HEAD_HASH,
 };
