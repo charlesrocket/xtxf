@@ -78,15 +78,20 @@ pub fn build(b: *std.Build) void {
 
     test_step.dependOn(&b.addRunArtifact(integration_tests).step);
 
-    const merge_step = b.addSystemCommand(&.{ "kcov", "--merge", "kcov-out", "kcov-test", "kcov-unit" });
+    const merge_step = b.addSystemCommand(&.{ "kcov", "--merge" });
+    merge_step.addDirectoryArg(b.path("coverage"));
+    merge_step.addDirectoryArg(b.path("kcov-unit"));
+    merge_step.addDirectoryArg(b.path("kcov-int"));
 
-    const kcov_int = b.addSystemCommand(&.{ "kcov", "kcov-test", "--include-path=src" });
-    kcov_int.addArtifactArg(integration_tests);
-    merge_step.step.dependOn(&kcov_int.step);
-
-    const kcov_unit = b.addSystemCommand(&.{ "kcov", "kcov-unit", "--include-path=src" });
+    const kcov_unit = b.addSystemCommand(&.{ "kcov", "--include-path=src" });
+    kcov_unit.addDirectoryArg(b.path("kcov-unit"));
     kcov_unit.addArtifactArg(unit_tests);
     merge_step.step.dependOn(&kcov_unit.step);
+
+    const kcov_int = b.addSystemCommand(&.{ "kcov", "--include-path=src" });
+    kcov_int.addDirectoryArg(b.path("kcov-int"));
+    kcov_int.addArtifactArg(integration_tests);
+    merge_step.step.dependOn(&kcov_int.step);
 
     const coverage_step = b.step("coverage", "Generate test coverage (kcov)");
     coverage_step.dependOn(&merge_step.step);

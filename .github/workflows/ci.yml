@@ -82,7 +82,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
-          directory: kcov-out/kcov-merged
+          directory: coverage
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
