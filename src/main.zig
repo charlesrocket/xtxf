@@ -211,7 +211,8 @@ const Handler = struct {
             if ((timer.read() / std.time.ns_per_s) >= duration and self.duration != 0) {
                 core.setActive(false);
             } else if (core.debug) {
-                std.time.sleep(FRAME * 2);
+                std.time.sleep(FRAME * 5);
+                log.info("Exiting...", .{});
                 core.setActive(false);
             }
 

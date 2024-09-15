@@ -233,6 +233,7 @@ const default_run =
     \\info(xtxf): 0: 19x17 0/0
     \\info(xtxf): 1: 19x18 0/0
     \\info(xtxf): 1: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -247,6 +248,7 @@ const decimal_run =
     \\info(xtxf): 5: 19x17 256/0
     \\info(xtxf): 0: 19x18 256/0
     \\info(xtxf): 0: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -259,6 +261,7 @@ const hexadecimal_run =
     \\info(xtxf): 4: 19x17 0/0
     \\info(xtxf): 3: 19x18 0/0
     \\info(xtxf): 9: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -271,6 +274,7 @@ const textual_run =
     \\info(xtxf): ﾅ: 19x17 0/0
     \\info(xtxf): ﾄ: 19x18 0/0
     \\info(xtxf): ｢: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -282,6 +286,7 @@ const red_run =
     \\info(xtxf): 0: 19x17 2/0
     \\info(xtxf): 1: 19x18 2/0
     \\info(xtxf): 1: 19x19 2/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -293,6 +298,7 @@ const green_run =
     \\info(xtxf): 0: 19x17 3/0
     \\info(xtxf): 1: 19x18 3/0
     \\info(xtxf): 1: 19x19 3/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -304,6 +310,7 @@ const blue_run =
     \\info(xtxf): 0: 19x17 5/0
     \\info(xtxf): 1: 19x18 5/0
     \\info(xtxf): 1: 19x19 5/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -315,6 +322,7 @@ const yellow_run =
     \\info(xtxf): 0: 19x17 4/0
     \\info(xtxf): 1: 19x18 4/0
     \\info(xtxf): 1: 19x19 4/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -326,6 +334,7 @@ const magenta_run =
     \\info(xtxf): 0: 19x17 6/0
     \\info(xtxf): 1: 19x18 6/0
     \\info(xtxf): 1: 19x19 6/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -336,6 +345,7 @@ const columns_run =
     \\info(xtxf): 4: 19x17 256/0
     \\info(xtxf): 2: 19x18 0/0
     \\info(xtxf): 3: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -346,6 +356,7 @@ const crypto_run =
     \\info(xtxf): E: 19x16 0/0
     \\info(xtxf): 9: 19x17 0/0
     \\info(xtxf): 8: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -356,6 +367,7 @@ const grid_run =
     \\info(xtxf): 0: 19x15 0/0
     \\info(xtxf): 0: 19x17 256/0
     \\info(xtxf): 0: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -366,6 +378,7 @@ const blocks_run =
     \\info(xtxf): 4: 19x16 256/0
     \\info(xtxf): 5: 19x17 0/0
     \\info(xtxf): 4: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
 
@@ -376,5 +389,6 @@ const rain_run =
     \\info(xtxf): ﾆ: 19x17 0/0
     \\info(xtxf): #: 19x18 0/0
     \\info(xtxf): 6: 19x19 0/0
+    \\info(xtxf): Exiting...
     \\
 ;
