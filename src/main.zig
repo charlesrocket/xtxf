@@ -34,12 +34,14 @@ else switch (build_options.gxt.dirty.?) {
 const FRAME = 39730492;
 
 pub const Speed = enum { slow, fast };
+
 pub const Mode = enum {
     binary,
     decimal,
     hexadecimal,
     textual,
 };
+
 pub const Style = enum {
     default,
     columns,
@@ -48,6 +50,7 @@ pub const Style = enum {
     blocks,
     rain,
 };
+
 pub const Color = enum(u32) {
     default = tb.TB_DEFAULT,
     red = tb.TB_RED,
