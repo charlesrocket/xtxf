@@ -24,7 +24,9 @@ const log = std.log.scoped(.xtxf);
 const assets = @import("assets.zig");
 
 const HEAD_HASH = build_options.gxt.hash[0..7];
-const VERSION = if (build_options.gxt.dirty == null) HEAD_HASH ++ "-unverified" else switch (build_options.gxt.dirty.?) {
+const VERSION = if (build_options.gxt.dirty == null)
+    HEAD_HASH ++ "-unverified"
+else switch (build_options.gxt.dirty.?) {
     true => HEAD_HASH ++ "-dirty",
     false => HEAD_HASH,
 };
@@ -32,9 +34,28 @@ const VERSION = if (build_options.gxt.dirty == null) HEAD_HASH ++ "-unverified" 
 const FRAME = 39730492;
 
 pub const Speed = enum { slow, fast };
-pub const Mode = enum { binary, decimal, hexadecimal, textual };
-pub const Style = enum { default, columns, crypto, grid, blocks, rain };
-pub const Color = enum(u32) { default = tb.TB_DEFAULT, red = tb.TB_RED, green = tb.TB_GREEN, blue = tb.TB_BLUE, yellow = tb.TB_YELLOW, magenta = tb.TB_MAGENTA };
+pub const Mode = enum {
+    binary,
+    decimal,
+    hexadecimal,
+    textual,
+};
+pub const Style = enum {
+    default,
+    columns,
+    crypto,
+    grid,
+    blocks,
+    rain,
+};
+pub const Color = enum(u32) {
+    default = tb.TB_DEFAULT,
+    red = tb.TB_RED,
+    green = tb.TB_GREEN,
+    blue = tb.TB_BLUE,
+    yellow = tb.TB_YELLOW,
+    magenta = tb.TB_MAGENTA,
+};
 
 var sbuf: [2]u8 = undefined;
 var mbuf: [3]u8 = undefined;
@@ -177,8 +198,30 @@ const Core = struct {
         }
     }
 
-    fn tbPrint(self: *Core, w: usize, h: usize, c: usize, b: usize, char: [*c]const u8) void {
-        if (!self.debug) _ = tb.tb_print(@intCast(w), @intCast(h), @intCast(c), @intCast(b), char) else log.info("{s}: {d}x{d} {d}/{d}", .{ char, w, h, c, b });
+    fn tbPrint(
+        self: *Core,
+        w: usize,
+        h: usize,
+        c: usize,
+        b: usize,
+        char: [*c]const u8,
+    ) void {
+        if (!self.debug)
+            _ = tb.tb_print(
+                @intCast(w),
+                @intCast(h),
+                @intCast(c),
+                @intCast(b),
+                char,
+            )
+        else
+            log.info("{s}: {d}x{d} {d}/{d}", .{
+                char,
+                w,
+                h,
+                c,
+                b,
+            });
     }
 };
 
@@ -208,7 +251,9 @@ const Handler = struct {
         self.setHalt(false);
 
         while (core.active) {
-            if ((timer.read() / std.time.ns_per_s) >= duration and self.duration != 0) {
+            if ((timer.read() / std.time.ns_per_s) >= duration and
+                self.duration != 0)
+            {
                 core.setActive(false);
             } else if (core.debug) {
                 std.time.sleep(FRAME * 5);
@@ -254,7 +299,8 @@ const Column = struct {
 
     fn init(allocator: std.mem.Allocator, size: usize) Column {
         return .{
-            .chars = std.ArrayList(?Char).initCapacity(allocator, size) catch undefined,
+            .chars = std.ArrayList(?Char).initCapacity(allocator, size) catch
+                undefined,
         };
     }
 
@@ -275,7 +321,12 @@ const Column = struct {
         return len;
     }
 
-    fn addChar(self: *Column, core: *Core, mode: Mode, rand: std.rand.Random) !void {
+    fn addChar(
+        self: *Column,
+        core: *Core,
+        mode: Mode,
+        rand: std.rand.Random,
+    ) !void {
         const char = newChar(core, mode, rand);
         try self.chars.insert(0, char);
     }
@@ -295,7 +346,11 @@ const Column = struct {
     }
 };
 
-fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
+fn printCells(
+    core: *Core,
+    handler: *Handler,
+    rand: std.rand.Random,
+) !void {
     handler.mutex.lock();
     defer handler.mutex.unlock();
 
@@ -336,7 +391,10 @@ fn printCells(core: *Core, handler: *Handler, rand: std.rand.Random) !void {
 
                     for (0..core.width) |w| {
                         for (0..core.height) |_| {
-                            if (!core.debug) try core.columns.?.items[w].?.addNull() else try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
+                            if (!core.debug)
+                                try core.columns.?.items[w].?.addNull()
+                            else
+                                try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                         }
                     }
                 }
@@ -450,7 +508,11 @@ fn fmtChar(int: u32, mode: Mode) ![:0]u8 {
     };
 }
 
-fn getNthValues(number: u32, adv: u32, allocator: std.mem.Allocator) !std.ArrayListAligned(u32, null) {
+fn getNthValues(
+    number: u32,
+    adv: u32,
+    allocator: std.mem.Allocator,
+) !std.ArrayListAligned(u32, null) {
     var array = std.ArrayList(u32).init(allocator);
     var val = adv;
 
@@ -475,7 +537,10 @@ fn checkSec(arr: *std.ArrayListAligned(u32, null), value: usize) bool {
 }
 
 fn animation(handler: *Handler, core: *Core) !void {
-    var prng = std.rand.DefaultPrng.init(if (core.debug) 42 else @as(u64, @bitCast(std.time.milliTimestamp())));
+    var prng = std.rand.DefaultPrng.init(if (core.debug)
+        42
+    else
+        @as(u64, @bitCast(std.time.milliTimestamp())));
 
     const rand = prng.random();
 
@@ -503,7 +568,14 @@ pub fn main() !void {
     var args_iter = try cova.ArgIteratorGeneric.init(core.allocator);
     defer args_iter.deinit();
 
-    cova.parseArgs(&args_iter, CommandT, main_cmd, stdout, .{ .err_reaction = .Usage }) catch |err| switch (err) {
+    cova.parseArgs(
+        &args_iter,
+        CommandT,
+        main_cmd,
+        stdout,
+        .{ .err_reaction = .Usage },
+    ) catch |err|
+        switch (err) {
         error.UsageHelpCalled => {},
         else => return err,
     };
@@ -543,19 +615,32 @@ pub fn main() !void {
         try stdout.print("{s}{s}{s}", .{ "xtxf version ", VERSION, "\n" });
     }
 
-    if (!(main_cmd.checkFlag("version") or main_cmd.checkFlag("help") or main_cmd.checkFlag("usage"))) {
+    if (!(main_cmd.checkFlag("version") or
+        main_cmd.checkFlag("help") or main_cmd.checkFlag("usage")))
+    {
         try core.start(handler.style);
 
         if (core.width < 4 or core.height < 2) {
             core.setActive(false);
-            log.warn("Insufficient terminal dimensions: W {}, H {}", .{ core.width, core.height });
+            log.warn(
+                "Insufficient terminal dimensions: W {}, H {}",
+                .{ core.width, core.height },
+            );
         }
 
         if (core.active) {
-            const t_h = try std.Thread.spawn(.{}, Handler.run, .{ &handler, &core });
+            const t_h = try std.Thread.spawn(
+                .{},
+                Handler.run,
+                .{ &handler, &core },
+            );
             defer t_h.join();
 
-            const t_a = try std.Thread.spawn(.{}, animation, .{ &handler, &core });
+            const t_a = try std.Thread.spawn(
+                .{},
+                animation,
+                .{ &handler, &core },
+            );
             defer t_a.join();
         }
 
