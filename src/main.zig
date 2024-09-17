@@ -568,6 +568,7 @@ pub fn main() !void {
     const main_cmd = try setup_cmd.init(core.allocator, .{});
     defer main_cmd.deinit();
 
+    var usage_help_called = false;
     var args_iter = try cova.ArgIteratorGeneric.init(core.allocator);
     defer args_iter.deinit();
 
@@ -579,7 +580,9 @@ pub fn main() !void {
         .{ .err_reaction = .Usage },
     ) catch |err|
         switch (err) {
-        error.UsageHelpCalled => {},
+        error.UsageHelpCalled => {
+            usage_help_called = true;
+        },
         else => return err,
     };
 
@@ -618,9 +621,7 @@ pub fn main() !void {
         try stdout.print("{s}{s}{s}", .{ "xtxf version ", VERSION, "\n" });
     }
 
-    if (!(main_cmd.checkFlag("version") or
-        main_cmd.checkFlag("help") or main_cmd.checkFlag("usage")))
-    {
+    if (!(main_cmd.checkFlag("version") or usage_help_called)) {
         try core.start(handler.style);
 
         if (core.width < 4 or core.height < 2) {
