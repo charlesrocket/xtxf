@@ -399,13 +399,9 @@ fn printCells(
             .rain => {
                 // init columns
                 if (core.columns.?.items.len == 0) {
-                    for (0..core.width) |_| {
+                    for (0..core.width) |w| {
                         const column = Column.init(core.allocator, core.height);
                         try core.columns.?.append(column);
-                    }
-
-                    for (0..core.width) |w| {
-                        if (!core.debug) core.columns.?.items[w].?.activate(core);
 
                         for (0..core.height) |_| {
                             if (!core.debug)
@@ -413,6 +409,8 @@ fn printCells(
                             else
                                 try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                         }
+
+                        if (!core.debug) core.columns.?.items[w].?.activate(core);
                     }
                 }
 
