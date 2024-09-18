@@ -103,8 +103,8 @@ jobs:
         run: zig fmt --check .
 
   release:
-    name: Release
-    needs: [test]
+    name: Releas
+    needs: [build-cross, test]
     permissions:
       contents: write
       id-token: write
