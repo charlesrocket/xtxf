@@ -405,16 +405,14 @@ fn printCells(
                     }
 
                     for (0..core.width) |w| {
+                        if (!core.debug) core.columns.?.items[w].?.activate(core);
+
                         for (0..core.height) |_| {
                             if (!core.debug)
                                 try core.columns.?.items[w].?.addNull()
                             else
                                 try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                         }
-                    }
-
-                    for (0..core.width) |i| {
-                        core.columns.?.items[i].?.activate(core);
                     }
                 }
 
