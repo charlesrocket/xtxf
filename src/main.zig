@@ -298,6 +298,7 @@ const Char = struct { i: u8, b: u32, c: u32 };
 
 const Column = struct {
     active: bool = false,
+    cooldown: usize = 0,
     chars: std.ArrayList(?Char),
 
     fn init(allocator: std.mem.Allocator, size: usize) Column {
@@ -324,6 +325,12 @@ const Column = struct {
         return len;
     }
 
+    fn chill(self: *Column) void {
+        if (self.cooldown > 0) {
+            self.cooldown -= 1;
+        }
+    }
+
     fn addChar(
         self: *Column,
         core: *Core,
@@ -339,13 +346,18 @@ const Column = struct {
     }
 
     fn activate(self: *Column, core: *Core) void {
-        self.active = true;
-        core.active_columns += 1;
+        if (self.cooldown == 0) {
+            self.active = true;
+            core.active_columns += 1;
+        }
     }
 
     fn deactivate(self: *Column, core: *Core) void {
-        self.active = false;
-        core.active_columns -= 1;
+        if (self.active) {
+            self.active = false;
+            self.cooldown = 10;
+            core.active_columns -= 1;
+        }
     }
 };
 
@@ -400,15 +412,19 @@ fn printCells(
                                 try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
                         }
                     }
+
+                    for (0..core.width) |i| {
+                        core.columns.?.items[i].?.activate(core);
+                    }
                 }
 
-                if (core.active_columns >= 2) {
+                if (rand.boolean()) {
                     core.columns.?.items[rand.uintLessThan(u32, core.width)].?.deactivate(core);
-                } else {
                     core.columns.?.items[rand.uintLessThan(u32, core.width)].?.activate(core);
                 }
 
                 for (0..core.width) |w| {
+                    core.columns.?.items[w].?.chill();
                     if (rand.boolean()) continue;
                     _ = core.columns.?.items[w].?.chars.pop();
 
