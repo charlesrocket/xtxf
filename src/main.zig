@@ -75,7 +75,7 @@ const Core = struct {
     bg: u32 = tb.TB_DEFAULT,
     width: u32 = 0,
     height: u32 = 0,
-    active_columns: usize = 0,
+    active_columns: u32 = 0,
     columns: ?std.ArrayListAligned(?Column, null) = null,
     width_gaps: ?std.ArrayListAligned(u32, null) = null,
     height_gaps: ?std.ArrayListAligned(u32, null) = null,
@@ -309,8 +309,8 @@ const Column = struct {
     }
 
     fn strLen(self: *Column) usize {
-        var len: usize = 0;
-        var target: usize = 0;
+        var len: u32 = 0;
+        var target: u32 = 0;
         var check = true;
 
         while (check) {
