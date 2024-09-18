@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.1] - 2024-09-18
+
+### Bug Fixes
+
+- Set std options
+- Adjust debug mode exit
+- Implement cooldown
+
+### Operations
+
+- Replace `setup-zig` action
+
+### Refactor
+
+- Optimize `printCells()`
+- Use `u32` for width/height
+- Use `UsageHelpCalled`
+- Move column init
+- Improve columns init
+- Use less `usize`
+
+### Styling
+
+- Reformat root file
+- Fix spacing
+
+### Testing
+
+- Update `column`
+- Add `debug` mode
+- Improve `runner()`
+- Check `stderr`
+- Move kcov output
+
+### Build
+
+- Add `test_live` option
+
 ## [0.6.0] - 2024-09-13
 
 ### Bug Fixes
