@@ -70,6 +70,7 @@ const Core = struct {
     debug: bool = false,
     active: bool = false,
     rendering: bool = false,
+    accents: bool = false,
     pulse: bool = false,
     color: Color = Color.default,
     bg: u32 = tb.TB_DEFAULT,
@@ -101,8 +102,8 @@ const Core = struct {
             }
         }
 
-        self.width = if (self.debug) 20 else @intCast(width);
-        self.height = if (self.debug) 20 else @intCast(height);
+        self.width = if (self.debug) 12 else @intCast(width);
+        self.height = if (self.debug) 10 else @intCast(height);
     }
 
     fn updateWidthSec(self: *Core, adv: u32) !void {
@@ -488,7 +489,6 @@ fn printCells(
 }
 
 fn newChar(core: *Core, mode: Mode, rand: std.rand.Random) Char {
-    const bold = rand.boolean();
     const rand_int = switch (mode) {
         .binary => rand.int(u1),
         .decimal => rand.uintLessThan(u4, 10),
@@ -508,8 +508,17 @@ fn newChar(core: *Core, mode: Mode, rand: std.rand.Random) Char {
         }
     }
 
-    if (bold) {
-        color = color | tb.TB_BOLD;
+    if (core.accents) {
+        const bold = rand.boolean();
+        const dim = rand.boolean();
+
+        if (bold) {
+            color = color | tb.TB_BOLD;
+        }
+
+        if (dim) {
+            color = color | tb.TB_DIM;
+        }
     }
 
     return Char{ .i = rand_int, .b = bg, .c = color };
@@ -622,6 +631,10 @@ pub fn main() !void {
 
     if (opts.get("speed")) |speed| {
         handler.speed = try speed.val.getAs(Speed);
+    }
+
+    if (opts.get("accents")) |accents| {
+        core.accents = try accents.val.getAs(bool);
     }
 
     if (opts.get("pulse")) |pulse| {

@@ -116,6 +116,16 @@ pub const setup_cmd: CommandT = .{
             .val = ValueT.ofType(Mode, .{ .name = "mode_val", .default_val = Mode.binary, .alias_child_type = "string" }),
         },
         .{
+            .name = "accents",
+            .description = "Enable symbol accentuations.",
+            .short_name = 'a',
+            .long_name = "accents",
+            .val = ValueT.ofType(bool, .{
+                .name = "accents_flag",
+                .default_val = false,
+            }),
+        },
+        .{
             .name = "pulse",
             .description = "Enable pulse blocks.",
             .short_name = 'p',

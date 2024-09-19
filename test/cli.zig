@@ -46,6 +46,18 @@ test "default" {
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
+test "accents" {
+    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=default", "--accents" };
+    const proc = try runner(argv);
+    defer {
+        std.testing.allocator.free(proc.out);
+        std.testing.allocator.free(proc.err);
+    }
+
+    try std.testing.expectStringEndsWith(proc.err, streams.accents);
+    try std.testing.expectEqual(proc.term.Exited, 0);
+}
+
 test "speed" {
     const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=default", "--speed=slow" };
     const proc = try runner(argv);
