@@ -68,6 +68,76 @@ var sbuf: [2]u8 = undefined;
 var mbuf: [3]u8 = undefined;
 var lbuf: [4]u8 = undefined;
 
+const Char = struct {
+    i: u8,
+    bg: u32,
+    color: u32,
+};
+
+const Column = struct {
+    active: bool = false,
+    cooldown: u32 = 0,
+    chars: std.ArrayList(?Char),
+
+    fn init(allocator: std.mem.Allocator, size: usize) Column {
+        return .{
+            .chars = std.ArrayList(?Char).initCapacity(allocator, size) catch
+                undefined,
+        };
+    }
+
+    fn strLen(self: *Column) usize {
+        var len: u32 = 0;
+        var target: u32 = 0;
+        var check = true;
+
+        while (check) {
+            if (self.chars.items[target] != null) {
+                len += 1;
+                target += 1;
+            } else {
+                check = false;
+            }
+        }
+
+        return len;
+    }
+
+    fn chill(self: *Column) void {
+        if (self.cooldown > 0) {
+            self.cooldown -= 1;
+        }
+    }
+
+    fn addChar(
+        self: *Column,
+        core: *Core,
+        rand: std.rand.Random,
+    ) !void {
+        const char = core.newChar(rand);
+        try self.chars.insert(0, char);
+    }
+
+    fn addNull(self: *Column) !void {
+        try self.chars.insert(0, null);
+    }
+
+    fn activate(self: *Column, core: *Core) void {
+        if (self.cooldown == 0) {
+            self.active = true;
+            core.active_columns += 1;
+        }
+    }
+
+    fn deactivate(self: *Column, core: *Core) void {
+        if (self.active) {
+            self.active = false;
+            self.cooldown = core.height;
+            core.active_columns -= 1;
+        }
+    }
+};
+
 const Core = struct {
     allocator: std.mem.Allocator,
     mutex: Mutex = Mutex{},
@@ -275,76 +345,6 @@ const Core = struct {
                 c,
                 b,
             });
-    }
-};
-
-const Char = struct {
-    i: u8,
-    bg: u32,
-    color: u32,
-};
-
-const Column = struct {
-    active: bool = false,
-    cooldown: u32 = 0,
-    chars: std.ArrayList(?Char),
-
-    fn init(allocator: std.mem.Allocator, size: usize) Column {
-        return .{
-            .chars = std.ArrayList(?Char).initCapacity(allocator, size) catch
-                undefined,
-        };
-    }
-
-    fn strLen(self: *Column) usize {
-        var len: u32 = 0;
-        var target: u32 = 0;
-        var check = true;
-
-        while (check) {
-            if (self.chars.items[target] != null) {
-                len += 1;
-                target += 1;
-            } else {
-                check = false;
-            }
-        }
-
-        return len;
-    }
-
-    fn chill(self: *Column) void {
-        if (self.cooldown > 0) {
-            self.cooldown -= 1;
-        }
-    }
-
-    fn addChar(
-        self: *Column,
-        core: *Core,
-        rand: std.rand.Random,
-    ) !void {
-        const char = core.newChar(rand);
-        try self.chars.insert(0, char);
-    }
-
-    fn addNull(self: *Column) !void {
-        try self.chars.insert(0, null);
-    }
-
-    fn activate(self: *Column, core: *Core) void {
-        if (self.cooldown == 0) {
-            self.active = true;
-            core.active_columns += 1;
-        }
-    }
-
-    fn deactivate(self: *Column, core: *Core) void {
-        if (self.active) {
-            self.active = false;
-            self.cooldown = core.height;
-            core.active_columns -= 1;
-        }
     }
 };
 
