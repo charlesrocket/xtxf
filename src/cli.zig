@@ -151,7 +151,7 @@ pub const setup_cmd: CommandT = .{
             .long_name = "speed",
             .val = ValueT.ofType(Speed, .{
                 .name = "speed_val",
-                .default_val = Speed.fast,
+                .default_val = Speed.normal,
                 .alias_child_type = "string",
             }),
         },

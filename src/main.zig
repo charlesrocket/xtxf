@@ -33,7 +33,11 @@ else switch (build_options.gxt.dirty.?) {
 
 const FRAME = 39730492;
 
-pub const Speed = enum { slow, fast };
+pub const Speed = enum {
+    slow,
+    normal,
+    fast,
+};
 
 pub const Mode = enum {
     binary,
@@ -474,14 +478,16 @@ fn printCells(
         switch (handler.style) {
             .default, .columns, .crypto, .grid, .blocks => {
                 std.time.sleep(switch (handler.speed) {
-                    .slow => FRAME * 2,
+                    .slow => FRAME * 6,
+                    .normal => FRAME * 2,
                     .fast => FRAME,
                 });
             },
             .rain => {
                 std.time.sleep(switch (handler.speed) {
                     .slow => FRAME * 20,
-                    .fast => FRAME * 3,
+                    .normal => FRAME * 3,
+                    .fast => FRAME,
                 });
             },
         }
