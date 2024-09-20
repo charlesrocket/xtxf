@@ -383,12 +383,14 @@ fn printCells(
             .default, .columns, .crypto, .grid, .blocks => {
                 for (0..core.width) |w| {
                     if (core.style != .default) {
+                        // apply horizontal gaps
                         if (checkSec(&core.width_gaps.?, w)) {
                             continue;
                         }
                     }
 
                     for (0..core.height) |h| {
+                        // apply vertical gaps
                         if (core.style != .default) {
                             if (checkSec(&core.height_gaps.?, h)) {
                                 continue;
@@ -420,6 +422,7 @@ fn printCells(
                     }
                 }
 
+                // cycle random columns
                 if (rand.boolean()) {
                     core.columns.?.items[rand.uintLessThan(u32, core.width)].?.deactivate(core);
                     core.columns.?.items[rand.uintLessThan(u32, core.width)].?.activate(core);
