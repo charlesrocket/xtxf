@@ -278,69 +278,6 @@ const Core = struct {
     }
 };
 
-const Handler = struct {
-    mutex: Mutex = Mutex{},
-    halt: bool = true,
-    duration: u32 = 0,
-    pause: bool = false,
-
-    fn setHalt(self: *Handler, value: bool) void {
-        self.halt = value;
-    }
-
-    fn setPause(self: *Handler, value: bool) void {
-        self.pause = value;
-    }
-
-    fn run(self: *Handler, core: *Core) !void {
-        try core.updateStyle();
-
-        var timer = try std.time.Timer.start();
-        const duration = self.duration;
-
-        self.setHalt(false);
-
-        while (core.active) {
-            if ((timer.read() / std.time.ns_per_s) >= duration and
-                self.duration != 0)
-            {
-                core.setActive(false);
-            } else if (core.debug) {
-                std.time.sleep(FRAME * 5);
-                log.info("Exiting...", .{});
-                core.setActive(false);
-            }
-
-            if (!core.debug) {
-                var EVENT = tb.tb_event{
-                    .type = 0,
-                };
-
-                _ = tb.tb_peek_event(&EVENT, 100);
-
-                if (@as(u8, @intCast(EVENT.type)) == 1) {
-                    core.setActive(false);
-                } else if (@as(u8, @intCast(EVENT.type)) == 2) {
-                    self.setPause(true);
-
-                    while (core.rendering) {
-                        std.time.sleep(FRAME / 2);
-                    }
-
-                    core.updateTermSize();
-                    try core.updateStyle();
-
-                    self.setPause(false);
-                }
-            }
-        }
-    }
-
-    fn init() Handler {
-        return .{};
-    }
-};
-
 const Char = struct {
     i: u8,
     bg: u32,
@@ -408,6 +345,69 @@ const Column = struct {
             self.cooldown = core.height;
             core.active_columns -= 1;
         }
+    }
+};
+
+const Handler = struct {
+    mutex: Mutex = Mutex{},
+    halt: bool = true,
+    duration: u32 = 0,
+    pause: bool = false,
+
+    fn setHalt(self: *Handler, value: bool) void {
+        self.halt = value;
+    }
+
+    fn setPause(self: *Handler, value: bool) void {
+        self.pause = value;
+    }
+
+    fn run(self: *Handler, core: *Core) !void {
+        try core.updateStyle();
+
+        var timer = try std.time.Timer.start();
+        const duration = self.duration;
+
+        self.setHalt(false);
+
+        while (core.active) {
+            if ((timer.read() / std.time.ns_per_s) >= duration and
+                self.duration != 0)
+            {
+                core.setActive(false);
+            } else if (core.debug) {
+                std.time.sleep(FRAME * 5);
+                log.info("Exiting...", .{});
+                core.setActive(false);
+            }
+
+            if (!core.debug) {
+                var EVENT = tb.tb_event{
+                    .type = 0,
+                };
+
+                _ = tb.tb_peek_event(&EVENT, 100);
+
+                if (@as(u8, @intCast(EVENT.type)) == 1) {
+                    core.setActive(false);
+                } else if (@as(u8, @intCast(EVENT.type)) == 2) {
+                    self.setPause(true);
+
+                    while (core.rendering) {
+                        std.time.sleep(FRAME / 2);
+                    }
+
+                    core.updateTermSize();
+                    try core.updateStyle();
+
+                    self.setPause(false);
+                }
+            }
+        }
+    }
+
+    fn init() Handler {
+        return .{};
     }
 };
 
