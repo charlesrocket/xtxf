@@ -299,7 +299,7 @@ const Char = struct { i: u8, b: u32, c: u32 };
 
 const Column = struct {
     active: bool = false,
-    cooldown: usize = 0,
+    cooldown: u32 = 0,
     chars: std.ArrayList(?Char),
 
     fn init(allocator: std.mem.Allocator, size: usize) Column {
@@ -356,7 +356,7 @@ const Column = struct {
     fn deactivate(self: *Column, core: *Core) void {
         if (self.active) {
             self.active = false;
-            self.cooldown = 10;
+            self.cooldown = core.height;
             core.active_columns -= 1;
         }
     }
