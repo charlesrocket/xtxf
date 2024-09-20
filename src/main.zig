@@ -211,6 +211,42 @@ const Core = struct {
         }
     }
 
+    fn newChar(self: *Core, rand: std.rand.Random) Char {
+        const rand_int = switch (self.mode) {
+            .binary => rand.int(u1),
+            .decimal => rand.uintLessThan(u4, 10),
+            .hexadecimal => rand.int(u4),
+            .textual => rand.uintLessThan(u8, 73),
+        };
+
+        var color = @intFromEnum(self.color);
+        var bg = self.bg;
+
+        if (self.pulse) {
+            const blank = @mod(rand.int(u8), 255);
+
+            // small probability
+            if (blank >= 254) {
+                bg = bg | tb.TB_REVERSE;
+            }
+        }
+
+        if (self.accents) {
+            const bold = rand.boolean();
+            const dim = rand.boolean();
+
+            if (bold) {
+                color = color | tb.TB_BOLD;
+            }
+
+            if (dim) {
+                color = color | tb.TB_DIM;
+            }
+        }
+
+        return Char{ .i = rand_int, .b = bg, .c = color };
+    }
+
     fn tbPrint(
         self: *Core,
         w: usize,
@@ -343,7 +379,7 @@ const Column = struct {
         core: *Core,
         rand: std.rand.Random,
     ) !void {
-        const char = newChar(core, rand);
+        const char = core.newChar(rand);
         try self.chars.insert(0, char);
     }
 
@@ -397,7 +433,7 @@ fn printCells(
                             }
                         }
 
-                        const char = newChar(core, rand);
+                        const char = core.newChar(rand);
                         const out = try fmtChar(char.i, core.mode);
 
                         core.tbPrint(w, h, char.c, char.b, out);
@@ -496,42 +532,6 @@ fn printCells(
             },
         }
     }
-}
-
-fn newChar(core: *Core, rand: std.rand.Random) Char {
-    const rand_int = switch (core.mode) {
-        .binary => rand.int(u1),
-        .decimal => rand.uintLessThan(u4, 10),
-        .hexadecimal => rand.int(u4),
-        .textual => rand.uintLessThan(u8, 73),
-    };
-
-    var color = @intFromEnum(core.color);
-    var bg = core.bg;
-
-    if (core.pulse) {
-        const blank = @mod(rand.int(u8), 255);
-
-        // small probability
-        if (blank >= 254) {
-            bg = bg | tb.TB_REVERSE;
-        }
-    }
-
-    if (core.accents) {
-        const bold = rand.boolean();
-        const dim = rand.boolean();
-
-        if (bold) {
-            color = color | tb.TB_BOLD;
-        }
-
-        if (dim) {
-            color = color | tb.TB_DIM;
-        }
-    }
-
-    return Char{ .i = rand_int, .b = bg, .c = color };
 }
 
 fn fmtChar(int: u32, mode: Mode) ![:0]u8 {
