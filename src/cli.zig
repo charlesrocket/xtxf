@@ -147,7 +147,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "speed",
-            .description = "Set speed (fast, slow).",
+            .description = "Set speed (fast, normal, slow).",
             .long_name = "speed",
             .val = ValueT.ofType(Speed, .{
                 .name = "speed_val",
