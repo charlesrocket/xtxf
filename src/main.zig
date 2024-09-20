@@ -71,6 +71,8 @@ var lbuf: [4]u8 = undefined;
 const Core = struct {
     allocator: std.mem.Allocator,
     mutex: Mutex = Mutex{},
+    mode: Mode = Mode.binary,
+    style: Style = Style.default,
     debug: bool = false,
     active: bool = false,
     rendering: bool = false,
@@ -130,7 +132,9 @@ const Core = struct {
         try self.columns.?.ensureTotalCapacity(self.width);
     }
 
-    fn updateStyle(self: *Core, style: Style) !void {
+    fn updateStyle(self: *Core) !void {
+        const style = self.style;
+
         if (style == .grid) {
             self.mutex.lock();
             defer self.mutex.unlock();
@@ -166,7 +170,7 @@ const Core = struct {
         return .{ .allocator = gpallocator };
     }
 
-    fn start(self: *Core, style: Style) !void {
+    fn start(self: *Core) !void {
         if (!self.debug) _ = tb.tb_init() else log.info("DEBUG MODE", .{});
 
         if (self.columns == null) {
@@ -183,7 +187,7 @@ const Core = struct {
 
         self.setActive(true);
         self.updateTermSize();
-        try self.updateStyle(style);
+        try self.updateStyle();
     }
 
     fn shutdown(self: *Core) void {
@@ -239,8 +243,6 @@ const Handler = struct {
     speed: Speed = .fast,
     duration: u32 = 0,
     pause: bool = false,
-    mode: Mode = Mode.binary,
-    style: Style = Style.default,
 
     fn setHalt(self: *Handler, value: bool) void {
         self.halt = value;
@@ -251,7 +253,7 @@ const Handler = struct {
     }
 
     fn run(self: *Handler, core: *Core) !void {
-        try core.updateStyle(self.style);
+        try core.updateStyle();
 
         var timer = try std.time.Timer.start();
         const duration = self.duration;
@@ -286,7 +288,7 @@ const Handler = struct {
                     }
 
                     core.updateTermSize();
-                    try core.updateStyle(self.style);
+                    try core.updateStyle();
 
                     self.setPause(false);
                 }
@@ -339,10 +341,9 @@ const Column = struct {
     fn addChar(
         self: *Column,
         core: *Core,
-        mode: Mode,
         rand: std.rand.Random,
     ) !void {
-        const char = newChar(core, mode, rand);
+        const char = newChar(core, rand);
         try self.chars.insert(0, char);
     }
 
@@ -378,24 +379,24 @@ fn printCells(
         core.setRendering(true);
         if (!core.debug) _ = tb.tb_clear();
 
-        switch (handler.style) {
+        switch (core.style) {
             .default, .columns, .crypto, .grid, .blocks => {
                 for (0..core.width) |w| {
-                    if (handler.style != .default) {
+                    if (core.style != .default) {
                         if (checkSec(&core.width_gaps.?, w)) {
                             continue;
                         }
                     }
 
                     for (0..core.height) |h| {
-                        if (handler.style != .default) {
+                        if (core.style != .default) {
                             if (checkSec(&core.height_gaps.?, h)) {
                                 continue;
                             }
                         }
 
-                        const char = newChar(core, handler.mode, rand);
-                        const out = try fmtChar(char.i, handler.mode);
+                        const char = newChar(core, rand);
+                        const out = try fmtChar(char.i, core.mode);
 
                         core.tbPrint(w, h, char.c, char.b, out);
                     }
@@ -412,7 +413,7 @@ fn printCells(
                             if (!core.debug)
                                 try core.columns.?.items[w].?.addNull()
                             else
-                                try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
+                                try core.columns.?.items[w].?.addChar(core, rand);
                         }
 
                         if (!core.debug) core.columns.?.items[w].?.activate(core);
@@ -445,7 +446,7 @@ fn printCells(
                         // max string length
                         if (str_len < @as(u32, core.height) / 2) {
                             if (str_len < 12) {
-                                try core.columns.?.items[w].?.addChar(core, handler.mode, rand);
+                                try core.columns.?.items[w].?.addChar(core, rand);
                             } else {
                                 try core.columns.?.items[w].?.addNull();
                             }
@@ -464,7 +465,7 @@ fn printCells(
                             continue :h_loop;
                         }
 
-                        const out: [:0]u8 = try fmtChar(column_char.?.i, handler.mode);
+                        const out: [:0]u8 = try fmtChar(column_char.?.i, core.mode);
 
                         core.tbPrint(w, h, column_char.?.c, column_char.?.b, out);
                     }
@@ -475,7 +476,7 @@ fn printCells(
         if (!core.debug) _ = tb.tb_present() else core.active = false;
         core.setRendering(false);
 
-        switch (handler.style) {
+        switch (core.style) {
             .default, .columns, .crypto, .grid, .blocks => {
                 std.time.sleep(switch (handler.speed) {
                     .slow => FRAME * 6,
@@ -494,8 +495,8 @@ fn printCells(
     }
 }
 
-fn newChar(core: *Core, mode: Mode, rand: std.rand.Random) Char {
-    const rand_int = switch (mode) {
+fn newChar(core: *Core, rand: std.rand.Random) Char {
+    const rand_int = switch (core.mode) {
         .binary => rand.int(u1),
         .decimal => rand.uintLessThan(u4, 10),
         .hexadecimal => rand.int(u4),
@@ -624,11 +625,11 @@ pub fn main() !void {
     }
 
     if (opts.get("style")) |style| {
-        handler.style = try style.val.getAs(Style);
+        core.style = try style.val.getAs(Style);
     }
 
     if (opts.get("mode")) |mode| {
-        handler.mode = try mode.val.getAs(Mode);
+        core.mode = try mode.val.getAs(Mode);
     }
 
     if (opts.get("time")) |time| {
@@ -653,7 +654,7 @@ pub fn main() !void {
     }
 
     if (!(main_cmd.checkFlag("version") or usage_help_called)) {
-        try core.start(handler.style);
+        try core.start();
 
         if (core.width < 4 or core.height < 2) {
             core.setActive(false);
@@ -688,12 +689,12 @@ test "column" {
     const rand = prng.random();
 
     var core = Core{ .allocator = std.testing.allocator };
-    try core.start(Style.default);
+    try core.start();
 
     const column = Column.init(core.allocator, core.height);
     try core.columns.?.append(column);
-    try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
-    try core.columns.?.items[0].?.addChar(&core, Mode.decimal, rand);
+    try core.columns.?.items[0].?.addChar(&core, rand);
+    try core.columns.?.items[0].?.addChar(&core, rand);
     try core.columns.?.items[0].?.addNull();
 
     try std.testing.expect(core.columns.?.items[0].?.chars.items.len == 3);
