@@ -21,5 +21,5 @@ zig build
 ## Usage
 
 ```sh
-xtxf -a -m decimal -c red -s crypto
+xtxf -a -m hexadecimal -s crypto
 ```
