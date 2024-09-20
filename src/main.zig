@@ -73,6 +73,7 @@ const Core = struct {
     mutex: Mutex = Mutex{},
     mode: Mode = Mode.binary,
     style: Style = Style.default,
+    speed: Speed = .fast,
     debug: bool = false,
     active: bool = false,
     rendering: bool = false,
@@ -240,7 +241,6 @@ const Core = struct {
 const Handler = struct {
     mutex: Mutex = Mutex{},
     halt: bool = true,
-    speed: Speed = .fast,
     duration: u32 = 0,
     pause: bool = false,
 
@@ -478,14 +478,14 @@ fn printCells(
 
         switch (core.style) {
             .default, .columns, .crypto, .grid, .blocks => {
-                std.time.sleep(switch (handler.speed) {
+                std.time.sleep(switch (core.speed) {
                     .slow => FRAME * 6,
                     .normal => FRAME * 2,
                     .fast => FRAME,
                 });
             },
             .rain => {
-                std.time.sleep(switch (handler.speed) {
+                std.time.sleep(switch (core.speed) {
                     .slow => FRAME * 20,
                     .normal => FRAME * 3,
                     .fast => FRAME,
@@ -637,7 +637,7 @@ pub fn main() !void {
     }
 
     if (opts.get("speed")) |speed| {
-        handler.speed = try speed.val.getAs(Speed);
+        core.speed = try speed.val.getAs(Speed);
     }
 
     if (opts.get("accents")) |accents| {
