@@ -564,7 +564,7 @@ fn animation(handler: *Handler, core: *Core) !void {
     var prng = std.rand.DefaultPrng.init(if (core.debug)
         42
     else
-        @as(u64, @bitCast(std.time.milliTimestamp())));
+        @as(u64, @intCast(std.time.milliTimestamp())));
 
     const rand = prng.random();
 
