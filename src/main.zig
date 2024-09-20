@@ -244,7 +244,11 @@ const Core = struct {
             }
         }
 
-        return Char{ .i = rand_int, .b = bg, .c = color };
+        return Char{
+            .i = rand_int,
+            .bg = bg,
+            .color = color,
+        };
     }
 
     fn tbPrint(
@@ -337,7 +341,11 @@ const Handler = struct {
     }
 };
 
-const Char = struct { i: u8, b: u32, c: u32 };
+const Char = struct {
+    i: u8,
+    bg: u32,
+    color: u32,
+};
 
 const Column = struct {
     active: bool = false,
@@ -436,7 +444,7 @@ fn printCells(
                         const char = core.newChar(rand);
                         const out = try fmtChar(char.i, core.mode);
 
-                        core.tbPrint(w, h, char.c, char.b, out);
+                        core.tbPrint(w, h, char.color, char.bg, out);
                     }
                 }
             },
@@ -506,7 +514,7 @@ fn printCells(
 
                         const out: [:0]u8 = try fmtChar(column_char.?.i, core.mode);
 
-                        core.tbPrint(w, h, column_char.?.c, column_char.?.b, out);
+                        core.tbPrint(w, h, column_char.?.color, column_char.?.bg, out);
                     }
                 }
             },
