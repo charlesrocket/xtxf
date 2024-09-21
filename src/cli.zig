@@ -99,21 +99,33 @@ pub const setup_cmd: CommandT = .{
             .description = "Set output color (default, red, green, blue, yellow, magenta).",
             .short_name = 'c',
             .long_name = "color",
-            .val = ValueT.ofType(Color, .{ .name = "color_val", .default_val = Color.default, .alias_child_type = "string" }),
+            .val = ValueT.ofType(Color, .{
+                .name = "color_val",
+                .default_val = Color.default,
+                .alias_child_type = "string",
+            }),
         },
         .{
             .name = "style",
             .description = "Set output style (default, columns, crypto, grid, blocks, rain).",
             .short_name = 's',
             .long_name = "style",
-            .val = ValueT.ofType(Style, .{ .name = "style_val", .default_val = Style.default, .alias_child_type = "string" }),
+            .val = ValueT.ofType(Style, .{
+                .name = "style_val",
+                .default_val = Style.default,
+                .alias_child_type = "string",
+            }),
         },
         .{
             .name = "mode",
             .description = "Set symbol mode (binary, decimal, hexadecimal, textual).",
             .short_name = 'm',
             .long_name = "mode",
-            .val = ValueT.ofType(Mode, .{ .name = "mode_val", .default_val = Mode.binary, .alias_child_type = "string" }),
+            .val = ValueT.ofType(Mode, .{
+                .name = "mode_val",
+                .default_val = Mode.binary,
+                .alias_child_type = "string",
+            }),
         },
         .{
             .name = "accents",
