@@ -4,8 +4,8 @@
     .paths = .{""},
     .dependencies = .{
         .termbox2 = .{
-            .url = "https://github.com/termbox/termbox2/archive/d4128b49ca4b4c934c5f07b8b7d734421a4a76a0.zip",
-            .hash = "12200705c160371d843e7a806133f3f803d8da9af8a50c4f43dea7cec3264de1d1c7",
+            .url = "https://github.com/termbox/termbox2/archive/200eec97179012fb0d0635b684343e4b77f71097.zip",
+            .hash = "122019d53fab9603fef011d5fe0ef956e1a91857042cca1963982ae27089ed630f7b",
         },
         .cova = .{
             .url = "https://github.com/00JCIV00/cova/archive/b6dc0cc0d6a977aaf4378ebb0b3470d440762796.tar.gz",
