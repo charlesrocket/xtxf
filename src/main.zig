@@ -337,7 +337,7 @@ const Core = struct {
         };
     }
 
-    fn tbPrint(
+    fn setCell(
         self: *Core,
         w: usize,
         h: usize,
@@ -345,15 +345,17 @@ const Core = struct {
         b: usize,
         char: [*c]const u8,
     ) void {
-        if (!self.debug)
-            _ = tb.tb_print(
+        if (!self.debug) {
+            var buf: u32 = undefined;
+            _ = tb.tb_utf8_char_to_unicode(&buf, char);
+            _ = tb.tb_set_cell(
                 @intCast(w),
                 @intCast(h),
+                buf,
                 @intCast(c),
                 @intCast(b),
-                char,
-            )
-        else
+            );
+        } else {
             log.info("{s}: {d}x{d} {d}/{d}", .{
                 char,
                 w,
@@ -361,6 +363,7 @@ const Core = struct {
                 c,
                 b,
             });
+        }
     }
 };
 
@@ -460,7 +463,7 @@ fn printCells(
                         const char = core.newChar(rand);
                         const out = try fmtChar(char.i, core.mode);
 
-                        core.tbPrint(w, h, char.color, char.bg, out);
+                        core.setCell(w, h, char.color, char.bg, out);
                     }
                 }
             },
@@ -530,7 +533,7 @@ fn printCells(
 
                         const out: [:0]u8 = try fmtChar(column_char.?.i, core.mode);
 
-                        core.tbPrint(w, h, column_char.?.color, column_char.?.bg, out);
+                        core.setCell(w, h, column_char.?.color, column_char.?.bg, out);
                     }
                 }
             },
