@@ -252,11 +252,11 @@ const Core = struct {
     }
 
     fn start(self: *Core) !void {
-        if (!self.debug) {
+        if (self.debug) {
+            log.info("DEBUG MODE", .{});
+        } else {
             _ = libc.setlocale(libc.LC_ALL, "");
             _ = tb.tb_init();
-        } else {
-            log.info("DEBUG MODE", .{});
         }
 
         if (self.columns == null) {
