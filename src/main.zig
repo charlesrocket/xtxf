@@ -55,6 +55,13 @@ pub const Style = enum {
     rain,
 };
 
+pub const Accent = enum {
+    bold,
+    bright,
+    dim,
+    pulse,
+};
+
 pub const Color = enum(u32) {
     default = tb.TB_DEFAULT,
     red = tb.TB_RED,
@@ -145,11 +152,10 @@ const Core = struct {
     color: Color = .default,
     style: Style = .default,
     speed: Speed = .normal,
+    accents: ?[]const Accent = null,
     debug: bool = false,
     active: bool = false,
     rendering: bool = false,
-    accents: bool = false,
-    pulse: bool = false,
     bg: u32 = tb.TB_DEFAULT,
     width: u32 = 0,
     height: u32 = 0,
@@ -292,25 +298,26 @@ const Core = struct {
         var color = @intFromEnum(self.color);
         var bg = self.bg;
 
-        if (self.pulse) {
-            const blank = @mod(rand.int(u8), 255);
-
-            // small probability
-            if (blank >= 254) {
-                bg = bg | tb.TB_REVERSE;
-            }
-        }
-
-        if (self.accents) {
-            const bold = rand.boolean();
-            const dim = rand.boolean();
-
-            if (bold) {
-                color = color | tb.TB_BOLD;
-            }
-
-            if (dim) {
-                color = color | tb.TB_DIM;
+        if (self.accents) |accents| {
+            for (accents) |accent| {
+                switch (accent) {
+                    .bold => {
+                        if (rand.boolean()) color = color | tb.TB_BOLD;
+                    },
+                    .bright => {
+                        if (rand.boolean()) color = color | tb.TB_BRIGHT;
+                    },
+                    .dim => {
+                        if (rand.boolean()) color = color | tb.TB_DIM;
+                    },
+                    .pulse => {
+                        const blank = @mod(rand.int(u8), 255);
+                        // small probability
+                        if (blank >= 254) {
+                            bg = bg | tb.TB_REVERSE;
+                        }
+                    },
+                }
             }
         }
 
@@ -652,11 +659,7 @@ pub fn main() !void {
     }
 
     if (opts.get("accents")) |accents| {
-        core.accents = try accents.val.getAs(bool);
-    }
-
-    if (opts.get("pulse")) |pulse| {
-        core.pulse = try pulse.val.getAs(bool);
+        core.accents = accents.val.getAllAs(Accent) catch null;
     }
 
     if (main_cmd.checkFlag("version")) {

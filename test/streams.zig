@@ -15,29 +15,29 @@ pub const default =
 ;
 
 pub const accents =
-    \\info(xtxf): 0: 9x7 32768/0
-    \\info(xtxf): 0: 9x8 32768/0
-    \\info(xtxf): 0: 9x9 0/0
-    \\info(xtxf): 0: 10x0 256/0
-    \\info(xtxf): 0: 10x1 256/0
-    \\info(xtxf): 0: 10x2 32768/0
-    \\info(xtxf): 1: 10x3 33024/0
-    \\info(xtxf): 1: 10x4 32768/0
-    \\info(xtxf): 0: 10x5 256/0
-    \\info(xtxf): 1: 10x6 32768/0
-    \\info(xtxf): 1: 10x7 32768/0
-    \\info(xtxf): 0: 10x8 33024/0
-    \\info(xtxf): 0: 10x9 32768/0
-    \\info(xtxf): 0: 11x0 0/0
-    \\info(xtxf): 0: 11x1 33024/0
-    \\info(xtxf): 0: 11x2 32768/0
-    \\info(xtxf): 1: 11x3 33024/0
-    \\info(xtxf): 1: 11x4 33024/0
+    \\info(xtxf): 1: 9x7 49408/0
+    \\info(xtxf): 0: 9x8 49152/0
+    \\info(xtxf): 1: 9x9 0/0
+    \\info(xtxf): 1: 10x0 256/0
+    \\info(xtxf): 0: 10x1 32768/0
+    \\info(xtxf): 1: 10x2 16640/0
+    \\info(xtxf): 0: 10x3 0/0
+    \\info(xtxf): 0: 10x4 33024/0
+    \\info(xtxf): 1: 10x5 32768/0
+    \\info(xtxf): 1: 10x6 256/0
+    \\info(xtxf): 1: 10x7 0/0
+    \\info(xtxf): 0: 10x8 49408/0
+    \\info(xtxf): 0: 10x9 16640/0
+    \\info(xtxf): 1: 11x0 0/0
+    \\info(xtxf): 1: 11x1 16384/0
+    \\info(xtxf): 1: 11x2 33024/0
+    \\info(xtxf): 1: 11x3 49408/0
+    \\info(xtxf): 1: 11x4 16640/0
     \\info(xtxf): 1: 11x5 33024/0
-    \\info(xtxf): 1: 11x6 32768/0
+    \\info(xtxf): 1: 11x6 0/0
     \\info(xtxf): 0: 11x7 32768/0
-    \\info(xtxf): 1: 11x8 256/0
-    \\info(xtxf): 1: 11x9 32768/0
+    \\info(xtxf): 0: 11x8 16640/0
+    \\info(xtxf): 1: 11x9 16640/0
     \\info(xtxf): Exiting...
     \\
 ;

@@ -8,6 +8,7 @@ const Speed = main.Speed;
 const Color = main.Color;
 const Style = main.Style;
 const Mode = main.Mode;
+const Accent = main.Accent;
 
 pub const CommandT = cova.Command.Custom(.{
     .global_help_prefix = assets.help_prefix,
@@ -74,6 +75,7 @@ pub const CommandT = cova.Command.Custom(.{
             Color,
             Style,
             Mode,
+            Accent,
         },
     },
 });
@@ -84,7 +86,7 @@ pub const setup_cmd: CommandT = .{
     .name = "xtxf",
     .description = "2D matrix screensaver.",
     .examples = &.{
-        "xtxf -a -m decimal -c red -s crypto",
+        "xtxf -m decimal -s crypto -a bold,dim",
     },
     .sub_cmds_mandatory = false,
     .sub_cmds = &.{
@@ -129,22 +131,14 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "accents",
-            .description = "Enable symbol accentuations.",
+            .description = "Enable symbol accentuations (bold, bright, dim, pulse).",
             .short_name = 'a',
             .long_name = "accents",
-            .val = ValueT.ofType(bool, .{
-                .name = "accents_flag",
-                .default_val = false,
-            }),
-        },
-        .{
-            .name = "pulse",
-            .description = "Enable pulse blocks.",
-            .short_name = 'p',
-            .long_name = "pulse",
-            .val = ValueT.ofType(bool, .{
-                .name = "pulse_flag",
-                .default_val = false,
+            .val = ValueT.ofType(Accent, .{
+                .name = "accents",
+                .alias_child_type = "string",
+                .set_behavior = .Multi,
+                .max_entries = 4,
             }),
         },
         .{

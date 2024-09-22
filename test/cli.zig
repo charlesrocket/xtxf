@@ -47,7 +47,7 @@ test "default" {
 }
 
 test "accents" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=default", "--accents" };
+    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=default", "--accents=bold,dim,bright,pulse" };
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
