@@ -1,5 +1,9 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const libc = @cImport({
+    @cInclude("locale.h");
+});
+
 const tb = @cImport({
     @cInclude("termbox2.h");
 });
@@ -248,7 +252,12 @@ const Core = struct {
     }
 
     fn start(self: *Core) !void {
-        if (!self.debug) _ = tb.tb_init() else log.info("DEBUG MODE", .{});
+        if (!self.debug) {
+            _ = libc.setlocale(libc.LC_ALL, "");
+            _ = tb.tb_init();
+        } else {
+            log.info("DEBUG MODE", .{});
+        }
 
         if (self.columns == null) {
             self.columns = std.ArrayList(?Column).init(self.allocator);
