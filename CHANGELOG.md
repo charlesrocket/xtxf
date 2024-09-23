@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2024-09-23
+
+### Bug Fixes
+
+- Drop timestamp bitcast
+- Use dynamic cooldown
+- Use env locale
+
+### Documentation
+
+- Update example command
+- Comment `printCells()` subroutines
+- Update `Usage`
+
+### Features
+
+- Add `accents` option
+- Add `normal` speed
+- Set `normal` as default speed
+- [**breaking**] Move `pulse` into `accents`
+
+### Operations
+
+- Fix `release` dependencies
+
+### Performance
+
+- Switch to `tb_set_cell()`
+
+### Refactor
+
+- Move `mode`/`style` into `Core`
+- Move `speed` into `Core`
+- Rearrange `Core` fields
+- Move `newChar()` into `Core`
+- Rename `Char` fields
+- Change debug conditional in `Core.start()`
+
+### Styling
+
+- Move `Handler`
+- Move `Core`
+- Fix `opts` format
+
+### Testing
+
+- Move err streams
+
+### Build
+
+- Add `clean` step
+- Bump termbox to `200eec9`
+- Enable POSIX features
+- Bump cova to `0.10.1-beta`
+
 ## [0.6.1] - 2024-09-18
 
 ### Bug Fixes
