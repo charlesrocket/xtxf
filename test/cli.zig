@@ -42,7 +42,7 @@ test "default" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.default);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.default);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -54,7 +54,7 @@ test "accents" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.accents);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.accents);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -66,7 +66,7 @@ test "speed" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.default);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.default);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -78,7 +78,7 @@ test "mode: decimal" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.decimal);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.decimal);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -90,7 +90,7 @@ test "mode: hexadecimal" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.hexadecimal);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.hexadecimal);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -102,7 +102,7 @@ test "mode: textual" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.textual);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.textual);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -114,7 +114,7 @@ test "color: red" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.red);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.red);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -126,7 +126,7 @@ test "color: green" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.green);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.green);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -137,7 +137,8 @@ test "color: blue" {
         std.testing.allocator.free(proc.out);
         std.testing.allocator.free(proc.err);
     }
-    try std.testing.expectStringEndsWith(proc.err, streams.blue);
+
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.blue);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -149,7 +150,7 @@ test "color: yellow" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.yellow);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.yellow);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -161,7 +162,7 @@ test "color: magenta" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.magenta);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.magenta);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -173,7 +174,7 @@ test "style: columns" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.columns);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.columns);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -185,7 +186,7 @@ test "style: crypto" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.crypto);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.crypto);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -197,7 +198,7 @@ test "style: grid" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.grid);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.grid);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -209,7 +210,7 @@ test "style: blocks" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.blocks);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.blocks);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
 
@@ -221,6 +222,6 @@ test "style: rain" {
         std.testing.allocator.free(proc.err);
     }
 
-    try std.testing.expectStringEndsWith(proc.err, streams.rain);
+    if (!live) try std.testing.expectStringEndsWith(proc.err, streams.rain);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
