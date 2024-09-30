@@ -98,7 +98,7 @@ pub const setup_cmd: CommandT = .{
     .opts = &.{
         .{
             .name = "color",
-            .description = "Set output color (default, red, green, blue, yellow, magenta).",
+            .description = "Set output color " ++ genVals(Color, 0) ++ ".",
             .short_name = 'c',
             .long_name = "color",
             .val = ValueT.ofType(Color, .{
@@ -109,7 +109,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "style",
-            .description = "Set output style (default, columns, crypto, grid, blocks, rain).",
+            .description = "Set output style " ++ genVals(Style, 0) ++ ".",
             .short_name = 's',
             .long_name = "style",
             .val = ValueT.ofType(Style, .{
@@ -120,7 +120,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "mode",
-            .description = "Set symbol mode (binary, decimal, hexadecimal, textual).",
+            .description = "Set symbol mode " ++ genVals(Mode, 0) ++ ".",
             .short_name = 'm',
             .long_name = "mode",
             .val = ValueT.ofType(Mode, .{
@@ -131,19 +131,19 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "accents",
-            .description = "Enable symbol accentuations (bold, bright, dim, pulse).",
+            .description = "Enable symbol accentuations " ++ genVals(Accent, null) ++ ".",
             .short_name = 'a',
             .long_name = "accents",
             .val = ValueT.ofType(Accent, .{
                 .name = "accents",
-                .alias_child_type = "string",
+                .alias_child_type = "[string]",
                 .set_behavior = .Multi,
                 .max_entries = 4,
             }),
         },
         .{
             .name = "time",
-            .description = "Set duration (seconds).",
+            .description = "Set duration in seconds.",
             .short_name = 't',
             .long_name = "time",
             .val = ValueT.ofType(u32, .{
@@ -153,7 +153,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "speed",
-            .description = "Set speed (fast, normal, slow).",
+            .description = "Set speed " ++ genVals(Speed, 1) ++ ".",
             .long_name = "speed",
             .val = ValueT.ofType(Speed, .{
                 .name = "speed_val",
@@ -182,3 +182,23 @@ pub const setup_cmd: CommandT = .{
         },
     },
 };
+
+fn genVals(T: type, default: ?usize) []const u8 {
+    return blk: {
+        var str: []const u8 = "(";
+        const vals = std.meta.fieldNames(T);
+
+        for (vals, 0..) |val, i| {
+            str = if (default != null and default == i) dflt: {
+                break :dflt str ++ "*" ++ val;
+            } else str ++ val;
+
+            if (i < vals.len - 1) {
+                str = str ++ ", ";
+            }
+        }
+
+        str = str ++ ")";
+        break :blk str;
+    };
+}
