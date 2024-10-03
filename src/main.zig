@@ -597,6 +597,82 @@ fn checkSec(arr: *std.ArrayListAligned(u32, null), value: usize) bool {
     return false;
 }
 
+fn intro(
+    core: *Core,
+    rand: std.rand.Random,
+) !void {
+    const start_h = core.height / 2;
+    const start_w = (core.width / 2) - 2;
+
+    for (0..25) |frames| {
+        std.time.sleep(FRAME);
+        _ = tb.tb_clear();
+
+        char: for (0..4) |i| {
+            if ((frames > 5) and i == 0) {
+                core.setCell(
+                    start_w + i,
+                    start_h,
+                    @intFromEnum(core.color),
+                    core.bg,
+                    "X",
+                );
+
+                continue :char;
+            }
+
+            if ((frames > 10) and i == 1) {
+                core.setCell(
+                    start_w + i,
+                    start_h,
+                    @intFromEnum(core.color),
+                    core.bg,
+                    "T",
+                );
+
+                continue :char;
+            }
+
+            if ((frames > 15) and i == 2) {
+                core.setCell(
+                    start_w + i,
+                    start_h,
+                    @intFromEnum(core.color),
+                    core.bg,
+                    "X",
+                );
+
+                continue :char;
+            }
+
+            if ((frames > 20) and i == 3) {
+                core.setCell(
+                    start_w + i,
+                    start_h,
+                    @intFromEnum(core.color),
+                    core.bg,
+                    "F",
+                );
+
+                continue :char;
+            }
+
+            const char = core.newChar(rand);
+            const out = try fmtChar(char.i, core.mode);
+
+            core.setCell(
+                start_w + i,
+                start_h,
+                char.color,
+                char.bg,
+                out,
+            );
+        }
+
+        _ = tb.tb_present();
+    }
+}
+
 fn animation(handler: *Handler, core: *Core) !void {
     var prng = std.rand.DefaultPrng.init(if (core.debug)
         42
@@ -608,6 +684,8 @@ fn animation(handler: *Handler, core: *Core) !void {
     while (handler.halt) {
         std.time.sleep(FRAME);
     }
+
+    if (!core.debug and handler.duration == 0) try intro(core, rand);
 
     while (core.active) {
         try printCells(core, handler, rand);
