@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2024-10-05
+
+### Features
+
+- Show default values
+- Add intro
+- Add intro border
+
+### Testing
+
+- Fix live cases
+
 ## [0.7.0] - 2024-09-23
 
 ### Bug Fixes
