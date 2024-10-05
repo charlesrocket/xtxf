@@ -601,8 +601,11 @@ fn intro(
     core: *Core,
     rand: std.rand.Random,
 ) !void {
-    const start_h = core.height / 2;
     const start_w = (core.width / 2) - 2;
+    const start_h = core.height / 2;
+    var w: u32 = 0;
+    var h: u32 = 0;
+    var c = "│";
 
     for (0..25) |frames| {
         std.time.sleep(FRAME);
@@ -613,7 +616,7 @@ fn intro(
                 core.setCell(
                     start_w + i,
                     start_h,
-                    @intFromEnum(core.color),
+                    @intFromEnum(core.color) | tb.TB_BOLD,
                     core.bg,
                     "X",
                 );
@@ -625,7 +628,7 @@ fn intro(
                 core.setCell(
                     start_w + i,
                     start_h,
-                    @intFromEnum(core.color),
+                    @intFromEnum(core.color) | tb.TB_BOLD,
                     core.bg,
                     "T",
                 );
@@ -637,7 +640,7 @@ fn intro(
                 core.setCell(
                     start_w + i,
                     start_h,
-                    @intFromEnum(core.color),
+                    @intFromEnum(core.color) | tb.TB_BOLD,
                     core.bg,
                     "X",
                 );
@@ -649,7 +652,7 @@ fn intro(
                 core.setCell(
                     start_w + i,
                     start_h,
-                    @intFromEnum(core.color),
+                    @intFromEnum(core.color) | tb.TB_BOLD,
                     core.bg,
                     "F",
                 );
@@ -669,6 +672,54 @@ fn intro(
             );
         }
 
+        switch (frames) {
+            0 => {
+                w = start_w - 2;
+                h = start_h;
+                c = "│";
+            },
+            1, 17 => {
+                h = h - 1;
+                c = "┌";
+            },
+            2, 3, 4, 5, 6, 18, 19, 20, 21, 22 => {
+                w = w + 1;
+                c = "─";
+            },
+            7, 23 => {
+                w = w + 2;
+                c = "┐";
+            },
+            8, 24 => {
+                h = h + 1;
+                c = "│";
+            },
+            9, 25 => {
+                h = h + 1;
+                c = "┘";
+            },
+            10, 11, 12, 13, 14 => {
+                w = w - 1;
+                c = "─";
+            },
+            15 => {
+                w = w - 2;
+                c = "└";
+            },
+            16 => {
+                h = h - 1;
+                c = "│";
+            },
+            else => {},
+        }
+
+        core.setCell(
+            w,
+            h,
+            @intFromEnum(core.color),
+            core.bg,
+            c,
+        );
         _ = tb.tb_present();
     }
 }
