@@ -109,7 +109,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "style",
-            .description = "Set output style " ++ genVals(Style, 0) ++ ".",
+            .description = "Set the output style " ++ genVals(Style, 0) ++ ".",
             .short_name = 's',
             .long_name = "style",
             .val = ValueT.ofType(Style, .{
@@ -120,7 +120,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "mode",
-            .description = "Set symbol mode " ++ genVals(Mode, 0) ++ ".",
+            .description = "Symbol mode " ++ genVals(Mode, 0) ++ ".",
             .short_name = 'm',
             .long_name = "mode",
             .val = ValueT.ofType(Mode, .{
@@ -143,7 +143,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "time",
-            .description = "Set duration in seconds.",
+            .description = "Set the duration in seconds.",
             .short_name = 't',
             .long_name = "time",
             .val = ValueT.ofType(u32, .{
@@ -153,7 +153,7 @@ pub const setup_cmd: CommandT = .{
         },
         .{
             .name = "speed",
-            .description = "Set speed " ++ genVals(Speed, 1) ++ ".",
+            .description = "Set the output speed " ++ genVals(Speed, 1) ++ ".",
             .long_name = "speed",
             .val = ValueT.ofType(Speed, .{
                 .name = "speed_val",
