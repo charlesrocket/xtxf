@@ -98,7 +98,7 @@ pub const setup_cmd: CommandT = .{
     .opts = &.{
         .{
             .name = "color",
-            .description = "Set output color " ++ genVals(Color, 0) ++ ".",
+            .description = "Set the output color " ++ genVals(Color, 0) ++ ".",
             .short_name = 'c',
             .long_name = "color",
             .val = ValueT.ofType(Color, .{
