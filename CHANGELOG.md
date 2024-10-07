@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2024-10-07
+
+### Bug Fixes
+
+- Correct option descriptions
+- Correct `color` description
+- Rename `accents` value
+
 ## [0.8.0] - 2024-10-05
 
 ### Features
