@@ -424,10 +424,6 @@ const Handler = struct {
             }
         }
     }
-
-    fn init() Handler {
-        return .{};
-    }
 };
 
 fn printCells(
@@ -749,7 +745,7 @@ pub fn main() !void {
     defer _ = gpallocator.deinit();
 
     var core = Core.init(gpallocator.allocator());
-    var handler = Handler.init();
+    var handler = Handler{};
 
     const stdout = std.io.getStdOut().writer();
     const main_cmd = try setup_cmd.init(core.allocator, .{});
