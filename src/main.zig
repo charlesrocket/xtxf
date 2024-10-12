@@ -603,12 +603,12 @@ fn intro(
     var h: u32 = 0;
     var c = "│";
 
-    for (0..25) |frames| {
+    for (0..25) |frm| {
         std.time.sleep(FRAME);
         _ = tb.tb_clear();
 
         char: for (0..4) |i| {
-            if ((frames > 5) and i == 0) {
+            if ((frm > 5) and i == 0) {
                 core.setCell(
                     start_w + i,
                     start_h,
@@ -620,7 +620,7 @@ fn intro(
                 continue :char;
             }
 
-            if ((frames > 10) and i == 1) {
+            if ((frm > 10) and i == 1) {
                 core.setCell(
                     start_w + i,
                     start_h,
@@ -632,7 +632,7 @@ fn intro(
                 continue :char;
             }
 
-            if ((frames > 15) and i == 2) {
+            if ((frm > 15) and i == 2) {
                 core.setCell(
                     start_w + i,
                     start_h,
@@ -644,7 +644,7 @@ fn intro(
                 continue :char;
             }
 
-            if ((frames > 20) and i == 3) {
+            if ((frm > 20) and i == 3) {
                 core.setCell(
                     start_w + i,
                     start_h,
@@ -668,7 +668,7 @@ fn intro(
             );
         }
 
-        switch (frames) {
+        switch (frm) {
             0 => {
                 w = start_w - 2;
                 h = start_h;
