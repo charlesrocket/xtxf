@@ -76,7 +76,6 @@ pub const Color = enum(u32) {
 };
 
 var sbuf: [2]u8 = undefined;
-var mbuf: [3]u8 = undefined;
 var lbuf: [4]u8 = undefined;
 
 const Char = struct {
@@ -560,7 +559,7 @@ fn printCells(
 fn fmtChar(int: u32, mode: Mode) ![:0]u8 {
     return switch (mode) {
         .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{int}),
-        .hexadecimal => try std.fmt.bufPrintZ(&mbuf, "{c}", .{assets.hex_chars[int]}),
+        .hexadecimal => try std.fmt.bufPrintZ(&sbuf, "{c}", .{assets.hex_chars[int]}),
         .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[int]}),
     };
 }
