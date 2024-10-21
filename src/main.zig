@@ -140,11 +140,19 @@ const Column = struct {
         }
     }
 
-    fn deactivate(self: *Column, core: *Core) void {
+    fn deactivate(
+        self: *Column,
+        core: *Core,
+        rand: std.rand.Random,
+    ) void {
         if (self.active) {
-            self.active = false;
-            self.cooldown = core.height * 2;
             core.active_columns -= 1;
+            self.active = false;
+            self.cooldown =
+                core.height * rand.uintLessThan(
+                u32,
+                3,
+            );
         }
     }
 };
@@ -499,7 +507,7 @@ fn printCells(
                             u32,
                             core.width,
                         )
-                    ].?.deactivate(core);
+                    ].?.deactivate(core, rand);
 
                     core.columns.?.items[
                         rand.uintLessThan(
