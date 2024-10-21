@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.2] - 2024-10-21
+
+### Bug Fixes
+
+- Use max string length
+- Increase `Column.cooldown`
+
+### Refactor
+
+- Drop `Handler.init()`
+- `frames` -> `frm`
+- Drop `mbuf`
+
+### Styling
+
+- Fix formatting
+
 ## [0.8.1] - 2024-10-07
 
 ### Bug Fixes
