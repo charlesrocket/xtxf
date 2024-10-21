@@ -86,6 +86,7 @@ const Char = struct {
 
 const Column = struct {
     active: bool = false,
+    dimmed: bool = false,
     cooldown: u32 = 0,
     chars: std.ArrayList(?Char),
 
@@ -125,7 +126,7 @@ const Column = struct {
         core: *Core,
         rand: std.rand.Random,
     ) !void {
-        const char = core.newChar(rand);
+        const char = core.newChar(self.dimmed, rand);
         try self.chars.insert(0, char);
     }
 
@@ -133,8 +134,17 @@ const Column = struct {
         try self.chars.insert(0, null);
     }
 
-    fn activate(self: *Column, core: *Core) void {
+    fn activate(
+        self: *Column,
+        core: *Core,
+        rand: std.rand.Random,
+    ) void {
         if (self.cooldown == 0) {
+            self.dimmed = if ((std.mem.count(
+                Accent,
+                core.accents.?,
+                &[_]Accent{Accent.dim},
+            )) > 0) rand.boolean() else false;
             self.active = true;
             core.active_columns += 1;
         }
@@ -315,7 +325,11 @@ const Core = struct {
         }
     }
 
-    fn newChar(self: *Core, rand: std.rand.Random) Char {
+    fn newChar(
+        self: *Core,
+        dimmed: bool,
+        rand: std.rand.Random,
+    ) Char {
         const rand_int = switch (self.mode) {
             .binary => rand.int(u1),
             .decimal => rand.uintLessThan(u4, 10),
@@ -323,7 +337,11 @@ const Core = struct {
             .textual => rand.uintLessThan(u8, 73),
         };
 
-        var color = @intFromEnum(self.color);
+        var color = if (dimmed)
+            @intFromEnum(self.color) | tb.TB_DIM
+        else
+            @intFromEnum(self.color);
+
         var bg = self.bg;
 
         if (self.accents) |accents| {
@@ -475,7 +493,7 @@ fn printCells(
                             }
                         }
 
-                        const char = core.newChar(rand);
+                        const char = core.newChar(false, rand);
                         const out = try fmtChar(char.i, core.mode);
 
                         core.setCell(w, h, char.color, char.bg, out);
@@ -496,7 +514,7 @@ fn printCells(
                                 try core.columns.?.items[w].?.addChar(core, rand);
                         }
 
-                        if (!core.debug) core.columns.?.items[w].?.activate(core);
+                        if (!core.debug) core.columns.?.items[w].?.activate(core, rand);
                     }
                 }
 
@@ -514,7 +532,7 @@ fn printCells(
                             u32,
                             core.width,
                         )
-                    ].?.activate(core);
+                    ].?.activate(core, rand);
                 }
 
                 for (0..core.width) |w| {
@@ -694,7 +712,7 @@ fn intro(
                 continue :char;
             }
 
-            const char = core.newChar(rand);
+            const char = core.newChar(false, rand);
             const out = try fmtChar(char.i, core.mode);
 
             core.setCell(
