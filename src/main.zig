@@ -529,11 +529,7 @@ fn printCells(
 
                         // max string length
                         if (str_len < @as(u32, core.height) / 2) {
-                            if (str_len < 12) {
-                                try core.columns.?.items[w].?.addChar(core, rand);
-                            } else {
-                                try core.columns.?.items[w].?.addNull();
-                            }
+                            try core.columns.?.items[w].?.addChar(core, rand);
                         } else {
                             try core.columns.?.items[w].?.addNull();
                         }
