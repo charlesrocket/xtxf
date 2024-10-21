@@ -91,7 +91,8 @@ const Column = struct {
 
     fn init(allocator: std.mem.Allocator, size: usize) Column {
         return .{
-            .chars = std.ArrayList(?Char).initCapacity(allocator, size) catch
+            .chars = std.ArrayList(?Char)
+                .initCapacity(allocator, size) catch
                 undefined,
         };
     }
@@ -184,7 +185,10 @@ const Core = struct {
                 self.debug = true;
                 _ = tb.tb_shutdown();
 
-                log.warn("Unable to read terminal size! Debug mode activated.", .{});
+                log.warn(
+                    "Unable to read terminal size! Debug mode activated.",
+                    .{},
+                );
             }
         }
 
@@ -194,12 +198,20 @@ const Core = struct {
 
     fn updateWidthSec(self: *Core, adv: u32) !void {
         self.width_gaps.?.clearAndFree();
-        self.width_gaps = try getNthValues(self.width, adv, self.allocator);
+        self.width_gaps = try getNthValues(
+            self.width,
+            adv,
+            self.allocator,
+        );
     }
 
     fn updateHeightSec(self: *Core, adv: u32) !void {
         self.height_gaps.?.clearAndFree();
-        self.height_gaps = try getNthValues(self.height, adv, self.allocator);
+        self.height_gaps = try getNthValues(
+            self.height,
+            adv,
+            self.allocator,
+        );
     }
 
     fn updateColumns(self: *Core) !void {
@@ -482,8 +494,19 @@ fn printCells(
 
                 // cycle random columns
                 if (rand.boolean()) {
-                    core.columns.?.items[rand.uintLessThan(u32, core.width)].?.deactivate(core);
-                    core.columns.?.items[rand.uintLessThan(u32, core.width)].?.activate(core);
+                    core.columns.?.items[
+                        rand.uintLessThan(
+                            u32,
+                            core.width,
+                        )
+                    ].?.deactivate(core);
+
+                    core.columns.?.items[
+                        rand.uintLessThan(
+                            u32,
+                            core.width,
+                        )
+                    ].?.activate(core);
                 }
 
                 for (0..core.width) |w| {
@@ -558,9 +581,21 @@ fn printCells(
 
 fn fmtChar(int: u32, mode: Mode) ![:0]u8 {
     return switch (mode) {
-        .binary, .decimal => try std.fmt.bufPrintZ(&sbuf, "{d}", .{int}),
-        .hexadecimal => try std.fmt.bufPrintZ(&sbuf, "{c}", .{assets.hex_chars[int]}),
-        .textual => try std.fmt.bufPrintZ(&lbuf, "{u}", .{assets.tex_chars[int]}),
+        .binary, .decimal => try std.fmt.bufPrintZ(
+            &sbuf,
+            "{d}",
+            .{int},
+        ),
+        .hexadecimal => try std.fmt.bufPrintZ(
+            &sbuf,
+            "{c}",
+            .{assets.hex_chars[int]},
+        ),
+        .textual => try std.fmt.bufPrintZ(
+            &lbuf,
+            "{u}",
+            .{assets.tex_chars[int]},
+        ),
     };
 }
 
@@ -800,7 +835,10 @@ pub fn main() !void {
 
     if (main_cmd.checkFlag("version")) {
         // TODO add SemVer string
-        try stdout.print("{s}{s}{s}", .{ "xtxf version ", VERSION, "\n" });
+        try stdout.print(
+            "{s}{s}{s}",
+            .{ "xtxf version ", VERSION, "\n" },
+        );
     }
 
     if (!(main_cmd.checkFlag("version") or usage_help_called)) {
