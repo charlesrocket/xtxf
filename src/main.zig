@@ -143,7 +143,7 @@ const Column = struct {
     fn deactivate(self: *Column, core: *Core) void {
         if (self.active) {
             self.active = false;
-            self.cooldown = core.height;
+            self.cooldown = core.height * 2;
             core.active_columns -= 1;
         }
     }
