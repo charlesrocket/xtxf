@@ -334,11 +334,7 @@ const Core = struct {
             .textual => self.rand.?.uintLessThan(u8, 73),
         };
 
-        var color = if (dimmed)
-            @intFromEnum(self.color) | tb.TB_DIM
-        else
-            @intFromEnum(self.color);
-
+        var color = @intFromEnum(self.color);
         var bg = self.bg;
 
         if (self.accents) |accents| {
@@ -351,7 +347,11 @@ const Core = struct {
                         if (self.rand.?.boolean()) color = color | tb.TB_BRIGHT;
                     },
                     .dim => {
-                        if (self.rand.?.boolean()) color = color | tb.TB_DIM;
+                        if (dimmed) {
+                            color = color | tb.TB_DIM;
+                        } else {
+                            if (self.rand.?.boolean()) color = color | tb.TB_DIM;
+                        }
                     },
                     .pulse => {
                         const blank = @mod(self.rand.?.int(u8), 255);
