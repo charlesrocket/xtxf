@@ -124,9 +124,8 @@ const Column = struct {
     fn addChar(
         self: *Column,
         core: *Core,
-        rand: std.rand.Random,
     ) !void {
-        const char = core.newChar(self.dimmed, rand);
+        const char = core.newChar(self.dimmed);
         try self.chars.insert(0, char);
     }
 
@@ -137,14 +136,13 @@ const Column = struct {
     fn activate(
         self: *Column,
         core: *Core,
-        rand: std.rand.Random,
     ) void {
         if (self.cooldown == 0) {
             self.dimmed = if ((std.mem.count(
                 Accent,
                 core.accents.?,
                 &[_]Accent{Accent.dim},
-            )) > 0) rand.boolean() else false;
+            )) > 0) core.rand.?.boolean() else false;
             self.active = true;
             core.active_columns += 1;
         }
@@ -153,13 +151,12 @@ const Column = struct {
     fn deactivate(
         self: *Column,
         core: *Core,
-        rand: std.rand.Random,
     ) void {
         if (self.active) {
             core.active_columns -= 1;
             self.active = false;
             self.cooldown =
-                core.height * rand.uintLessThan(
+                core.height * core.rand.?.uintLessThan(
                 u32,
                 3,
             );
@@ -169,6 +166,7 @@ const Column = struct {
 
 const Core = struct {
     allocator: std.mem.Allocator,
+    rand: ?std.rand.Random = null,
     mutex: Mutex = Mutex{},
     mode: Mode = .binary,
     color: Color = .default,
@@ -328,13 +326,12 @@ const Core = struct {
     fn newChar(
         self: *Core,
         dimmed: bool,
-        rand: std.rand.Random,
     ) Char {
         const rand_int = switch (self.mode) {
-            .binary => rand.int(u1),
-            .decimal => rand.uintLessThan(u4, 10),
-            .hexadecimal => rand.int(u4),
-            .textual => rand.uintLessThan(u8, 73),
+            .binary => self.rand.?.int(u1),
+            .decimal => self.rand.?.uintLessThan(u4, 10),
+            .hexadecimal => self.rand.?.int(u4),
+            .textual => self.rand.?.uintLessThan(u8, 73),
         };
 
         var color = if (dimmed)
@@ -348,16 +345,16 @@ const Core = struct {
             for (accents) |accent| {
                 switch (accent) {
                     .bold => {
-                        if (rand.boolean()) color = color | tb.TB_BOLD;
+                        if (self.rand.?.boolean()) color = color | tb.TB_BOLD;
                     },
                     .bright => {
-                        if (rand.boolean()) color = color | tb.TB_BRIGHT;
+                        if (self.rand.?.boolean()) color = color | tb.TB_BRIGHT;
                     },
                     .dim => {
-                        if (rand.boolean()) color = color | tb.TB_DIM;
+                        if (self.rand.?.boolean()) color = color | tb.TB_DIM;
                     },
                     .pulse => {
-                        const blank = @mod(rand.int(u8), 255);
+                        const blank = @mod(self.rand.?.int(u8), 255);
                         // small probability
                         if (blank >= 254) {
                             bg = bg | tb.TB_REVERSE;
@@ -466,7 +463,6 @@ const Handler = struct {
 fn printCells(
     core: *Core,
     handler: *Handler,
-    rand: std.rand.Random,
 ) !void {
     handler.mutex.lock();
     defer handler.mutex.unlock();
@@ -493,7 +489,7 @@ fn printCells(
                             }
                         }
 
-                        const char = core.newChar(false, rand);
+                        const char = core.newChar(false);
                         const out = try fmtChar(char.i, core.mode);
 
                         core.setCell(w, h, char.color, char.bg, out);
@@ -511,51 +507,51 @@ fn printCells(
                             if (!core.debug)
                                 try core.columns.?.items[w].?.addNull()
                             else
-                                try core.columns.?.items[w].?.addChar(core, rand);
+                                try core.columns.?.items[w].?.addChar(core);
                         }
 
-                        if (!core.debug) core.columns.?.items[w].?.activate(core, rand);
+                        if (!core.debug) core.columns.?.items[w].?.activate(core);
                     }
                 }
 
                 // cycle random columns
-                if (rand.boolean()) {
+                if (core.rand.?.boolean()) {
                     core.columns.?.items[
-                        rand.uintLessThan(
+                        core.rand.?.uintLessThan(
                             u32,
                             core.width,
                         )
-                    ].?.deactivate(core, rand);
+                    ].?.deactivate(core);
 
                     core.columns.?.items[
-                        rand.uintLessThan(
+                        core.rand.?.uintLessThan(
                             u32,
                             core.width,
                         )
-                    ].?.activate(core, rand);
+                    ].?.activate(core);
                 }
 
                 for (0..core.width) |w| {
                     core.columns.?.items[w].?.chill();
-                    if (rand.boolean()) continue;
+                    if (core.rand.?.boolean()) continue;
                     _ = core.columns.?.items[w].?.chars.pop();
 
                     if (core.columns.?.items[w].?.active) {
-                        if (rand.uintLessThan(u3, 7) < 3) {
+                        if (core.rand.?.uintLessThan(u3, 7) < 3) {
                             try core.columns.?.items[w].?.addNull();
                             continue;
                         }
 
                         const str_len = core.columns.?.items[w].?.strLen();
 
-                        if ((str_len == 0) and rand.boolean()) {
+                        if ((str_len == 0) and core.rand.?.boolean()) {
                             try core.columns.?.items[w].?.addNull();
                             continue;
                         }
 
                         // max string length
                         if (str_len < @as(u32, core.height) / 2) {
-                            try core.columns.?.items[w].?.addChar(core, rand);
+                            try core.columns.?.items[w].?.addChar(core);
                         } else {
                             try core.columns.?.items[w].?.addNull();
                         }
@@ -651,7 +647,6 @@ fn checkSec(arr: *std.ArrayListAligned(u32, null), value: usize) bool {
 
 fn intro(
     core: *Core,
-    rand: std.rand.Random,
 ) !void {
     const start_w = (core.width / 2) - 2;
     const start_h = core.height / 2;
@@ -712,7 +707,7 @@ fn intro(
                 continue :char;
             }
 
-            const char = core.newChar(false, rand);
+            const char = core.newChar(false);
             const out = try fmtChar(char.i, core.mode);
 
             core.setCell(
@@ -777,21 +772,14 @@ fn intro(
 }
 
 fn animation(handler: *Handler, core: *Core) !void {
-    var prng = std.rand.DefaultPrng.init(if (core.debug)
-        42
-    else
-        @as(u64, @intCast(std.time.milliTimestamp())));
-
-    const rand = prng.random();
-
     while (handler.halt) {
         std.time.sleep(FRAME);
     }
 
-    if (!core.debug and handler.duration == 0) try intro(core, rand);
+    if (!core.debug and handler.duration == 0) try intro(core);
 
     while (core.active) {
-        try printCells(core, handler, rand);
+        try printCells(core, handler);
         errdefer core.shutdown();
     }
 }
@@ -863,6 +851,17 @@ pub fn main() !void {
         );
     }
 
+    var prng =
+        std.rand.DefaultPrng.init(if (core.debug)
+        42
+    else
+        @as(
+            u64,
+            @intCast(std.time.milliTimestamp()),
+        ));
+
+    core.rand = prng.random();
+
     if (!(main_cmd.checkFlag("version") or usage_help_called)) {
         try core.start();
 
@@ -898,13 +897,17 @@ test "column" {
     var prng = std.rand.DefaultPrng.init(1337);
     const rand = prng.random();
 
-    var core = Core{ .allocator = std.testing.allocator };
+    var core = Core{
+        .allocator = std.testing.allocator,
+        .rand = rand,
+    };
+
     try core.start();
 
     const column = Column.init(core.allocator, core.height);
     try core.columns.?.append(column);
-    try core.columns.?.items[0].?.addChar(&core, rand);
-    try core.columns.?.items[0].?.addChar(&core, rand);
+    try core.columns.?.items[0].?.addChar(&core);
+    try core.columns.?.items[0].?.addChar(&core);
     try core.columns.?.items[0].?.addNull();
 
     try std.testing.expect(core.columns.?.items[0].?.chars.items.len == 3);
