@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2024-11-12
+
+### Features
+
+- Switch to dynamic cooldown
+- Implement dimmed columns
+
+### Refactor
+
+- Move `rand` into `Core`
+- Fix redundant `TB_DIM`
+
+### Styling
+
+- Improve formatting
+
 ## [0.8.2] - 2024-10-21
 
 ### Bug Fixes
