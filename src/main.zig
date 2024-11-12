@@ -510,7 +510,8 @@ fn printCells(
                                 try core.columns.?.items[w].?.addChar(core);
                         }
 
-                        if (!core.debug) core.columns.?.items[w].?.activate(core);
+                        if (!core.debug) core.columns.?
+                            .items[w].?.activate(core);
                     }
                 }
 
@@ -562,14 +563,25 @@ fn printCells(
 
                 for (0..core.columns.?.items.len) |w| {
                     h_loop: for (0..core.height) |h| {
-                        const column_char = core.columns.?.items[w].?.chars.items[h];
+                        const column_char = core.columns.?
+                            .items[w].?.chars.items[h];
+
                         if (column_char == null) {
                             continue :h_loop;
                         }
 
-                        const out: [:0]u8 = try fmtChar(column_char.?.i, core.mode);
+                        const out: [:0]u8 = try fmtChar(
+                            column_char.?.i,
+                            core.mode,
+                        );
 
-                        core.setCell(w, h, column_char.?.color, column_char.?.bg, out);
+                        core.setCell(
+                            w,
+                            h,
+                            column_char.?.color,
+                            column_char.?.bg,
+                            out,
+                        );
                     }
                 }
             },
