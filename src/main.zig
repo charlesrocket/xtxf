@@ -138,11 +138,14 @@ const Column = struct {
         core: *Core,
     ) void {
         if (self.cooldown == 0) {
-            self.dimmed = if ((std.mem.count(
-                Accent,
-                core.accents.?,
-                &[_]Accent{Accent.dim},
-            )) > 0) core.rand.?.boolean() else false;
+            if (core.accents != null) {
+                self.dimmed = if ((std.mem.count(
+                    Accent,
+                    core.accents.?,
+                    &[_]Accent{Accent.dim},
+                )) > 0) core.rand.?.boolean() else false;
+            }
+
             self.active = true;
             core.active_columns += 1;
         }
