@@ -35,7 +35,13 @@ fn runner(args: [4][]const u8) !Proc {
 }
 
 test "default" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=default", "-c=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=default",
+        "-c=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -47,7 +53,13 @@ test "default" {
 }
 
 test "accents" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=default", "--accents=bold,dim,bright,pulse" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=default",
+        "--accents=bold,dim,bright,pulse",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -59,7 +71,13 @@ test "accents" {
 }
 
 test "speed" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=default", "--speed=slow" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=default",
+        "--speed=slow",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -71,7 +89,13 @@ test "speed" {
 }
 
 test "mode: decimal" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-m=decimal", "-s=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-m=decimal",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -83,7 +107,13 @@ test "mode: decimal" {
 }
 
 test "mode: hexadecimal" {
-    const argv = [_][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-m=hexadecimal", "-s=default" };
+    const argv = [_][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-m=hexadecimal",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -95,7 +125,13 @@ test "mode: hexadecimal" {
 }
 
 test "mode: textual" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-m=textual", "-s=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-m=textual",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -107,7 +143,13 @@ test "mode: textual" {
 }
 
 test "color: red" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-c=red", "-s=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-c=red",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -119,7 +161,13 @@ test "color: red" {
 }
 
 test "color: green" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-c=green", "-s=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-c=green",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -131,7 +179,13 @@ test "color: green" {
 }
 
 test "color: blue" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-c=blue", "-s=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-c=blue",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -143,7 +197,13 @@ test "color: blue" {
 }
 
 test "color: yellow" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-c=yellow", "-s=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-c=yellow",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -155,7 +215,13 @@ test "color: yellow" {
 }
 
 test "color: magenta" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-c=magenta", "-s=default" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-c=magenta",
+        "-s=default",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -167,7 +233,13 @@ test "color: magenta" {
 }
 
 test "style: columns" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=columns", "-m=decimal" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=columns",
+        "-m=decimal",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -179,7 +251,13 @@ test "style: columns" {
 }
 
 test "style: crypto" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=crypto", "-m=hexadecimal" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=crypto",
+        "-m=hexadecimal",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -191,7 +269,13 @@ test "style: crypto" {
 }
 
 test "style: grid" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=grid", "-m=binary" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=grid",
+        "-m=binary",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -203,7 +287,13 @@ test "style: grid" {
 }
 
 test "style: blocks" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=blocks", "-m=decimal" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=blocks",
+        "-m=decimal",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
@@ -215,7 +305,13 @@ test "style: blocks" {
 }
 
 test "style: rain" {
-    const argv = [4][]const u8{ exe_path, if (live) "--time=1" else "--debug", "-s=rain", "-m=textual" };
+    const argv = [4][]const u8{
+        exe_path,
+        if (live) "--time=1" else "--debug",
+        "-s=rain",
+        "-m=textual",
+    };
+
     const proc = try runner(argv);
     defer {
         std.testing.allocator.free(proc.out);
