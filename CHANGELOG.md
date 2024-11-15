@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.1] - 2024-11-15
+
+### Bug Fixes
+
+- Allow empty `core.accents`
+
+### Styling
+
+- Fix test/cli formatting
+
 ## [0.9.0] - 2024-11-12
 
 ### Features
