@@ -134,6 +134,7 @@ pub const setup_cmd: CommandT = .{
             .description = "Enable symbol accentuations " ++ genVals(Accent, null) ++ ".",
             .short_name = 'a',
             .long_name = "accents",
+            .allow_empty = true,
             .val = ValueT.ofType(Accent, .{
                 .name = "accents_list",
                 .alias_child_type = "[string]",

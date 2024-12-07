@@ -856,6 +856,13 @@ pub fn main() !void {
 
     if (opts.get("accents")) |accents| {
         core.accents = accents.val.getAllAs(Accent) catch null;
+        if (accents.val.isEmpty()) {
+            core.accents = &[_]Accent{
+                .bright,
+                .bold,
+                .dim,
+            };
+        }
     }
 
     if (main_cmd.checkFlag("version")) {
