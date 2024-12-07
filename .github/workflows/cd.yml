@@ -78,7 +78,7 @@ jobs:
           xtxf-${{ matrix.target }}.tar.gz
 
       - name: Attest
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: 'xtxf-${{ matrix.target}}.tar.gz'
 
@@ -132,7 +132,7 @@ jobs:
           xtxf-${{ matrix.target }}.tar.gz
 
       - name: Attest
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: 'xtxf-${{ matrix.target }}.tar.gz'
 
