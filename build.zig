@@ -30,7 +30,7 @@ pub fn build(b: *std.Build) void {
     }
 
     exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
-    exe.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
+    exe.addCSourceFile(.{ .file = b.path("src/termbox.c") });
     exe.linkLibC();
     exe.root_module.addImport("cova", cova_mod);
     exe.root_module.addOptions("build_options", build_options);
@@ -57,7 +57,7 @@ pub fn build(b: *std.Build) void {
     });
 
     unit_tests.addIncludePath(b.dependency("termbox2", .{}).path("."));
-    unit_tests.addCSourceFile(.{ .file = b.path("src/termbox_impl.c") });
+    unit_tests.addCSourceFile(.{ .file = b.path("src/termbox.c") });
     unit_tests.linkLibC();
 
     const test_step = b.step("test", "Run all tests");
