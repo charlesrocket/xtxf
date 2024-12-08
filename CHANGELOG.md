@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2024-12-08
+
+### Bug Fixes
+
+- Update `opt_usage`
+
+### Documentation
+
+- Update example command
+
+### Features
+
+- Use empty `accents` value
+
+### Operations
+
+- Bump codecov/codecov-action from 4 to 5
+- Bump actions/attest-build-provenance from 1 to 2
+
+### Refactor
+
+- Move termbox source
+
+### Build
+
+- Bump cova to `8f12e48`
+- Bump cova to `a6a834c`
+- Bump termbox to `02e28d0`
+
 ## [0.9.1] - 2024-11-15
 
 ### Bug Fixes
