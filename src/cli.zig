@@ -68,6 +68,7 @@ pub const CommandT = cova.Command.Custom(.{
     }.usage,
     .opt_config = .{
         .usage_fmt = assets.opt_usage,
+        .name_sep_fmt = ", ",
     },
     .val_config = .{
         .custom_types = &.{
