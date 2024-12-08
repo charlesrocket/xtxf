@@ -86,7 +86,7 @@ pub const setup_cmd: CommandT = .{
     .name = "xtxf",
     .description = "2D matrix screensaver.",
     .examples = &.{
-        "xtxf -m decimal -s crypto -a bold,dim",
+        "xtxf -a -m decimal -s crypto",
     },
     .sub_cmds_mandatory = false,
     .sub_cmds = &.{
