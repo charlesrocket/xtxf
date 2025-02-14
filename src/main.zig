@@ -176,6 +176,7 @@ const Core = struct {
     style: Style = .default,
     speed: Speed = .normal,
     accents: ?[]const Accent = null,
+    bare: bool = false,
     debug: bool = false,
     active: bool = false,
     rendering: bool = false,
@@ -791,7 +792,7 @@ fn animation(handler: *Handler, core: *Core) !void {
         std.time.sleep(FRAME);
     }
 
-    if (!core.debug and handler.duration == 0) try intro(core);
+    if (!core.debug and !core.bare and handler.duration == 0) try intro(core);
 
     while (core.active) {
         try printCells(core, handler);
@@ -832,6 +833,10 @@ pub fn main() !void {
 
     if (opts.get("debug")) |debug| {
         core.debug = try debug.val.getAs(bool);
+    }
+
+    if (opts.get("bare")) |bare| {
+        core.bare = try bare.val.getAs(bool);
     }
 
     if (opts.get("color")) |color| {

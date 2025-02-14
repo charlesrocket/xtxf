@@ -164,6 +164,15 @@ pub const setup_cmd: CommandT = .{
             }),
         },
         .{
+            .name = "bare",
+            .description = "Disable opening sequence.",
+            .long_name = "bare",
+            .val = ValueT.ofType(bool, .{
+                .name = "bare_flag",
+                .default_val = false,
+            }),
+        },
+        .{
             .name = "debug",
             .description = "Enable debug mode.",
             .long_name = "debug",
