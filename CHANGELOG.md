@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.0] - 2025-02-15
+
+### Bug Fixes
+
+- Set separator format
+
+### Features
+
+- Add `bare` option
+
+### Miscellaneous tasks
+
+- Update LICENSE
+
+### Operations
+
+- Run coverage in jammy
+
 ## [0.10.0] - 2024-12-08
 
 ### Bug Fixes
