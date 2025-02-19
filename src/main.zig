@@ -924,14 +924,12 @@ test "column" {
     var prng = std.rand.DefaultPrng.init(1337);
     const rand = prng.random();
 
-    var core = Core{
-        .allocator = std.testing.allocator,
-        .rand = rand,
-    };
+    var core = Core{ .allocator = std.testing.allocator, .rand = rand };
 
     try core.start();
 
     const column = Column.init(core.allocator, core.height);
+
     try core.columns.?.append(column);
     try core.columns.?.items[0].?.addChar(&core);
     try core.columns.?.items[0].?.addChar(&core);
