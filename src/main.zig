@@ -307,6 +307,11 @@ const Core = struct {
         try self.updateStyle();
     }
 
+    fn present(self: *Core) void {
+        if (!self.debug) _ = tb.tb_present() else self.active = false;
+        self.setRendering(false);
+    }
+
     fn shutdown(self: *Core) void {
         if (!self.debug) _ = tb.tb_shutdown();
 
@@ -499,6 +504,13 @@ fn printCells(
                         core.setCell(w, h, char.color, char.bg, out);
                     }
                 }
+
+                core.present();
+                std.time.sleep(switch (core.speed) {
+                    .slow => FRAME * 6,
+                    .normal => FRAME * 2,
+                    .fast => FRAME,
+                });
             },
             .rain => {
                 // init columns
@@ -588,21 +600,8 @@ fn printCells(
                         );
                     }
                 }
-            },
-        }
 
-        if (!core.debug) _ = tb.tb_present() else core.active = false;
-        core.setRendering(false);
-
-        switch (core.style) {
-            .default, .columns, .crypto, .grid, .blocks => {
-                std.time.sleep(switch (core.speed) {
-                    .slow => FRAME * 6,
-                    .normal => FRAME * 2,
-                    .fast => FRAME,
-                });
-            },
-            .rain => {
+                core.present();
                 std.time.sleep(switch (core.speed) {
                     .slow => FRAME * 20,
                     .normal => FRAME * 3,
