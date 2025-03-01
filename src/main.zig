@@ -408,6 +408,43 @@ const Core = struct {
             });
         }
     }
+
+    fn initColumns(self: *Core) !void {
+        if (self.columns.?.items.len == 0) {
+            for (0..self.width) |w| {
+                const column = Column.init(self.allocator, self.height);
+                try self.columns.?.append(column);
+
+                for (0..self.height) |_| {
+                    if (!self.debug)
+                        try self.columns.?.items[w].?.addNull()
+                    else
+                        try self.columns.?.items[w].?.addChar(self);
+                }
+
+                if (!self.debug) self.columns.?
+                    .items[w].?.activate(self);
+            }
+        }
+    }
+
+    fn cycleColumns(self: *Core) !void {
+        if (self.rand.?.boolean()) {
+            self.columns.?.items[
+                self.rand.?.uintLessThan(
+                    u32,
+                    self.width,
+                )
+            ].?.deactivate(self);
+
+            self.columns.?.items[
+                self.rand.?.uintLessThan(
+                    u32,
+                    self.width,
+                )
+            ].?.activate(self);
+        }
+    }
 };
 
 const Handler = struct {
@@ -513,40 +550,8 @@ fn printCells(
                 });
             },
             .rain => {
-                // init columns
-                if (core.columns.?.items.len == 0) {
-                    for (0..core.width) |w| {
-                        const column = Column.init(core.allocator, core.height);
-                        try core.columns.?.append(column);
-
-                        for (0..core.height) |_| {
-                            if (!core.debug)
-                                try core.columns.?.items[w].?.addNull()
-                            else
-                                try core.columns.?.items[w].?.addChar(core);
-                        }
-
-                        if (!core.debug) core.columns.?
-                            .items[w].?.activate(core);
-                    }
-                }
-
-                // cycle random columns
-                if (core.rand.?.boolean()) {
-                    core.columns.?.items[
-                        core.rand.?.uintLessThan(
-                            u32,
-                            core.width,
-                        )
-                    ].?.deactivate(core);
-
-                    core.columns.?.items[
-                        core.rand.?.uintLessThan(
-                            u32,
-                            core.width,
-                        )
-                    ].?.activate(core);
-                }
+                try core.initColumns();
+                try core.cycleColumns();
 
                 for (0..core.width) |w| {
                     core.columns.?.items[w].?.chill();
