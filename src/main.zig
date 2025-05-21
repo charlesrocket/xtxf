@@ -12,7 +12,7 @@ const cova = @import("cova");
 const cli = @import("cli.zig");
 const build_options = @import("build_options");
 
-pub const std_options = .{
+pub const std_options: std.Options = .{
     .log_level = switch (builtin.mode) {
         .Debug => .debug,
         else => .info,
@@ -169,7 +169,7 @@ const Column = struct {
 
 const Core = struct {
     allocator: std.mem.Allocator,
-    rand: ?std.rand.Random = null,
+    rand: ?std.Random = null,
     mutex: Mutex = Mutex{},
     mode: Mode = .binary,
     color: Color = .default,
@@ -883,7 +883,7 @@ pub fn main() !void {
     }
 
     var prng =
-        std.rand.DefaultPrng.init(if (core.debug)
+        std.Random.DefaultPrng.init(if (core.debug)
         42
     else
         @as(
@@ -925,7 +925,7 @@ pub fn main() !void {
 }
 
 test "column" {
-    var prng = std.rand.DefaultPrng.init(1337);
+    var prng = std.Random.DefaultPrng.init(1337);
     const rand = prng.random();
 
     var core = Core{ .allocator = std.testing.allocator, .rand = rand };
