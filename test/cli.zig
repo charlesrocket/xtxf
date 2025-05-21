@@ -17,19 +17,19 @@ fn runner(args: [4][]const u8) !Proc {
     proc.stdout_behavior = .Pipe;
     proc.stderr_behavior = .Pipe;
 
-    var stdout = std.ArrayList(u8).init(std.testing.allocator);
-    var stderr = std.ArrayList(u8).init(std.testing.allocator);
+    var stdout: std.ArrayListAlignedUnmanaged(u8, 1) = .empty;
+    var stderr: std.ArrayListAlignedUnmanaged(u8, 1) = .empty;
     defer {
-        stdout.deinit();
-        stderr.deinit();
+        stdout.deinit(std.testing.allocator);
+        stderr.deinit(std.testing.allocator);
     }
 
     try proc.spawn();
-    try proc.collectOutput(&stdout, &stderr, 13312);
+    try proc.collectOutput(std.testing.allocator, &stdout, &stderr, 13312);
 
     const term = try proc.wait();
-    const out = try stdout.toOwnedSlice();
-    const err = try stderr.toOwnedSlice();
+    const out = try stdout.toOwnedSlice(std.testing.allocator);
+    const err = try stderr.toOwnedSlice(std.testing.allocator);
 
     return Proc{ .term = term, .out = out, .err = err };
 }
