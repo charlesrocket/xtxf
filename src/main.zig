@@ -160,9 +160,9 @@ const Column = struct {
             self.active = false;
             self.cooldown =
                 core.height * core.rand.?.uintLessThan(
-                u32,
-                3,
-            );
+                    u32,
+                    3,
+                );
         }
     }
 };
@@ -827,11 +827,11 @@ pub fn main() !void {
         .{ .err_reaction = .Usage },
     ) catch |err|
         switch (err) {
-        error.UsageHelpCalled => {
-            usage_help_called = true;
-        },
-        else => return err,
-    };
+            error.UsageHelpCalled => {
+                usage_help_called = true;
+            },
+            else => return err,
+        };
 
     const opts = try main_cmd.getOpts(.{});
 
@@ -884,12 +884,12 @@ pub fn main() !void {
 
     var prng =
         std.Random.DefaultPrng.init(if (core.debug)
-        42
-    else
-        @as(
-            u64,
-            @intCast(std.time.milliTimestamp()),
-        ));
+            42
+        else
+            @as(
+                u64,
+                @intCast(std.time.milliTimestamp()),
+            ));
 
     core.rand = prng.random();
 
