@@ -1,6 +1,7 @@
 .{
-    .name = "xtxf",
+    .name = .xtxf,
     .version = "0.11.0",
+    .fingerprint = 0x9f00a0709bf6c4b1,
     .paths = .{""},
     .dependencies = .{
         .termbox2 = .{
