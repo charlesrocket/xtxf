@@ -1,10 +1,3 @@
-const std = @import("std");
-const streams = @import("streams.zig");
-
-const build_options = @import("build_options");
-const exe_path = build_options.exe_path;
-const live = build_options.test_live;
-
 const Proc = struct {
     term: std.process.Child.Term,
     out: []u8,
@@ -12,7 +5,7 @@ const Proc = struct {
 };
 
 fn runner(args: [4][]const u8) !Proc {
-    var proc = std.process.Child.init(&args, std.testing.allocator);
+    var proc = std.process.Child.init(&args, allocator);
 
     proc.stdout_behavior = .Pipe;
     proc.stderr_behavior = .Pipe;
@@ -20,16 +13,16 @@ fn runner(args: [4][]const u8) !Proc {
     var stdout: std.ArrayListAlignedUnmanaged(u8, 1) = .empty;
     var stderr: std.ArrayListAlignedUnmanaged(u8, 1) = .empty;
     defer {
-        stdout.deinit(std.testing.allocator);
-        stderr.deinit(std.testing.allocator);
+        stdout.deinit(allocator);
+        stderr.deinit(allocator);
     }
 
     try proc.spawn();
-    try proc.collectOutput(std.testing.allocator, &stdout, &stderr, 13312);
+    try proc.collectOutput(allocator, &stdout, &stderr, 13312);
 
     const term = try proc.wait();
-    const out = try stdout.toOwnedSlice(std.testing.allocator);
-    const err = try stderr.toOwnedSlice(std.testing.allocator);
+    const out = try stdout.toOwnedSlice(allocator);
+    const err = try stderr.toOwnedSlice(allocator);
 
     return Proc{ .term = term, .out = out, .err = err };
 }
@@ -44,8 +37,8 @@ test "default" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.default);
@@ -62,8 +55,8 @@ test "accents" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.accents);
@@ -80,8 +73,8 @@ test "speed" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.default);
@@ -98,8 +91,8 @@ test "mode: decimal" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.decimal);
@@ -116,8 +109,8 @@ test "mode: hexadecimal" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.hexadecimal);
@@ -134,8 +127,8 @@ test "mode: textual" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.textual);
@@ -152,8 +145,8 @@ test "color: red" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.red);
@@ -170,8 +163,8 @@ test "color: green" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.green);
@@ -188,8 +181,8 @@ test "color: blue" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.blue);
@@ -206,8 +199,8 @@ test "color: yellow" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.yellow);
@@ -224,8 +217,8 @@ test "color: magenta" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.magenta);
@@ -242,8 +235,8 @@ test "style: columns" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.columns);
@@ -260,8 +253,8 @@ test "style: crypto" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.crypto);
@@ -278,8 +271,8 @@ test "style: grid" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.grid);
@@ -296,8 +289,8 @@ test "style: blocks" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.blocks);
@@ -314,10 +307,18 @@ test "style: rain" {
 
     const proc = try runner(argv);
     defer {
-        std.testing.allocator.free(proc.out);
-        std.testing.allocator.free(proc.err);
+        allocator.free(proc.out);
+        allocator.free(proc.err);
     }
 
     if (!live) try std.testing.expectStringEndsWith(proc.err, streams.rain);
     try std.testing.expectEqual(proc.term.Exited, 0);
 }
+
+const std = @import("std");
+const streams = @import("streams.zig");
+const allocator = std.testing.allocator;
+
+const build_options = @import("build_options");
+const exe_path = build_options.exe_path;
+const live = build_options.test_live;
