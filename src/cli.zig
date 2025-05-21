@@ -1,9 +1,3 @@
-const main = @import("main.zig");
-const std = @import("std");
-
-const cova = @import("cova");
-const assets = @import("assets.zig");
-
 const Speed = main.Speed;
 const Color = main.Color;
 const Style = main.Style;
@@ -213,3 +207,9 @@ fn genVals(T: type, default: ?usize) []const u8 {
         break :blk str;
     };
 }
+
+const main = @import("main.zig");
+const std = @import("std");
+
+const cova = @import("cova");
+const assets = @import("assets.zig");

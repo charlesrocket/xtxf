@@ -1,17 +1,3 @@
-const std = @import("std");
-const builtin = @import("builtin");
-const libc = @cImport({
-    @cInclude("locale.h");
-});
-
-const tb = @cImport({
-    @cInclude("termbox2.h");
-});
-
-const cova = @import("cova");
-const cli = @import("cli.zig");
-const build_options = @import("build_options");
-
 pub const std_options: std.Options = .{
     .log_level = switch (builtin.mode) {
         .Debug => .debug,
@@ -25,7 +11,6 @@ pub const setup_cmd = cli.setup_cmd;
 const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 const log = std.log.scoped(.xtxf);
-const assets = @import("assets.zig");
 
 const HEAD_HASH = build_options.gxt.hash[0..7];
 const VERSION = if (build_options.gxt.dirty == null)
@@ -995,3 +980,18 @@ test "char format" {
     try std.testing.expectEqualStrings("D", try fmtChar(13, Mode.hexadecimal));
     try std.testing.expectEqualStrings("ﾌ", try fmtChar(42, Mode.textual));
 }
+
+const std = @import("std");
+const builtin = @import("builtin");
+const libc = @cImport({
+    @cInclude("locale.h");
+});
+
+const tb = @cImport({
+    @cInclude("termbox2.h");
+});
+
+const cova = @import("cova");
+const cli = @import("cli.zig");
+const build_options = @import("build_options");
+const assets = @import("assets.zig");
