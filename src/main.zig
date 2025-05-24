@@ -12,14 +12,7 @@ const Thread = std.Thread;
 const Mutex = Thread.Mutex;
 const log = std.log.scoped(.xtxf);
 
-const HEAD_HASH = build_options.gxt.hash[0..7];
-const VERSION = if (build_options.gxt.dirty == null)
-    HEAD_HASH ++ "-unverified"
-else switch (build_options.gxt.dirty.?) {
-    true => HEAD_HASH ++ "-dirty",
-    false => HEAD_HASH,
-};
-
+const VERSION = build_options.version;
 const FRAME = 39730492;
 
 pub const Speed = enum {

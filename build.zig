@@ -1,6 +1,3 @@
-const std = @import("std");
-const Ghext = @import("ghext").Ghext;
-
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -35,7 +32,7 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addImport("cova", cova_mod);
     exe.root_module.addOptions("build_options", build_options);
 
-    build_options.addOption(Ghext, "gxt", try read_repo());
+    build_options.addOption([]const u8, "version", version(b));
     b.installArtifact(exe);
 
     const run_cmd = b.addRunArtifact(exe);
@@ -101,7 +98,33 @@ pub fn build(b: *std.Build) void {
     clean_step.dependOn(&b.addRemoveDirTree(b.path(".zig-cache")).step);
 }
 
-inline fn read_repo() !Ghext {
-    const gxt = Ghext.read(std.heap.page_allocator) catch unreachable;
-    return gxt;
+fn version(b: *std.Build) []const u8 {
+    const semver = manifest.version;
+    var gxt = Ghext.init(std.heap.page_allocator) catch return semver;
+    const hash = gxt.hash_short(Worktree.Checked);
+    return b.fmt("{s} {s}", .{ semver, hash });
 }
+
+const manifest: struct {
+    const Dependency = struct {
+        url: []const u8,
+        hash: []const u8,
+        lazy: bool = false,
+    };
+
+    name: enum { xtxf },
+    version: []const u8,
+    fingerprint: u64,
+    paths: []const []const u8,
+    minimum_zig_version: []const u8,
+    dependencies: struct {
+        termbox2: Dependency,
+        cova: Dependency,
+        ghext: Dependency,
+    },
+} = @import("build.zig.zon");
+
+const std = @import("std");
+const builtin = @import("builtin");
+const Ghext = @import("ghext").Ghext;
+const Worktree = Ghext.Worktree;
