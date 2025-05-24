@@ -3,6 +3,7 @@
     .version = "0.11.0",
     .fingerprint = 0x9f00a0709bf6c4b1,
     .paths = .{""},
+    .minimum_zig_version = "0.14.0",
     .dependencies = .{
         .termbox2 = .{
             .url = "https://github.com/termbox/termbox2/archive/02e28d08d79e9af3de86d41a163bb83383cdb5c1.zip",
