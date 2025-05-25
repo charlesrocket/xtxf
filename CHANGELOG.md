@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.1] - 2025-05-25
+
+### Bug Fixes
+
+- Update std structs
+- Improve version string
+
+### Operations
+
+- Bump mlugg/setup-zig from 1 to 2
+- Bump zig version to 0.14
+
+### Performance
+
+- Drop redundant `core.style` switch
+
+### Refactor
+
+- Move column functions
+
+### Styling
+
+- Fix `column` test formatting
+- Fix formatting
+- Move imports
+
+### Testing
+
+- Fix `runner()`
+- Import `allocator`
+
+### Build
+
+- Update manifest layout
+- Update cova to `4c56696`
+- Update ghext to `0.5.1`
+- Fix `clean` step
+- Bump `ghext` to 0.5.2
+- Add `minimum_zig_version`
+- Add `paths`
+- Bump `termbox2` to `8ee9dc1`
+
 ## [0.11.0] - 2025-02-15
 
 ### Bug Fixes
