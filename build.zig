@@ -101,7 +101,7 @@ pub fn build(b: *std.Build) void {
 fn version(b: *std.Build) []const u8 {
     const semver = manifest.version;
     var gxt = Ghext.init(std.heap.page_allocator) catch return semver;
-    const hash = gxt.hash_short(Worktree.Checked);
+    const hash = gxt.hash(Ghext.HashLen.Short, Ghext.Worktree.Checked);
     return b.fmt("{s} {s}", .{ semver, hash });
 }
 
@@ -127,4 +127,3 @@ const manifest: struct {
 const std = @import("std");
 const builtin = @import("builtin");
 const Ghext = @import("ghext").Ghext;
-const Worktree = Ghext.Worktree;
