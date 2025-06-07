@@ -13,8 +13,8 @@
             .hash = "12201386743e7862d71bdb723ec0517a16b0f324acf2710fc0c5329e31ae029d0dd4",
         },
         .ghext = .{
-            .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.6.0.tar.gz",
-            .hash = "1220fbef19ebbea4057d1671778bfb2b06538c921a3801d550dbf1c55523874c8c0e",
+            .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.7.2.tar.gz",
+            .hash = "12204638d88152b1bc2ee4d45b0a446e25c5e2ccb2fcd993762ce920e218e2e396ac",
         },
     },
     .paths = .{
