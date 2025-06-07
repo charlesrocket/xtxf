@@ -853,7 +853,6 @@ pub fn main() !void {
     }
 
     if (main_cmd.checkFlag("version")) {
-        // TODO add SemVer string
         try stdout.print(
             "{s}{s}{s}",
             .{ "xtxf version ", VERSION, "\n" },
