@@ -623,17 +623,18 @@ fn getNthValues(
     var array = std.ArrayList(u32).init(allocator);
     var val = adv;
 
-    try array.append(0);
-
     while (val <= number) {
-        try array.append(val);
+        try array.append(val - 1);
         val += adv;
     }
 
     return array;
 }
 
-fn checkSec(arr: *std.ArrayListAligned(u32, null), value: usize) bool {
+fn checkSec(
+    arr: *std.ArrayListAligned(u32, null),
+    value: usize,
+) bool {
     for (arr.items) |el| {
         if (el == value) {
             return true;
