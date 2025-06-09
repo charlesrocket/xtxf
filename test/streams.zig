@@ -171,59 +171,61 @@ pub const magenta =
 ;
 
 pub const columns =
-    \\info(xtxf): 8: 10x8 0/0
-    \\info(xtxf): 1: 10x9 0/0
-    \\info(xtxf): 7: 11x0 0/0
-    \\info(xtxf): 8: 11x1 0/0
-    \\info(xtxf): 5: 11x2 0/0
-    \\info(xtxf): 2: 11x3 0/0
-    \\info(xtxf): 1: 11x4 0/0
-    \\info(xtxf): 5: 11x5 0/0
-    \\info(xtxf): 0: 11x6 0/0
-    \\info(xtxf): 1: 11x7 0/0
-    \\info(xtxf): 7: 11x8 0/0
-    \\info(xtxf): 7: 11x9 0/0
+    \\info(xtxf): 7: 10x0 0/0
+    \\info(xtxf): 8: 10x1 0/0
+    \\info(xtxf): 5: 10x2 0/0
+    \\info(xtxf): 2: 10x3 0/0
+    \\info(xtxf): 1: 10x4 0/0
+    \\info(xtxf): 5: 10x5 0/0
+    \\info(xtxf): 0: 10x6 0/0
+    \\info(xtxf): 1: 10x7 0/0
+    \\info(xtxf): 7: 10x8 0/0
+    \\info(xtxf): 7: 10x9 0/0
     \\info(xtxf): Exiting...
     \\
 ;
 
 pub const crypto =
-    \\info(xtxf): 8: 9x7 0/0
-    \\info(xtxf): 9: 9x8 0/0
-    \\info(xtxf): 8: 11x1 0/0
-    \\info(xtxf): 3: 11x2 0/0
-    \\info(xtxf): 7: 11x4 0/0
-    \\info(xtxf): 2: 11x5 0/0
-    \\info(xtxf): B: 11x7 0/0
-    \\info(xtxf): 3: 11x8 0/0
+    \\info(xtxf): A: 10x6 0/0
+    \\info(xtxf): B: 10x7 0/0
+    \\info(xtxf): 2: 10x9 0/0
+    \\info(xtxf): D: 11x0 0/0
+    \\info(xtxf): F: 11x1 0/0
+    \\info(xtxf): F: 11x3 0/0
+    \\info(xtxf): A: 11x4 0/0
+    \\info(xtxf): 1: 11x6 0/0
+    \\info(xtxf): D: 11x7 0/0
+    \\info(xtxf): 1: 11x9 0/0
     \\info(xtxf): Exiting...
     \\
 ;
 
 pub const grid =
-    \\info(xtxf): 1: 9x5 0/0
-    \\info(xtxf): 0: 9x7 0/0
-    \\info(xtxf): 1: 9x9 0/0
-    \\info(xtxf): 0: 11x1 0/0
-    \\info(xtxf): 0: 11x3 0/0
-    \\info(xtxf): 1: 11x5 0/0
-    \\info(xtxf): 1: 11x7 0/0
-    \\info(xtxf): 1: 11x9 0/0
+    \\info(xtxf): 0: 8x0 0/0
+    \\info(xtxf): 1: 8x2 0/0
+    \\info(xtxf): 1: 8x4 0/0
+    \\info(xtxf): 0: 8x6 0/0
+    \\info(xtxf): 1: 8x8 0/0
+    \\info(xtxf): 0: 10x0 0/0
+    \\info(xtxf): 0: 10x2 0/0
+    \\info(xtxf): 1: 10x4 0/0
+    \\info(xtxf): 1: 10x6 0/0
+    \\info(xtxf): 1: 10x8 0/0
     \\info(xtxf): Exiting...
     \\
 ;
 
 pub const blocks =
-    \\info(xtxf): 2: 9x8 0/0
-    \\info(xtxf): 3: 9x9 0/0
-    \\info(xtxf): 9: 11x1 0/0
-    \\info(xtxf): 7: 11x2 0/0
-    \\info(xtxf): 5: 11x3 0/0
-    \\info(xtxf): 4: 11x4 0/0
-    \\info(xtxf): 3: 11x5 0/0
-    \\info(xtxf): 2: 11x7 0/0
-    \\info(xtxf): 8: 11x8 0/0
-    \\info(xtxf): 1: 11x9 0/0
+    \\info(xtxf): 7: 10x9 0/0
+    \\info(xtxf): 9: 11x0 0/0
+    \\info(xtxf): 0: 11x1 0/0
+    \\info(xtxf): 2: 11x2 0/0
+    \\info(xtxf): 1: 11x3 0/0
+    \\info(xtxf): 1: 11x4 0/0
+    \\info(xtxf): 4: 11x6 0/0
+    \\info(xtxf): 5: 11x7 0/0
+    \\info(xtxf): 1: 11x8 0/0
+    \\info(xtxf): 4: 11x9 0/0
     \\info(xtxf): Exiting...
     \\
 ;

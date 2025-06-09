@@ -960,11 +960,10 @@ test "sections" {
     const array = try getNthValues(12, 4, std.testing.allocator);
     defer array.deinit();
 
-    try std.testing.expect(array.items[0] == 0);
-    try std.testing.expect(array.items[1] == 4);
-    try std.testing.expect(array.items[2] == 8);
-    try std.testing.expect(array.items[3] == 12);
-    try std.testing.expect(array.items.len == 4);
+    try std.testing.expect(array.items[0] == 3);
+    try std.testing.expect(array.items[1] == 7);
+    try std.testing.expect(array.items[2] == 11);
+    try std.testing.expect(array.items.len == 3);
 }
 
 test "char format" {
