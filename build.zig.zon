@@ -5,8 +5,8 @@
     .minimum_zig_version = "0.14.0",
     .dependencies = .{
         .termbox2 = .{
-            .url = "https://github.com/termbox/termbox2/archive/8ee9dc17e1ca61c630f91db0aa7f81fa29a32040.zip",
-            .hash = "1220141762957641ec36cecbe44119633067ac94c1be3f9b6813192d686c023bbc2e",
+            .url = "https://github.com/termbox/termbox2/archive/9c9281a9a4c971a2be57f8645e828ec99fd555e8.zip",
+            .hash = "1220fcf7f0866820d2a152d39c28f3b373513460a47cbf7336e3681e3b586e961f5c",
         },
         .cova = .{
             .url = "https://github.com/00JCIV00/cova/archive/4c56696fba4505a739c15223fc52985832051351.zip",
