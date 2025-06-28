@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.2] - 2025-06-28
+
+### Bug Fixes
+
+- Correct cell gaps
+
+### Miscellaneous tasks
+
+- Remove semver todo
+
+### Testing
+
+- Update cases
+
+### Build
+
+- Bump `ghext` to 0.6.0
+- Fix dependency leak
+- Bump `termbox2` to `9c9281a`
+
 ## [0.11.1] - 2025-05-25
 
 ### Bug Fixes
