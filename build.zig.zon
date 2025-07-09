@@ -1,20 +1,20 @@
 .{
     .name = .xtxf,
     .version = "0.11.2",
-    .fingerprint = 0x9f00a070d780372e,
+    .fingerprint = 0x9f00a07015769a82,
     .minimum_zig_version = "0.14.0",
     .dependencies = .{
         .termbox2 = .{
             .url = "https://github.com/termbox/termbox2/archive/9c9281a9a4c971a2be57f8645e828ec99fd555e8.zip",
-            .hash = "1220fcf7f0866820d2a152d39c28f3b373513460a47cbf7336e3681e3b586e961f5c",
+            .hash = "N-V-__8AAOfjBAD89_CGaCDSoVLTnCjzs3NRNGCkfL9zNuNo",
         },
         .cova = .{
             .url = "https://github.com/00JCIV00/cova/archive/4c56696fba4505a739c15223fc52985832051351.zip",
-            .hash = "12201386743e7862d71bdb723ec0517a16b0f324acf2710fc0c5329e31ae029d0dd4",
+            .hash = "cova-0.10.1-AAAAAPqeBAAThnQ-eGLXG9tyPsBRehaw8ySs8nEPwMUy",
         },
         .ghext = .{
             .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.7.2.tar.gz",
-            .hash = "12204638d88152b1bc2ee4d45b0a446e25c5e2ccb2fcd993762ce920e218e2e396ac",
+            .hash = "ghext-0.7.2-dKaQN31QAABGONiBUrG8LuTUWwpEbiXF4syy_NmTdizp",
         },
     },
     .paths = .{
