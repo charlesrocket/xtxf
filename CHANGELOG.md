@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.3] - 2025-07-09
+
+### Operations
+
+- Drop `reviewers`
+
+### Build
+
+- Update hash format
+
 ## [0.11.2] - 2025-06-28
 
 ### Bug Fixes
