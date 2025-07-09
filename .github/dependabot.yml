@@ -9,9 +9,6 @@ updates:
       interval: "weekly"
       day: "saturday"
 
-    reviewers:
-      - "charlesrocket"
-
     commit-message:
       prefix: "ops"
       include: "scope"
