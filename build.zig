@@ -100,9 +100,10 @@ pub fn build(b: *std.Build) void {
 
 fn version(b: *std.Build) []const u8 {
     const semver = manifest.version;
+    const os = @tagName(builtin.target.os.tag);
     var gxt = Ghext.init(std.heap.page_allocator) catch return semver;
     const hash = gxt.hash(Ghext.HashLen.Short, Ghext.Worktree.Checked);
-    return b.fmt("{s} {s}", .{ semver, hash });
+    return b.fmt("{s} ({s}) {s}", .{ semver, os, hash });
 }
 
 const manifest: struct {
