@@ -103,6 +103,7 @@ pub fn build(b: *std.Build) void {
     coverage_step.dependOn(&merge_step.step);
 
     const clean_step = b.step("clean", "Clean up project directory");
+    clean_step.dependOn(&b.addRemoveDirTree(b.path("meta")).step);
     clean_step.dependOn(&b.addRemoveDirTree(b.path("zig-out")).step);
     clean_step.dependOn(&b.addRemoveDirTree(b.path(".zig-cache")).step);
 }
