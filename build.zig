@@ -20,6 +20,15 @@ pub fn build(b: *std.Build) void {
     if (target.query.cpu_arch == null) {
         const cova_gen = @import("cova").addCovaDocGenStep(b, cova_dep, exe, .{
             .kinds = &.{.all},
+            .version = version(b),
+            .help_docs_config = .{
+                .section = '6',
+            },
+            .tab_complete_config = .{
+                .include_opts = true,
+                .add_cova_lib_msg = false,
+                .add_install_instructions = false,
+            },
         });
 
         const meta_doc_gen = b.step("gen-doc", "Generate Meta Docs");
