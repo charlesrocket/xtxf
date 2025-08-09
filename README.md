@@ -13,6 +13,7 @@
 ```
 
 ## Compilation
+[![Packaging status](https://repology.org/badge/vertical-allrepos/xtxf.svg)](https://repology.org/project/xtxf/versions)
 
 ```sh
 zig build
