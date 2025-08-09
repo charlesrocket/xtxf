@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.4] - 2025-08-09
+
+### Documentation
+
+- Fix meta options
+- Add packaging status
+
+### Miscellaneous tasks
+
+- Ignore `gen-doc` output
+
+### Build
+
+- Add OS tag
+- Fix `clean` step
+
 ## [0.11.3] - 2025-07-09
 
 ### Operations
