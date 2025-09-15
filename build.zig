@@ -94,7 +94,7 @@ pub fn build(b: *std.Build) void {
     kcov_unit.addArtifactArg(unit_tests);
     merge_step.step.dependOn(&kcov_unit.step);
 
-    const kcov_int = b.addSystemCommand(&.{ "kcov", "--include-path=src" });
+    const kcov_int = b.addSystemCommand(&.{ "kcov", "--include-path=src,test" });
     kcov_int.addDirectoryArg(b.path("kcov-int"));
     kcov_int.addArtifactArg(integration_tests);
     merge_step.step.dependOn(&kcov_int.step);
