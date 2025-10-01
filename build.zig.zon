@@ -9,12 +9,12 @@
             .hash = "N-V-__8AAOfjBAD89_CGaCDSoVLTnCjzs3NRNGCkfL9zNuNo",
         },
         .cova = .{
-            .url = "https://github.com/00JCIV00/cova/archive/4c56696fba4505a739c15223fc52985832051351.zip",
-            .hash = "cova-0.10.1-AAAAAPqeBAAThnQ-eGLXG9tyPsBRehaw8ySs8nEPwMUy",
+            .url = "https://github.com/00JCIV00/cova/archive/08d92ce77cb8f1c9ce8d4fb2798ad0489494b593.zip",
+            .hash = "cova-0.10.1-_OE4RyqmBABQOQeyO6ESq5oBc1TOBWrEbXj2Z3FL6dwX",
         },
         .ghext = .{
-            .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.7.2.tar.gz",
-            .hash = "ghext-0.7.2-dKaQN31QAABGONiBUrG8LuTUWwpEbiXF4syy_NmTdizp",
+            .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.7.4.tar.gz",
+            .hash = "ghext-0.7.4-dKaQN8JPAAA7IjZbcuelgCivahSMKsFGrvE5LLM3RJyl",
         },
     },
     .paths = .{
