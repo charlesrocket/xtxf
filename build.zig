@@ -3,11 +3,15 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
     const build_options = b.addOptions();
 
-    const exe = b.addExecutable(.{
-        .name = "xtxf",
+    const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
+    });
+
+    const exe = b.addExecutable(.{
+        .name = "xtxf",
+        .root_module = exe_mod,
     });
 
     const cova_dep = b.dependency("cova", .{
@@ -55,11 +59,15 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
 
-    const unit_tests = b.addTest(.{
-        .name = "unit",
+    const unit_tests_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
+    });
+
+    const unit_tests = b.addTest(.{
+        .root_module = unit_tests_mod,
+        .use_llvm = true, //temp
     });
 
     unit_tests.addIncludePath(b.dependency("termbox2", .{}).path("."));
@@ -74,10 +82,15 @@ pub fn build(b: *std.Build) void {
     test_options.addOption(bool, "test_live", test_live);
     test_options.addOptionPath("exe_path", exe.getEmittedBin());
 
-    const integration_tests = b.addTest(.{
+    const integration_tests_mod = b.createModule(.{
         .root_source_file = b.path("test/cli.zig"),
         .target = target,
         .optimize = optimize,
+    });
+
+    const integration_tests = b.addTest(.{
+        .root_module = integration_tests_mod,
+        .use_llvm = true, //temp
     });
 
     integration_tests.root_module.addOptions("build_options", test_options);
