@@ -14,7 +14,7 @@ permissions:
   attestations: read
 
 env:
-  ZIG_VERSION: 0.14.0
+  ZIG_VERSION: 0.15.1
 
 jobs:
   release:
