@@ -10,8 +10,8 @@ fn runner(args: [4][]const u8) !Proc {
     proc.stdout_behavior = .Pipe;
     proc.stderr_behavior = .Pipe;
 
-    var stdout: std.ArrayListAlignedUnmanaged(u8, 1) = .empty;
-    var stderr: std.ArrayListAlignedUnmanaged(u8, 1) = .empty;
+    var stdout: std.ArrayListAlignedUnmanaged(u8, null) = .empty;
+    var stderr: std.ArrayListAlignedUnmanaged(u8, null) = .empty;
     defer {
         stdout.deinit(allocator);
         stderr.deinit(allocator);
