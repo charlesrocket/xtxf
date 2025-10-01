@@ -901,6 +901,8 @@ pub fn main() !void {
 
         core.shutdown();
     }
+
+    try stdout.flush();
 }
 
 test "column" {
