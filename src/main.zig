@@ -66,11 +66,11 @@ const Column = struct {
     active: bool = false,
     dimmed: bool = false,
     cooldown: u32 = 0,
-    chars: std.ArrayList(?Char),
+    chars: std.array_list.Managed(?Char),
 
     fn init(allocator: std.mem.Allocator, size: usize) Column {
         return .{
-            .chars = std.ArrayList(?Char)
+            .chars = std.array_list.Managed(?Char)
                 .initCapacity(allocator, size) catch
                 undefined,
         };
@@ -162,9 +162,9 @@ const Core = struct {
     width: u32 = 0,
     height: u32 = 0,
     active_columns: u32 = 0,
-    columns: ?std.ArrayListAligned(?Column, null) = null,
-    width_gaps: ?std.ArrayListAligned(u32, null) = null,
-    height_gaps: ?std.ArrayListAligned(u32, null) = null,
+    columns: ?std.array_list.Managed(?Column) = null,
+    width_gaps: ?std.array_list.Managed(u32) = null,
+    height_gaps: ?std.array_list.Managed(u32) = null,
 
     fn setActive(self: *Core, value: bool) void {
         self.active = value;
@@ -269,15 +269,15 @@ const Core = struct {
         }
 
         if (self.columns == null) {
-            self.columns = std.ArrayList(?Column).init(self.allocator);
+            self.columns = std.array_list.Managed(?Column).init(self.allocator);
         }
 
         if (self.width_gaps == null) {
-            self.width_gaps = std.ArrayList(u32).init(self.allocator);
+            self.width_gaps = std.array_list.Managed(u32).init(self.allocator);
         }
 
         if (self.height_gaps == null) {
-            self.height_gaps = std.ArrayList(u32).init(self.allocator);
+            self.height_gaps = std.array_list.Managed(u32).init(self.allocator);
         }
 
         self.setActive(true);
@@ -619,8 +619,8 @@ fn getNthValues(
     number: u32,
     adv: u32,
     allocator: std.mem.Allocator,
-) !std.ArrayListAligned(u32, null) {
-    var array = std.ArrayList(u32).init(allocator);
+) !std.array_list.Managed(u32) {
+    var array = std.array_list.Managed(u32).init(allocator);
     var val = adv;
 
     while (val <= number) {
@@ -632,7 +632,7 @@ fn getNthValues(
 }
 
 fn checkSec(
-    arr: *std.ArrayListAligned(u32, null),
+    arr: *std.array_list.Managed(u32),
     value: usize,
 ) bool {
     for (arr.items) |el| {
@@ -932,9 +932,9 @@ test "handler" {
 }
 
 test "check array" {
-    var array1 = std.ArrayList(u32).init(std.testing.allocator);
-    var array2 = std.ArrayList(u32).init(std.testing.allocator);
-    var array3 = std.ArrayList(u32).init(std.testing.allocator);
+    var array1 = std.array_list.Managed(u32).init(std.testing.allocator);
+    var array2 = std.array_list.Managed(u32).init(std.testing.allocator);
+    var array3 = std.array_list.Managed(u32).init(std.testing.allocator);
 
     defer {
         array1.deinit();
