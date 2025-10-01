@@ -453,7 +453,7 @@ const Handler = struct {
             {
                 core.setActive(false);
             } else if (core.debug) {
-                std.time.sleep(FRAME * 5);
+                std.Thread.sleep(FRAME * 5);
                 log.info("Exiting...", .{});
                 core.setActive(false);
             }
@@ -471,7 +471,7 @@ const Handler = struct {
                     self.setPause(true);
 
                     while (core.rendering) {
-                        std.time.sleep(FRAME / 2);
+                        std.Thread.sleep(FRAME / 2);
                     }
 
                     core.updateTermSize();
@@ -521,7 +521,7 @@ fn printCells(
                 }
 
                 core.present();
-                std.time.sleep(switch (core.speed) {
+                std.Thread.sleep(switch (core.speed) {
                     .slow => FRAME * 6,
                     .normal => FRAME * 2,
                     .fast => FRAME,
@@ -585,7 +585,7 @@ fn printCells(
                 }
 
                 core.present();
-                std.time.sleep(switch (core.speed) {
+                std.Thread.sleep(switch (core.speed) {
                     .slow => FRAME * 20,
                     .normal => FRAME * 3,
                     .fast => FRAME,
@@ -654,7 +654,7 @@ fn intro(
     var c = "│";
 
     for (0..25) |frm| {
-        std.time.sleep(FRAME);
+        std.Thread.sleep(FRAME);
         _ = tb.tb_clear();
 
         char: for (0..4) |i| {
@@ -772,7 +772,7 @@ fn intro(
 
 fn animation(handler: *Handler, core: *Core) !void {
     while (handler.halt) {
-        std.time.sleep(FRAME);
+        std.Thread.sleep(FRAME);
     }
 
     if (!core.debug and !core.bare and handler.duration == 0) try intro(core);
