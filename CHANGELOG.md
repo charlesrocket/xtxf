@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.5] - 2025-10-24
+
+### Bug Fixes
+
+- Update arrays
+- Update `opt_usage`
+- Update stdout
+- Update `sleep()`
+- Flush stdout
+
+### Operations
+
+- Bump actions/checkout from 4 to 5
+- Bump actions/attest-build-provenance from 2 to 3
+- Bump actions/labeler from 5 to 6
+- Bump zig to 0.15.1
+
+### Testing
+
+- Fix output arrays
+
+### Build
+
+- Fix coverage
+- Update modules
+- Update `cova` + `ghext`
+- Bump MSZV to 0.15.1
+- Bump `cova` to `3fa729c`
+
 ## [0.11.4] - 2025-08-09
 
 ### Documentation
