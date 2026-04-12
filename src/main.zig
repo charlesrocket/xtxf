@@ -66,13 +66,15 @@ const Column = struct {
     active: bool = false,
     dimmed: bool = false,
     cooldown: u32 = 0,
-    chars: std.array_list.Managed(?Char),
+    chars: std.ArrayList(?Char),
+    allocator: std.mem.Allocator,
 
     fn init(allocator: std.mem.Allocator, size: usize) Column {
         return .{
-            .chars = std.array_list.Managed(?Char)
+            .chars = std.ArrayList(?Char)
                 .initCapacity(allocator, size) catch
                 undefined,
+            .allocator = allocator,
         };
     }
 
@@ -104,11 +106,11 @@ const Column = struct {
         core: *Core,
     ) !void {
         const char = core.newChar(self.dimmed);
-        try self.chars.insert(0, char);
+        try self.chars.insert(self.allocator, 0, char);
     }
 
     fn addNull(self: *Column) !void {
-        try self.chars.insert(0, null);
+        try self.chars.insert(self.allocator, 0, null);
     }
 
     fn activate(
@@ -162,9 +164,9 @@ const Core = struct {
     width: u32 = 0,
     height: u32 = 0,
     active_columns: u32 = 0,
-    columns: ?std.array_list.Managed(?Column) = null,
-    width_gaps: ?std.array_list.Managed(u32) = null,
-    height_gaps: ?std.array_list.Managed(u32) = null,
+    columns: ?std.ArrayList(?Column) = null,
+    width_gaps: ?std.ArrayList(u32) = null,
+    height_gaps: ?std.ArrayList(u32) = null,
 
     fn setActive(self: *Core, value: bool) void {
         self.active = value;
@@ -195,7 +197,7 @@ const Core = struct {
     }
 
     fn updateWidthSec(self: *Core, adv: u32) !void {
-        self.width_gaps.?.clearAndFree();
+        self.width_gaps.?.clearAndFree(self.allocator);
         self.width_gaps = try getNthValues(
             self.width,
             adv,
@@ -204,7 +206,7 @@ const Core = struct {
     }
 
     fn updateHeightSec(self: *Core, adv: u32) !void {
-        self.height_gaps.?.clearAndFree();
+        self.height_gaps.?.clearAndFree(self.allocator);
         self.height_gaps = try getNthValues(
             self.height,
             adv,
@@ -213,13 +215,13 @@ const Core = struct {
     }
 
     fn updateColumns(self: *Core) !void {
-        for (self.columns.?.items) |column| {
-            column.?.chars.deinit();
+        for (self.columns.?.items) |*column| {
+            column.*.?.chars.deinit(self.allocator);
         }
 
-        self.columns.?.clearAndFree();
+        self.columns.?.clearAndFree(self.allocator);
         self.active_columns = 0;
-        try self.columns.?.ensureTotalCapacity(self.width);
+        try self.columns.?.ensureTotalCapacity(self.allocator, self.width);
     }
 
     fn updateStyle(self: *Core) !void {
@@ -269,15 +271,15 @@ const Core = struct {
         }
 
         if (self.columns == null) {
-            self.columns = std.array_list.Managed(?Column).init(self.allocator);
+            self.columns = std.ArrayList(?Column).empty;
         }
 
         if (self.width_gaps == null) {
-            self.width_gaps = std.array_list.Managed(u32).init(self.allocator);
+            self.width_gaps = std.ArrayList(u32).empty;
         }
 
         if (self.height_gaps == null) {
-            self.height_gaps = std.array_list.Managed(u32).init(self.allocator);
+            self.height_gaps = std.ArrayList(u32).empty;
         }
 
         self.setActive(true);
@@ -293,20 +295,20 @@ const Core = struct {
     fn shutdown(self: *Core) void {
         if (!self.debug) _ = tb.tb_shutdown();
 
-        if (self.columns) |columns| {
-            for (columns.items) |column| {
-                column.?.chars.deinit();
+        if (self.columns) |*columns| {
+            for (columns.items) |*column| {
+                column.*.?.chars.deinit(self.allocator);
             }
 
-            columns.deinit();
+            columns.deinit(self.allocator);
         }
 
         if (self.width_gaps != null) {
-            self.width_gaps.?.deinit();
+            self.width_gaps.?.deinit(self.allocator);
         }
 
         if (self.height_gaps != null) {
-            self.height_gaps.?.deinit();
+            self.height_gaps.?.deinit(self.allocator);
         }
     }
 
@@ -391,7 +393,7 @@ const Core = struct {
         if (self.columns.?.items.len == 0) {
             for (0..self.width) |w| {
                 const column = Column.init(self.allocator, self.height);
-                try self.columns.?.append(column);
+                try self.columns.?.append(self.allocator, column);
 
                 for (0..self.height) |_| {
                     if (!self.debug)
@@ -619,12 +621,12 @@ fn getNthValues(
     number: u32,
     adv: u32,
     allocator: std.mem.Allocator,
-) !std.array_list.Managed(u32) {
-    var array = std.array_list.Managed(u32).init(allocator);
+) !std.ArrayList(u32) {
+    var array = std.ArrayList(u32).empty;
     var val = adv;
 
     while (val <= number) {
-        try array.append(val - 1);
+        try array.append(allocator, val - 1);
         val += adv;
     }
 
@@ -632,7 +634,7 @@ fn getNthValues(
 }
 
 fn checkSec(
-    arr: *std.array_list.Managed(u32),
+    arr: *std.ArrayList(u32),
     value: usize,
 ) bool {
     for (arr.items) |el| {
@@ -915,7 +917,7 @@ test "column" {
 
     const column = Column.init(core.allocator, core.height);
 
-    try core.columns.?.append(column);
+    try core.columns.?.append(core.allocator, column);
     try core.columns.?.items[0].?.addChar(&core);
     try core.columns.?.items[0].?.addChar(&core);
     try core.columns.?.items[0].?.addNull();
@@ -935,24 +937,25 @@ test "handler" {
 }
 
 test "check array" {
-    var array1 = std.array_list.Managed(u32).init(std.testing.allocator);
-    var array2 = std.array_list.Managed(u32).init(std.testing.allocator);
-    var array3 = std.array_list.Managed(u32).init(std.testing.allocator);
+    const allocator = std.testing.allocator;
+    var array1 = std.ArrayList(u32).empty;
+    var array2 = std.ArrayList(u32).empty;
+    var array3 = std.ArrayList(u32).empty;
 
     defer {
-        array1.deinit();
-        array2.deinit();
-        array3.deinit();
+        array1.deinit(allocator);
+        array2.deinit(allocator);
+        array3.deinit(allocator);
     }
 
-    try array1.append(1);
-    try array1.append(2);
-    try array1.append(3);
+    try array1.append(allocator, 1);
+    try array1.append(allocator, 2);
+    try array1.append(allocator, 3);
 
-    try array2.append(1);
-    try array2.append(3);
+    try array2.append(allocator, 1);
+    try array2.append(allocator, 3);
 
-    try array3.append(1);
+    try array3.append(allocator, 1);
 
     try std.testing.expect(checkSec(&array1, 2));
     try std.testing.expect(!checkSec(&array2, 2));
@@ -960,8 +963,8 @@ test "check array" {
 }
 
 test "sections" {
-    const array = try getNthValues(12, 4, std.testing.allocator);
-    defer array.deinit();
+    var array = try getNthValues(12, 4, std.testing.allocator);
+    defer array.deinit(std.testing.allocator);
 
     try std.testing.expect(array.items[0] == 3);
     try std.testing.expect(array.items[1] == 7);
