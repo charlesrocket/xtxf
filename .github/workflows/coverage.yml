@@ -1,0 +1,38 @@
+---
+name: Coverage
+"on":
+  push:
+
+env:
+  ZIG_VERSION: 0.15.1
+
+jobs:
+  coverage:
+    name: Kcov
+    runs-on: ubuntu-latest
+    container:
+      image: kcov/kcov
+      options: --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
+
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    steps:
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: ${{ env.ZIG_VERSION }}
+          use-cache: false
+
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Generate coverage
+        run: zig build coverage --summary all
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v7
+        with:
+          directory: coverage
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
