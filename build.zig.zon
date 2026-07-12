@@ -9,8 +9,8 @@
             .hash = "N-V-__8AAOfjBAD89_CGaCDSoVLTnCjzs3NRNGCkfL9zNuNo",
         },
         .cova = .{
-            .url = "https://github.com/00JCIV00/cova/archive/3fa729ccf582a4c818402019a579f1c5caf90fd3.zip",
-            .hash = "cova-0.10.1-_OE4Rw-xBAB9zj1dPhUxLKnar89L5nouEmYY6Q1S23jU",
+            .url = "https://github.com/00JCIV00/cova/archive/62ead80ef63bfa255a31d5e121920576d25ba342.tar.gz",
+            .hash = "cova-0.10.1-_OE4RzPaBAD0JKOMIrEJ8uHfz1_OXM7jpBEBocS_81gw",
         },
         .ghext = .{
             .url = "https://github.com/charlesrocket/ghext/archive/refs/tags/0.7.4.tar.gz",
