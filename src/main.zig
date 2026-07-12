@@ -9,7 +9,7 @@ pub const CommandT = cli.CommandT;
 pub const setup_cmd = cli.setup_cmd;
 
 const Thread = std.Thread;
-const Mutex = Thread.Mutex;
+const Mutex = std.Io.Mutex;
 const log = std.log.scoped(.xtxf);
 
 const VERSION = build_options.version;
@@ -785,10 +785,8 @@ fn animation(handler: *Handler, core: *Core) !void {
     }
 }
 
-pub fn main() !void {
-    var gpallocator = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = gpallocator.deinit();
-
+pub fn main(init: std.process.Init) !void {
+    var gpallocator = init.gpa;
     var core = Core.init(gpallocator.allocator());
     var handler = Handler{};
     var stdout_buffer: [2048]u8 = undefined;
