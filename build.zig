@@ -7,6 +7,7 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
+        .link_libc = true,
     });
 
     const exe = b.addExecutable(.{
@@ -39,9 +40,8 @@ pub fn build(b: *std.Build) void {
         meta_doc_gen.dependOn(&cova_gen.step);
     }
 
-    exe.addIncludePath(b.dependency("termbox2", .{}).path("."));
-    exe.addCSourceFile(.{ .file = b.path("src/termbox.c") });
-    exe.linkLibC();
+    exe_mod.addIncludePath(b.dependency("termbox2", .{}).path("."));
+    exe_mod.addCSourceFile(.{ .file = b.path("src/termbox.c") });
     exe.root_module.addImport("cova", cova_mod);
     exe.root_module.addOptions("build_options", build_options);
 
@@ -63,6 +63,7 @@ pub fn build(b: *std.Build) void {
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
+        .link_libc = true,
     });
 
     const unit_tests = b.addTest(.{
@@ -70,9 +71,8 @@ pub fn build(b: *std.Build) void {
         .use_llvm = true, //temp
     });
 
-    unit_tests.addIncludePath(b.dependency("termbox2", .{}).path("."));
-    unit_tests.addCSourceFile(.{ .file = b.path("src/termbox.c") });
-    unit_tests.linkLibC();
+    unit_tests.root_module.addIncludePath(b.dependency("termbox2", .{}).path("."));
+    unit_tests.root_module.addCSourceFile(.{ .file = b.path("src/termbox.c") });
 
     const test_step = b.step("test", "Run all tests");
     test_step.dependOn(&b.addRunArtifact(unit_tests).step);
