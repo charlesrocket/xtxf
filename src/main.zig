@@ -457,7 +457,7 @@ const Handler = struct {
             {
                 core.setActive(false);
             } else if (core.debug) {
-                try io.sleep(.fromMilliseconds(FRAME * 5), .boot);
+                try io.sleep(.fromNanoseconds(FRAME * 5), .boot);
                 log.info("Exiting...", .{});
                 core.setActive(false);
             }
@@ -475,7 +475,7 @@ const Handler = struct {
                     self.setPause(true);
 
                     while (core.rendering) {
-                        try io.sleep(.fromMilliseconds(FRAME / 2), .boot);
+                        try io.sleep(.fromNanoseconds(FRAME / 2), .boot);
                     }
 
                     core.updateTermSize();
@@ -526,7 +526,7 @@ fn printCells(
 
                 core.present();
 
-                try core.io.sleep(.fromMilliseconds(switch (core.speed) {
+                try core.io.sleep(.fromNanoseconds(switch (core.speed) {
                     .slow => FRAME * 6,
                     .normal => FRAME * 2,
                     .fast => FRAME,
@@ -590,7 +590,7 @@ fn printCells(
                 }
 
                 core.present();
-                try core.io.sleep(.fromMilliseconds(switch (core.speed) {
+                try core.io.sleep(.fromNanoseconds(switch (core.speed) {
                     .slow => FRAME * 20,
                     .normal => FRAME * 3,
                     .fast => FRAME,
@@ -659,7 +659,7 @@ fn intro(
     var c = "│";
 
     for (0..25) |frm| {
-        try core.io.sleep(.fromMilliseconds(FRAME), .boot);
+        try core.io.sleep(.fromNanoseconds(FRAME), .boot);
 
         _ = tb.tb_clear();
 
@@ -778,7 +778,7 @@ fn intro(
 
 fn animation(handler: *Handler, core: *Core) !void {
     while (handler.halt) {
-        try core.io.sleep(.fromMilliseconds(FRAME), .boot);
+        try core.io.sleep(.fromNanoseconds(FRAME), .boot);
     }
 
     if (!core.debug and !core.bare and handler.duration == 0) try intro(core);
