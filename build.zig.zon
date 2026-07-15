@@ -9,8 +9,8 @@
             .hash = "translate_c-0.0.0-Q_BUWj8_BwCXLBKXc7xakZEI4TKGO-GCaGv2lVwTsoxd",
         },
         .termbox2 = .{
-            .url = "git+https://github.com/termbox/termbox2/archive/9c9281a9a4c971a2be57f8645e828ec99fd555e8.zip",
-            .hash = "N-V-__8AAOfjBAD89_CGaCDSoVLTnCjzs3NRNGCkfL9zNuNo",
+            .url = "git+https://github.com/AnErrupTion/termbox2?ref=master#c7f241e8888ce243e1748b05c26a42fcfaaad936",
+            .hash = "N-V-__8AAAUXBQD6Fwpi9m0MBqWXFFaqW5l1lVrJC2Ynj7a-",
         },
         .cova = .{
             .url = "git+https://github.com/00JCIV00/cova/archive/62ead80ef63bfa255a31d5e121920576d25ba342.tar.gz",

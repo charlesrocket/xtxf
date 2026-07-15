@@ -5,19 +5,24 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
     const build_options = b.addOptions();
     const translate_c_dep = b.dependency("translate_c", .{});
+    const termbox_dep = b.dependency("termbox2", .{
+        .target = target,
+        .optimize = optimize,
+    });
 
     const termbox: Translator = .init(translate_c_dep, .{
-        .c_source_file = b.path("src/termbox.c"),
+        .c_source_file = termbox_dep.path("termbox2.h"),
         .target = target,
         .optimize = optimize,
         .default_init = true,
     });
 
-    termbox.addIncludePath(b.dependency("termbox2", .{}).path("."));
+    termbox.defineCMacro("TB_IMPL", null);
+    termbox.defineCMacro("_XOPEN_SOURCE", "0");
 
-    //termbox.mod.addCMacro("_DEFAULT_SOURCE", "");
-    //termbox.mod.addCMacro("_XOPEN_SOURCE", "");
-    //termbox.mod.addCMacro("TB_IMPL", "");
+    if (target.result.os.tag == .freebsd) {
+        termbox.defineCMacro("__BSD_VISIBLE", "1");
+    }
 
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
