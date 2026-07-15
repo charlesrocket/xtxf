@@ -4,19 +4,24 @@
     .fingerprint = 0x9f00a07015769a82,
     .minimum_zig_version = "0.15.1",
     .dependencies = .{
+        .translate_c = .{
+            .url = "git+https://codeberg.org/vancluever/translate-c/archive/vancluever-0.16.x.tar.gz",
+            .hash = "translate_c-0.0.0-Q_BUWj8_BwCXLBKXc7xakZEI4TKGO-GCaGv2lVwTsoxd",
+        },
         .termbox2 = .{
-            .url = "https://github.com/termbox/termbox2/archive/9c9281a9a4c971a2be57f8645e828ec99fd555e8.zip",
+            .url = "git+https://github.com/termbox/termbox2/archive/9c9281a9a4c971a2be57f8645e828ec99fd555e8.zip",
             .hash = "N-V-__8AAOfjBAD89_CGaCDSoVLTnCjzs3NRNGCkfL9zNuNo",
         },
         .cova = .{
-            .url = "https://github.com/00JCIV00/cova/archive/62ead80ef63bfa255a31d5e121920576d25ba342.tar.gz",
+            .url = "git+https://github.com/00JCIV00/cova/archive/62ead80ef63bfa255a31d5e121920576d25ba342.tar.gz",
             .hash = "cova-0.10.1-_OE4RzPaBAD0JKOMIrEJ8uHfz1_OXM7jpBEBocS_81gw",
         },
         .ghext = .{
-            .url = "https://codeberg.org/charlesrocket/ghext/archive/0.7.7.tar.gz",
+            .url = "git+https://codeberg.org/charlesrocket/ghext/archive/0.7.7.tar.gz",
             .hash = "ghext-0.7.7-dKaQN5ppAADIXDAgOvVXocflUFqS4w8cYmZXfj-qZTlf",
         },
     },
+
     .paths = .{
         "src",
         "test",

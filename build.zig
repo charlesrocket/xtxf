@@ -1,13 +1,32 @@
+const Translator = @import("translate_c").Translator;
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const build_options = b.addOptions();
+    const translate_c_dep = b.dependency("translate_c", .{});
+
+    const termbox: Translator = .init(translate_c_dep, .{
+        .c_source_file = b.path("src/termbox.c"),
+        .target = target,
+        .optimize = optimize,
+        .default_init = true,
+    });
+
+    termbox.addIncludePath(b.dependency("termbox2", .{}).path("."));
+
+    //termbox.mod.addCMacro("_DEFAULT_SOURCE", "");
+    //termbox.mod.addCMacro("_XOPEN_SOURCE", "");
+    //termbox.mod.addCMacro("TB_IMPL", "");
 
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
+        .imports = &.{
+            .{ .name = "termbox", .module = termbox.mod },
+        },
     });
 
     const exe = b.addExecutable(.{
@@ -40,8 +59,6 @@ pub fn build(b: *std.Build) void {
         meta_doc_gen.dependOn(&cova_gen.step);
     }
 
-    exe_mod.addIncludePath(b.dependency("termbox2", .{}).path("."));
-    exe_mod.addCSourceFile(.{ .file = b.path("src/termbox.c") });
     exe.root_module.addImport("cova", cova_mod);
     exe.root_module.addOptions("build_options", build_options);
 
@@ -64,15 +81,14 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
         .link_libc = true,
+        .imports = &.{
+            .{ .name = "termbox", .module = termbox.mod },
+        },
     });
 
     const unit_tests = b.addTest(.{
         .root_module = unit_tests_mod,
-        .use_llvm = true, //temp
     });
-
-    unit_tests.root_module.addIncludePath(b.dependency("termbox2", .{}).path("."));
-    unit_tests.root_module.addCSourceFile(.{ .file = b.path("src/termbox.c") });
 
     const test_step = b.step("test", "Run all tests");
     test_step.dependOn(&b.addRunArtifact(unit_tests).step);
@@ -137,6 +153,7 @@ const manifest: struct {
     paths: []const []const u8,
     minimum_zig_version: []const u8,
     dependencies: struct {
+        translate_c: Dependency,
         termbox2: Dependency,
         cova: Dependency,
         ghext: Dependency,
