@@ -8,8 +8,15 @@ pub const CommandT = cova.Command.Custom(.{
     .global_help_prefix = assets.help_prefix,
     .help_header_fmt = assets.help_message,
     .help_category_order = &.{
-        .Prefix, .Header, .Aliases, .Examples, .Commands, .Options, .Values,
+        .prefix,
+        .header,
+        .aliases,
+        .examples,
+        .commands,
+        .options,
+        .values,
     },
+
     .examples_header_fmt = assets.examples_header,
     .global_usage_fn = struct {
         fn usage(self: anytype, writer: anytype, _: ?std.mem.Allocator) !void {
@@ -133,7 +140,7 @@ pub const setup_cmd: CommandT = .{
             .val = ValueT.ofType(Accent, .{
                 .name = "accents_list",
                 .alias_child_type = "[string]",
-                .set_behavior = .Multi,
+                .set_behavior = .multi,
                 .max_entries = 4,
             }),
         },
