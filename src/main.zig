@@ -150,7 +150,7 @@ const Column = struct {
 const Core = struct {
     allocator: std.mem.Allocator,
     rand: ?std.Random = null,
-    mutex: Mutex = Mutex{},
+    mutex: Mutex = .init,
     mode: Mode = .binary,
     color: Color = .default,
     style: Style = .default,
@@ -167,6 +167,7 @@ const Core = struct {
     columns: ?std.ArrayList(?Column) = null,
     width_gaps: ?std.ArrayList(u32) = null,
     height_gaps: ?std.ArrayList(u32) = null,
+    io: std.Io,
 
     fn setActive(self: *Core, value: bool) void {
         self.active = value;
@@ -224,45 +225,45 @@ const Core = struct {
         try self.columns.?.ensureTotalCapacity(self.allocator, self.width);
     }
 
-    fn updateStyle(self: *Core) !void {
+    fn updateStyle(self: *Core, io: std.Io) !void {
         const style = self.style;
 
         if (style == .grid) {
-            self.mutex.lock();
-            defer self.mutex.unlock();
+            try self.mutex.lock(io);
+            defer self.mutex.unlock(io);
 
             try self.updateWidthSec(2);
             try self.updateHeightSec(2);
         } else if (style == .crypto) {
-            self.mutex.lock();
-            defer self.mutex.unlock();
+            try self.mutex.lock(io);
+            defer self.mutex.unlock(io);
 
             try self.updateWidthSec(5);
             try self.updateHeightSec(3);
         } else if (style == .blocks) {
-            self.mutex.lock();
-            defer self.mutex.unlock();
+            try self.mutex.lock(io);
+            defer self.mutex.unlock(io);
 
             try self.updateWidthSec(10);
             try self.updateHeightSec(6);
         } else if (style == .columns) {
-            self.mutex.lock();
-            defer self.mutex.unlock();
+            try self.mutex.lock(io);
+            defer self.mutex.unlock(io);
 
             try self.updateWidthSec(4);
         } else if (style == .rain) {
-            self.mutex.lock();
-            defer self.mutex.unlock();
+            try self.mutex.lock(io);
+            defer self.mutex.unlock(io);
 
             try self.updateColumns();
         }
     }
 
-    fn init(gpallocator: std.mem.Allocator) Core {
-        return .{ .allocator = gpallocator };
+    fn init(gpallocator: std.mem.Allocator, io: std.Io) Core {
+        return .{ .allocator = gpallocator, .io = io };
     }
 
-    fn start(self: *Core) !void {
+    fn start(self: *Core, io: std.Io) !void {
         if (self.debug) {
             log.info("DEBUG MODE", .{});
         } else {
@@ -284,7 +285,7 @@ const Core = struct {
 
         self.setActive(true);
         self.updateTermSize();
-        try self.updateStyle();
+        try self.updateStyle(io);
     }
 
     fn present(self: *Core) void {
@@ -428,7 +429,7 @@ const Core = struct {
 };
 
 const Handler = struct {
-    mutex: Mutex = Mutex{},
+    mutex: Mutex = .init,
     halt: bool = true,
     duration: u32 = 0,
     pause: bool = false,
@@ -441,21 +442,22 @@ const Handler = struct {
         self.pause = value;
     }
 
-    fn run(self: *Handler, core: *Core) !void {
-        try core.updateStyle();
+    fn run(self: *Handler, core: *Core, io: std.Io) !void {
+        try core.updateStyle(io);
 
-        var timer = try std.time.Timer.start();
+        const start = std.Io.Clock.awake.now(io);
         const duration = self.duration;
 
         self.setHalt(false);
 
         while (core.active) {
-            if ((timer.read() / std.time.ns_per_s) >= duration and
+            const elapsed_ns = start.untilNow(io, .awake).nanoseconds;
+            if (@divTrunc(elapsed_ns, std.time.ns_per_s) >= @as(i96, duration) and
                 self.duration != 0)
             {
                 core.setActive(false);
             } else if (core.debug) {
-                std.Thread.sleep(FRAME * 5);
+                try io.sleep(.fromMilliseconds(FRAME * 5), .boot);
                 log.info("Exiting...", .{});
                 core.setActive(false);
             }
@@ -473,11 +475,11 @@ const Handler = struct {
                     self.setPause(true);
 
                     while (core.rendering) {
-                        std.Thread.sleep(FRAME / 2);
+                        try io.sleep(.fromMilliseconds(FRAME / 2), .boot);
                     }
 
                     core.updateTermSize();
-                    try core.updateStyle();
+                    try core.updateStyle(io);
 
                     self.setPause(false);
                 }
@@ -490,8 +492,8 @@ fn printCells(
     core: *Core,
     handler: *Handler,
 ) !void {
-    handler.mutex.lock();
-    defer handler.mutex.unlock();
+    try handler.mutex.lock(core.io);
+    defer handler.mutex.unlock(core.io);
 
     if (!handler.pause) {
         core.setRendering(true);
@@ -523,11 +525,12 @@ fn printCells(
                 }
 
                 core.present();
-                std.Thread.sleep(switch (core.speed) {
+
+                try core.io.sleep(.fromMilliseconds(switch (core.speed) {
                     .slow => FRAME * 6,
                     .normal => FRAME * 2,
                     .fast => FRAME,
-                });
+                }), .boot);
             },
             .rain => {
                 try core.initColumns();
@@ -587,11 +590,11 @@ fn printCells(
                 }
 
                 core.present();
-                std.Thread.sleep(switch (core.speed) {
+                try core.io.sleep(.fromMilliseconds(switch (core.speed) {
                     .slow => FRAME * 20,
                     .normal => FRAME * 3,
                     .fast => FRAME,
-                });
+                }), .boot);
             },
         }
     }
@@ -656,7 +659,8 @@ fn intro(
     var c = "│";
 
     for (0..25) |frm| {
-        std.Thread.sleep(FRAME);
+        try core.io.sleep(.fromMilliseconds(FRAME), .boot);
+
         _ = tb.tb_clear();
 
         char: for (0..4) |i| {
@@ -774,7 +778,7 @@ fn intro(
 
 fn animation(handler: *Handler, core: *Core) !void {
     while (handler.halt) {
-        std.Thread.sleep(FRAME);
+        try core.io.sleep(.fromMilliseconds(FRAME), .boot);
     }
 
     if (!core.debug and !core.bare and handler.duration == 0) try intro(core);
@@ -786,17 +790,16 @@ fn animation(handler: *Handler, core: *Core) !void {
 }
 
 pub fn main(init: std.process.Init) !void {
-    var gpallocator = init.gpa;
-    var core = Core.init(gpallocator.allocator());
+    var core = Core.init(init.gpa, init.io);
     var handler = Handler{};
     var stdout_buffer: [2048]u8 = undefined;
-    var stdout_writer = std.fs.File.stdout().writer(&stdout_buffer);
+    var stdout_writer = std.Io.File.stdout().writer(init.io, &stdout_buffer);
     const stdout = &stdout_writer.interface;
     const main_cmd = try setup_cmd.init(core.allocator, .{});
     defer main_cmd.deinit();
 
     var usage_help_called = false;
-    var args_iter = try cova.ArgIteratorGeneric.init(core.allocator);
+    var args_iter = try cova.ArgIteratorGeneric.init(core.allocator, init.minimal.args);
     defer args_iter.deinit();
 
     cova.parseArgs(
@@ -861,19 +864,15 @@ pub fn main(init: std.process.Init) !void {
         );
     }
 
-    var prng =
-        std.Random.DefaultPrng.init(if (core.debug)
-            42
-        else
-            @as(
-                u64,
-                @intCast(std.time.milliTimestamp()),
-            ));
+    var prng = std.Random.DefaultPrng.init(if (core.debug)
+        42
+    else
+        @as(u64, @intCast(std.Io.Timestamp.now(init.io, .real).toMilliseconds())));
 
     core.rand = prng.random();
 
     if (!(main_cmd.checkFlag("version") or usage_help_called)) {
-        try core.start();
+        try core.start(init.io);
 
         if (core.width < 4 or core.height < 2) {
             core.setActive(false);
@@ -887,7 +886,7 @@ pub fn main(init: std.process.Init) !void {
             const t_h = try std.Thread.spawn(
                 .{},
                 Handler.run,
-                .{ &handler, &core },
+                .{ &handler, &core, core.io },
             );
             defer t_h.join();
 
@@ -908,10 +907,11 @@ pub fn main(init: std.process.Init) !void {
 test "column" {
     var prng = std.Random.DefaultPrng.init(1337);
     const rand = prng.random();
+    const io = std.testing.io;
 
-    var core = Core{ .allocator = std.testing.allocator, .rand = rand };
+    var core = Core{ .allocator = std.testing.allocator, .rand = rand, .io = std.testing.io };
 
-    try core.start();
+    try core.start(io);
 
     const column = Column.init(core.allocator, core.height);
 
@@ -926,10 +926,11 @@ test "column" {
 }
 
 test "handler" {
-    var core = Core{ .allocator = std.testing.allocator, .active = true };
+    var core = Core{ .allocator = std.testing.allocator, .active = true, .io = std.testing.io };
     var handler = Handler{ .duration = 1 };
+    const io = std.testing.io;
 
-    try handler.run(&core);
+    try handler.run(&core, io);
 
     try std.testing.expect(!core.active);
 }
@@ -983,9 +984,7 @@ const libc = @cImport({
     @cInclude("locale.h");
 });
 
-const tb = @cImport({
-    @cInclude("termbox2.h");
-});
+const tb = @import("termbox");
 
 const cova = @import("cova");
 const cli = @import("cli.zig");
