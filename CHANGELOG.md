@@ -2,6 +2,58 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.6] - 2026-07-17
+
+### Bug Fixes
+
+- Update `main()`
+- Update options
+- Add `io`
+- Replace `sleep()` scale
+
+### Documentation
+
+- Move packaging status
+- Add `Contributing`
+
+### Miscellaneous tasks
+
+- Ignore `zig-pkg`
+
+### Operations
+
+- Bump actions/checkout from 5 to 6
+- Bump actions/attest-build-provenance from 3 to 4
+- Bump codecov/codecov-action from 5 to 6
+- Bump codecov/codecov-action from 6 to 7
+- Bump actions/checkout from 6 to 7
+- Update actions
+- Add coverage dependencies
+- Bump zig to 0.16
+
+### Refactor
+
+- Drop `array_list`
+
+### Styling
+
+- Fix `hex_chars` formatting
+- Move `Translator`
+
+### Testing
+
+- Update runner
+
+### Build
+
+- Drop `clean`
+- Bump `cova` to `62ead80`
+- Bump `ghext` to `0.7.7`
+- Update links
+- Add `translate-c`
+- Fix c translations
+- Bump MSZV to 0.16
+
 ## [0.11.5] - 2025-10-24
 
 ### Bug Fixes
