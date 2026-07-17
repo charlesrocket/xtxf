@@ -1,6 +1,6 @@
 .{
     .name = .xtxf,
-    .version = "0.11.5",
+    .version = "0.11.6",
     .fingerprint = 0x9f00a07015769a82,
     .minimum_zig_version = "0.16.0",
     .dependencies = .{
