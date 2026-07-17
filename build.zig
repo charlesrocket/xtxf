@@ -1,5 +1,3 @@
-const Translator = @import("translate_c").Translator;
-
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -167,4 +165,6 @@ const manifest: struct {
 
 const std = @import("std");
 const builtin = @import("builtin");
+
 const Ghext = @import("ghext").Ghext;
+const Translator = @import("translate_c").Translator;
