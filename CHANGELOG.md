@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.7] - 2026-07-29
+
+### Build
+
+- Fix `translate_c`
+
 ## [0.11.6] - 2026-07-17
 
 ### Bug Fixes
