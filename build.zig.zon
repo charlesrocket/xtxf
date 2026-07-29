@@ -1,12 +1,12 @@
 .{
     .name = .xtxf,
-    .version = "0.11.6",
+    .version = "0.11.7",
     .fingerprint = 0x9f00a07015769a82,
     .minimum_zig_version = "0.16.0",
     .dependencies = .{
         .translate_c = .{
-            .url = "https://codeberg.org/vancluever/translate-c/archive/vancluever-0.16.x.tar.gz",
-            .hash = "translate_c-0.0.0-Q_BUWj8_BwCXLBKXc7xakZEI4TKGO-GCaGv2lVwTsoxd",
+            .url = "git+https://codeberg.org/ziglang/translate-c?ref=zig-0.16.x#6fe0ffc4549f15c5f2d9432c2b4460ba90ff85ac",
+            .hash = "translate_c-1.0.0-Q_BUWo_5BgD4flHdUhA31zOz0XvZk9k7lQv1ouzyNXj2",
         },
         .termbox2 = .{
             .url = "git+https://github.com/AnErrupTion/termbox2?ref=master#c7f241e8888ce243e1748b05c26a42fcfaaad936",
